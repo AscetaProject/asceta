@@ -35,12 +35,20 @@ $wpr['reserved_requests_with_template'] = array("auth","register");
 // Fields maping that we allow to be returned on the API
 $wpr['fields'] = array(
 	'Posts' => array(
+		'ID' => 'Post ID',
 		'post_title' => 'Post Title',
 		'post_content' => 'Post Content',
 		'guid' => 'Post Link',
-		'post_type' => 'Post Type'
+		'post_type' => 'Post Type',
+		'comments' => 'Comments',
+		'comment_ID' => 'Comments ID',
+		'comment_author' => 'Comments Authors',
+		'comment_date' => 'Comments Date',
+		'comment_date_gmt' => 'Comments Date (GMT)',
+		'comment_content' => 'Commeents Content'
 	),
 	'Comments' => array(
+		'comment_post_ID' => 'Post ID',
 		'comment_ID' => 'Comment ID',
 		'comment_author' => 'Comment Author',
 		'comment_author_url' => 'Comment Author URL',

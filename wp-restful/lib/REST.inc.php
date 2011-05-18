@@ -157,6 +157,7 @@ abstract class WPAPIRESTActionsController {
     public $store;
 
     protected function __construct($action_obj) {
+        
         $this->datarequest = WPRESTUtils::processRequest ();
         $this->action_name = get_class ( $action_obj );
         $this->action_obj = $action_obj;
@@ -170,13 +171,18 @@ abstract class WPAPIRESTActionsController {
 	case 'post' :
 	    $this->reply ( $this->getResult () );
 	    break;
+	case 'put' :
+	    $this->reply ( $this->getResult() );
+	    break;
+	case 'delete' :
+	    $this->reply ( $this->getResult() );
+	    break;
 	default :
 	    break;
         }
     }
     protected function reply($content) {
         global $wpdb;
-
         if (! is_object ( $content ) && ! is_array ( $content ) || count ( $content ) == 0) {
 	die ( WPRESTUtils::sendResponse ( 404 ) );
         }
@@ -239,46 +245,44 @@ abstract class WPAPIRESTActionsController {
 					print_r(preg_match("/[A-Za-z\_]+/i",$this->action,$matches2));
 				}
 				print_r($matches);*/
-	    error_log("==================================== REST action: ".ucwords($this->action));
-	    error_log("==================================== REST action pluralize: ".wpr_pluralize($this->action));
-	    if (is_callable ( array ($this->action_name, 'get' . ucwords($this->action) ) )) {
-	        $method = 'get' . ucwords($this->action);
-	        error_log("...................".$method);
 
-	    } elseif (is_callable ( array ($this->action_name, 'get' . wpr_pluralize ( ucwords($this->action) ) ) )) {
-	        $method = 'get' . wpr_pluralize ( ucwords($this->action) );
+	    if (is_callable ( array ($this->action_name, $this->datarequest->getMethod().ucwords($this->action) ) )) {
+	        $method = $this->datarequest->getMethod().ucwords($this->action);
+	        error_log(" is_callable (".$this->action_name.", ".$this->datarequest->getMethod().ucwords($this->action).")");
 
-	    } elseif (is_callable ( array (wpr_pluralize ( $this->action_name ), 'get' . ucwords($this->action) ) )) {
-	        $method = 'get' . ucwords($this->action);
+	    } elseif (is_callable ( array ($this->action_name, $this->datarequest->getMethod().wpr_pluralize ( ucwords($this->action) ) ) )) {
+	        $method = $this->datarequest->getMethod().wpr_pluralize ( ucwords($this->action) );
 
-	    } elseif (is_callable ( array ($this->action_name . "s", 'get' . wpr_pluralize ( ucwords($this->action) ) ) )) {
-	        $method = 'get' . wpr_pluralize ( ucwords($this->action) );
+	    } elseif (is_callable ( array (wpr_pluralize ( $this->action_name ), $this->datarequest->getMethod().ucwords($this->action) ) )) {
+	        $method = $this->datarequest->getMethod().ucwords($this->action);
 
-	    } elseif (is_callable ( array ($this->action_name, 'get' . wpr_unpluralize ( ucwords($this->action) ) ) )) {
-	        $method = 'get' . wpr_unpluralize ( ucwords($this->action) );
+	    } elseif (is_callable ( array ($this->action_name . "s", $this->datarequest->getMethod().wpr_pluralize ( ucwords($this->action) ) ) )) {
+	        $method = $this->datarequest->getMethod().wpr_pluralize ( ucwords($this->action) );
+
+	    } elseif (is_callable ( array ($this->action_name, $this->datarequest->getMethod().wpr_unpluralize ( ucwords($this->action) ) ) )) {
+	        $method = $this->datarequest->getMethod().wpr_unpluralize ( ucwords($this->action) );
 
 	    } else {
 	        //throw new InvalidArgumentException ( 'Method was not found in class ' . $this->action_name . '.' );
+	        error_log("---------------------- 404");
 	        die ( WPRESTUtils::sendResponse ( 404 ) );
 	    }
 	}
-	//echo $method;
-	error_log("++++++++++++++ action_request: ".$this->action_request);
-	if ($this->action_request == "all") {
+
+	if ($this->action_request == "all" && $this->datarequest->getMethod() != "post") {
 	    $parameter = "";
 	    $method = wpr_pluralize($method);
 	} else {
-	    if (ctype_digit ( $this->action_request )) {
+	    if (ctype_digit ( $this->action_request) && $this->datarequest->getMethod() == "put") {
+	        $parameter = $this->datarequest->getRequestVars();
+	        $parameter['id'] = $this->action_request;
+	    } else if (ctype_digit ( $this->action_request)) {
 	        $parameter = $this->action_request;
 	    } else {
-	        // Implement Later!!
-	        error_log("---------------------- digito");
+	        $parameter = $this->datarequest->getRequestVars();
 	    }
 	}
 	$class = new $this->action_name ( );
-	error_log("==================================== REST class: ".$this->action_name);
-	error_log("==================================== REST method: ".$method);
-	error_log("==================================== REST parameter: ".$parameter);
 	// Add Get and Post variables to our class call
 	return call_user_func ( array ($class, $method ), $parameter );
 	// Exit with 404
@@ -313,7 +317,9 @@ abstract class WPAPIRESTController extends WPAPIRESTActionsController {
     protected function init() {
         //echo $this->getAction().'<br/>'.$this->getActionRequest().'<br/>'.$this->getActionRequestType();
         $action_controller_name = ucwords ( wpr_unpluralize ( $this->getAction () ) ) . "RESTController";
-        error_log(" ------------------- ".$action_controller_name);
+        error_log(" ");
+        error_log("---{ WPAPIRESTController --- init() }--- ");
+        error_log("     action_controller_name:     ".$action_controller_name);
         $action_model_name = ucwords ( wpr_unpluralize ( $this->getAction () ) );
         // Check if this class is allowed to be accessed by the API externaly
         if (preg_match ( WPR_ALLOWED_REGEX, $this->getAction (), $matches )) {
@@ -547,12 +553,16 @@ class WPREST extends WPAPIRESTController {
 
 	$this->store = OAuthStore::instance ( 'MySQL', array ('conn' => $wpdb->dbh ) );
 	$this->req = new OAuthRequestVerifier ( );
+	//!!!!!!!!!!!!!!!!!   OAuth reads php://input and leaves it empty  !!!!!!!!!!!!!!!!!!!!!!!!!!!
+	$GLOBALS['put_vars'] = $this->req->getBody();
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
 
 	// Start our main action, or in this case, request
 	$this->setAction ( $wpr['request'] );
 	// Check if for specific calls we need to have an oauth signed
 	$basename = explode ( ".", $wpr['request'] );
-	error_log(">>>>>>>>>>  wpr request: ".$wpr['request']);
 	// FIXME api/post/95 falla por el explode "."
 	// hay que hacer la peticion obligatoriamente del siguiente modo
 	// api/post/95.xml
@@ -601,7 +611,6 @@ class WPREST extends WPAPIRESTController {
 	$this->setActionRequest ( "all" );
 	$this->setActionRequestType ( "xml" );
         }
-        error_log("#################### REST ".$this->getAction()." ".$this->getActionRequest()." ".$this->getActionRequestType());
         parent::init ( $this->getAction (), $this->getActionRequest (), $this->getActionRequestType () );
     }
     protected function requires_oauth() {
@@ -651,7 +660,6 @@ class WPRESTUtils {
         $return_obj = new WPRESTRequest ( );
         // we'll store our data here
         $data = array ();
-
         switch ($request_method) {
 	// gets are easy...
 	case 'get' :
@@ -663,13 +671,18 @@ class WPRESTUtils {
 	    break;
 	// here's the tricky bit...
 	case 'put' :
+/*!!!!!!!!!!!!!!!!!!!   OAuth reads php://input so here it is empty  !!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// basically, we read a string from PHP's special input location,
 	// and then parse it out into an array via parse_str... per the PHP docs:
 	// Parses str  as if it were the query string passed via a URL and sets
 	// variables in the current scope.
-	    parse_str ( file_get_contents ( 'php://input' ), $put_vars );
+	    parse_str(file_get_contents("php://input"),$put_vars);
 	    $data = $put_vars;
 	    break;
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+	    parse_str($GLOBALS['put_vars'],$put_vars);
+	    $data = $put_vars;
+	error_log('$data == '.$data);
         }
 
         // store the method
