@@ -1,6 +1,8 @@
 <?php
 $messages = array();
 $aliases = array();
+global $pages;
+$pages = array();
 
 /* *** English *** */
 $aliases['en'] = array(
@@ -21,5 +23,6 @@ $messages['es'] = array(
         'asceta-desc' => "Descripción de Asceta",
         'asceta_link' => "Asceta"
 );
+
 
 ?>

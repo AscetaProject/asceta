@@ -18,19 +18,33 @@ function getUsers(){
 //2. GET api/users/1 -> list user with id 1
 function getUser($ID){
     $user = User::newFromId($ID);
-    $user->loadFromId();
-    return $user;
+    $find = $user->loadFromId();
+    if ($find)
+        return $user;
+    return null;
 }
 //3. POST api/users -> create a new user
 function createUser($data){
+    global $wgRequest;
+
+
+//    $form = new LoginForm( $wgRequest, $par );
+//    $form->addNewAccount();
+//    $form->execute();
+
     $user = User::newFromName($data->name);
+    if(!$user)
+        throw new Exception("Invalid data\n", "001");
     if ( !$user->getID() ) {
-        $user = User::createNew($user->getName(), array(
-					"password" => $data->password,
+
+        $user->setPassword($data->password);
+        $user->createNew($user->getName(), array(
+					"password" => $user->mPassword,
 					"email" => $data->email,
 					"real_name" => $data->realname));
     } else {
         $user->setPassword($data->password);
+        echo "The password has been changed";
     }
     $user->saveSettings();
 }
@@ -38,6 +52,8 @@ function createUser($data){
 function updateUser($ID, $data){
     $user = User::newFromId($ID);
     $user->load();
+    if($user->mId == 0)
+        throw new Exception("Not exists users '$data->name' with id '$ID'\n","001");
     foreach($data as $key=>$value){
         if(isset($value)){
             $method = 'set' . ucwords($key);
@@ -70,12 +86,12 @@ function getPage($page){
 function createPage($name, $text, $summary){
     $title = Title::newFromText( $name );
     if ( is_null($title) ) {
-            wfDie( "invalid title\n" );
+            throw new Exception("Invalid data title\n", "001");
     }
 
     $aid = $title->getArticleID( GAID_FOR_UPDATE );
     if ($aid != 0) {
-            wfDie( "duplicate article '$name'\n" );
+            throw new Exception("Duplicate article '$name'\n", "001" );
     }
 
     $art = new Article($title);
@@ -86,12 +102,12 @@ function createPage($name, $text, $summary){
 function updatePage($name, $text, $summary){
     $title = Title::newFromText( $name );
     if ( is_null($title) ) {
-            wfDie( "invalid title\n" );
+           throw new Exception("Invalid data title\n", "001");
     }
 
     $aid = $title->getArticleID( GAID_FOR_UPDATE );
     if ($aid == 0) {
-            wfDie( "not exists article '$name'\n" );
+            throw new Exception("Not exists article '$name'\n", "001");
     }
 
     $art = new Article($title);
@@ -105,14 +121,16 @@ function select($table, $columns, $cond=''){
     return $res;
 }
 
-
 function getAction($data){
-    $text = explode('/', strtolower($data));
+    $text = explode('?', strtolower($data));
+    $text = explode('/', $text[0]);
+    $size = count($text);
     return $text[4];
 }
 
 function getID($data){
-    $text = explode('/', strtolower($data));
+    $text = explode('?', strtolower($data));
+    $text = explode('/', $text[0]);
     return $text[5];
 }
 ?>
