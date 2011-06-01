@@ -855,7 +855,7 @@ class OAuthController {
 	    if ($user_id) {
 	        $this->is_signed = true;
 	    }
-	} catch ( OAuthException $e ) {
+	} catch ( OAuthException2 $e ) {
 	    // The request was signed, but failed verification
 	    header ( 'HTTP/1.1 401 Unauthorized' );
 	    header ( 'WWW-Authenticate: OAuth realm=""' );
