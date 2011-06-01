@@ -284,7 +284,24 @@ abstract class WPAPIRESTActionsController {
 	}
 	$class = new $this->action_name ( );
 	// Add Get and Post variables to our class call
-	return call_user_func ( array ($class, $method ), $parameter );
+        try{
+            return call_user_func ( array ($class, $method ), $parameter );
+        } catch (Exception $e) {
+            $code = $e->getCode();
+            switch ($code){
+                case 1:
+                    header ( 'HTTP/1.1 400 Bad Request' );
+                    break;
+                case 2:
+                    header ( 'HTTP/1.1 404 Not Found' );
+                    break;
+                default:
+                    header ( 'HTTP/1.1 406 Not Acceptable' );
+            }
+
+            echo $e->getMessage ();
+            exit ();
+        }
 	// Exit with 404
 	die ( WPRESTUtils::sendResponse ( 404 ) );
         } catch ( InvalidArgumentException $e ) {
@@ -863,7 +880,7 @@ class OAuthController {
 
 	    echo $e->getMessage ();
 	    exit ();
-	}
+        }
         } else {
 	$this->is_signed = false;
         }

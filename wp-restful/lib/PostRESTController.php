@@ -13,6 +13,9 @@ class PostRESTController extends WPAPIRESTController {
     protected function getPost($post) {
         // Get requested posts
         $post_data = get_post($post);
+        if(is_null($post_data)){
+            throw new Exception("Not exists post '$post' \n","002");
+        }
         $post_data->comments = get_approved_comments($post);
         return $this->_return($post_data);
     }
