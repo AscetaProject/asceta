@@ -288,18 +288,7 @@ abstract class WPAPIRESTActionsController {
             return call_user_func ( array ($class, $method ), $parameter );
         } catch (Exception $e) {
             $code = $e->getCode();
-            switch ($code){
-                case 1:
-                    header ( 'HTTP/1.1 400 Bad Request' );
-                    break;
-                case 2:
-                    header ( 'HTTP/1.1 404 Not Found' );
-                    break;
-                default:
-                    header ( 'HTTP/1.1 406 Not Acceptable' );
-            }
-
-            echo $e->getMessage ();
+	WPRESTUtils::sendResponse($code, $e->getMessage());
             exit ();
         }
 	// Exit with 404

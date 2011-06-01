@@ -14,7 +14,7 @@ class PostRESTController extends WPAPIRESTController {
         // Get requested posts
         $post_data = get_post($post);
         if(is_null($post_data)){
-            throw new Exception("Not exists post '$post' \n","002");
+            throw new Exception("Post '$post' does not exists \n","404");
         }
         $post_data->comments = get_approved_comments($post);
         return $this->_return($post_data);
@@ -22,6 +22,10 @@ class PostRESTController extends WPAPIRESTController {
 
     protected function postPost($data) {
         $new_post = array();
+        if (!isset($data['post_title']) || !isset($data['post_content'])) {
+	throw new Exception("Insufficient parameters","400");
+        }
+
         $new_post['post_title'] = $data['post_title'];
         $new_post['post_content'] = $data['post_content'];
         $new_post['post_status'] = 'publish';
@@ -50,14 +54,18 @@ class PostRESTController extends WPAPIRESTController {
     protected function putPost($data) {
 
         $update_post = array();
+
+        if (!isset($data['id'])) {
+	throw new Exception("Post ID needed","400");
+        }
+
+
         $update_post['ID'] = $data['id'];
 
-        if (isset($data['post_title'])) { error_log(" isset post_title "); }
         if (isset($data['post_title'])) {
 	$update_post['post_title'] = $data['post_title'];
         }
 
-        if (isset($data['post_content'])) { error_log(" isset post_content "); }
         if (isset($data['post_content'])) {
 	$update_post['post_content'] = $data['post_content'];
         }
@@ -67,9 +75,11 @@ class PostRESTController extends WPAPIRESTController {
     }
 
     protected function deletePost($post) {
+
         if (wp_delete_post($post)) {
 	return array( 'ID' => $post, 'deleted' => true);
         } else {
+	throw new Exception("Error deleting post","403");
 	return new WP_Error('error', __('Error deleting post.'));
         }
     }
