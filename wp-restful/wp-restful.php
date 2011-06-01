@@ -1,10 +1,10 @@
 <?php
 /*
 Plugin Name: WP-RESTful
-Plugin URI: http://www.joseairosa.com/2010/06/29/wp-restful-wordpress-plugin/
+Plugin URI: http://www.fidesol.org
 Description: Installs and configures a full-fledged REST API on your wordpress blog
-Author: Jos&eacute; P. Airosa
-Version: 0.1
+Author: Jos&eacute; P. Airosa & Fundación I+D del Software Libre
+Version: 0.2.1
 Author URI: http://www.joseairosa.com/
 
 Copyright 2010  Jos� P. Airosa  (email : me@joseairosa.com)
