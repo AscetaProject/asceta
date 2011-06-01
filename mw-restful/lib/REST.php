@@ -4,8 +4,24 @@ require_once('RESTUtil.php');
 require_once('library/OAuthRequestVerifier.php');
 require_once('OAuthUtils.php');
 
+/**
+* MWAPIREST
+*
+* To manage request REST from client
+* Allow the following actions
+*  get/post/put pages
+*  get/post/put users
+*
+* @author Mara Jiménez Torres
+* @author Fundación I+D del Software Libre
+*
+*/
 class MWAPIREST {
 
+    /**
+    * Proccess the request
+    *
+    */
     public function processRequest(){
         global $mwpr;
 
@@ -61,7 +77,11 @@ class MWAPIREST {
         }
     }
 
-
+    /**
+    * Proccess Get request
+    *
+    * @param string $request_uri request uri
+    */
     function processGETRequest($request_uri){
         switch (getAction($request_uri))
         {
@@ -74,6 +94,12 @@ class MWAPIREST {
         }
     }
 
+    /**
+    * Proccess POST request
+    *
+    * @param string $request_uri request uri
+    * @param array $data parameters from the body header
+    */
     function processPOSTRequest($request_uri, $data){
         switch(getAction($request_uri))
         {
@@ -86,6 +112,12 @@ class MWAPIREST {
         }
     }
 
+    /**
+    * Proccess PUT request
+    *
+    * @param string $request_uri request uri
+    * @param array $data parameters from the body header
+    */
     function processPUTRequest($request_uri, $data){
         switch(getAction($request_uri))
         {
@@ -99,6 +131,11 @@ class MWAPIREST {
     }
 
 
+    /**
+    * Manage GET request page
+    *
+    * @param string $ID page identification number
+    */
     public function manageGetPage($ID){
         if(isset($ID)){
                 $title = getPage($ID);
@@ -116,16 +153,33 @@ class MWAPIREST {
         $this->manageResponse($res);
     }
 
+    /**
+    * Manage POST request page
+    *
+    * @return string header with the message 201 Created
+    * @param array $data parameters from the body header
+    */
     public function managePostPage($data){
         createPage($data->titulo, $data->texto, $data->resumen);
         return header("{$_SERVER['SERVER_PROTOCOL']} 201 Created");
     }
 
+    /**
+    * Manage PUT request page
+    *
+    * @return string header with the message 200 OK
+    * @param array $data parameters from the body header
+    */
     public function managePutPage($data){
         updatePage($data->titulo, $data->texto, $data->resumen);
         return header("{$_SERVER['SERVER_PROTOCOL']} 200 OK");
     }
 
+    /**
+    * Manage GET request user
+    *
+    * @param string $ID user identification number
+    */
     public function manageGetUser($ID){
         if(isset($ID)){
             $user = getUser($ID);
@@ -140,17 +194,35 @@ class MWAPIREST {
         $this->manageResponse($res);
     }
 
+    /**
+    * Manage POST user
+    *
+    * @return string header with the message 201 Created
+    * @param array $data parameters from the body header
+    */
     public function managePostUser($data){
         createUser($data);
         return header("{$_SERVER['SERVER_PROTOCOL']} 201 Created");
     }
 
+    /**
+    * Manage PUT user
+    *
+    * @return string header with the message 201 Created
+    * @param string $ID user identification number
+    * @param array $data parameters from the body header
+    */
     public function managePutUser($ID, $data){
         updateUser($ID, $data);
         return header("{$_SERVER['SERVER_PROTOCOL']} 200 OK");
     }
 
 
+    /**
+    * Create the reply message with $data
+    *
+    * @param array $data parameters from the body header
+    */
     public function manageResponse($data){
         // headers for not caching the results
         header('Cache-Control: no-cache, must-revalidate');
@@ -163,6 +235,10 @@ class MWAPIREST {
         echo json_encode($data);
     }
     
+    /**
+    * show the response Form
+    *
+    */
     public function responseForm(){
         // headers for not caching the results
         header('Cache-Control: no-cache, must-revalidate');
@@ -177,15 +253,36 @@ class MWAPIREST {
     }
 }
 
-
+/**
+* MWAPIREGISTER
+*
+* To help in the register process
+*   check if the user is logged
+*   Check if the user is registred
+*
+* @author Mara Jiménez Torres
+* @author Fundación I+D del Software Libre
+*
+*/
 class MWAPIREGISTER {
 
+    /**
+    * check if the user is logged
+    *
+    * @return boolean true if the session user is logged
+    */
     public function isLogged(){
         if($_SESSION['wsUserID'] != null)
             return true;
         return false;
     }
 
+    /**
+    * check if the user is register
+    *
+    * @return boolean true si la direccion es correcta
+    * @param string $user_id user identification number
+    */
     public function isRegistred($user_id) {
         global $mwpr;
         $store = OAuthStore::instance('MySQL', array('conn' => $mwpr['conn']));

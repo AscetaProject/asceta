@@ -1,10 +1,15 @@
 <?php
 
-//Funciones para acceso a la API de MediWiki, necesarios para la comunicación REST
-//
-//1. GET api/users -> list all users
+/*
+ * For access to the MediaWiki API, needed to communicate REST
+ */
+
+/**
+* GET api/users -> list all users
+*
+* @return array list all users data {user_id, user_name, user_real_name, user_email}
+*/
 function getUsers(){
-    //TODO hacerlo con variables globales
     $fields = array('user_id', 'user_name', 'user_real_name', 'user_password', 'user_email');
     $res = select('user',$fields);
     $dbr = wfGetDB( DB_SLAVE );
@@ -15,7 +20,14 @@ function getUsers(){
     $dbr->freeResult( $res );
     return $result;
 }
-//2. GET api/users/1 -> list user with id 1
+
+/**
+* GET api/users/1 -> list user with id
+*
+* @return object User
+* @param integer $ID user identification number
+*/
+
 function getUser($ID){
     $user = User::newFromId($ID);
     $find = $user->loadFromId();
@@ -23,14 +35,15 @@ function getUser($ID){
         return $user;
     return null;
 }
-//3. POST api/users -> create a new user
+
+/**
+* POST api/users -> create a new user
+*
+* @param array $data user data
+*/
+
 function createUser($data){
     global $wgRequest;
-
-
-//    $form = new LoginForm( $wgRequest, $par );
-//    $form->addNewAccount();
-//    $form->execute();
 
     $user = User::newFromName($data->name);
     if(!$user)
@@ -48,7 +61,13 @@ function createUser($data){
     }
     $user->saveSettings();
 }
-//4. PUT api/users/1 -> edit user with id 1
+
+/**
+* PUT api/users/1 -> edit user with id
+*
+* @param integer $ID user identification number
+* @param array $data user data
+*/
 function updateUser($ID, $data){
     $user = User::newFromId($ID);
     $user->load();
@@ -62,7 +81,12 @@ function updateUser($ID, $data){
     }
     $user->saveSettings();
 }
-//5. GET api/pages -> list all pages
+
+/**
+* GET api/pages -> list all pages
+*
+* @return array list all users data {user_id, user_name, user_real_name, user_email}
+*/
 function  getPages(){
     $res = select('page',array('page_id', 'page_title'));
     $dbr = wfGetDB( DB_SLAVE );
@@ -75,14 +99,27 @@ function  getPages(){
     return $result;
     return $res;
 }
-//6. GET api/pages/1 -> list page with id 1
+
+/**
+* GET api/pages/1 -> list page with id
+*
+* @return string page title
+* @param integer $page page identification number
+*/
 function getPage($page){
     $res = select('page','page_title','page_id = '.$page);
     $dbr = wfGetDB( DB_SLAVE );
     $row = $dbr->fetchObject( $res );
     return $row->page_title;
 }
-//7. POST api/pages-> create a new page
+
+/**
+* POST api/pages-> create a new page
+*
+* @param string $name page title
+* @param string $text page text
+* @param string $summary page summary
+*/
 function createPage($name, $text, $summary){
     $title = Title::newFromText( $name );
     if ( is_null($title) ) {
@@ -98,7 +135,14 @@ function createPage($name, $text, $summary){
     $art->insertNewArticle($text, $summary);
 
 }
-//8. PUT api/pages/1 -> edit page with id 1
+
+/**
+* PUT api/pages/1 -> edit page with id
+*
+* @param string $name page title
+* @param string $text page text
+* @param string $summary page summary
+*/
 function updatePage($name, $text, $summary){
     $title = Title::newFromText( $name );
     if ( is_null($title) ) {
@@ -114,6 +158,14 @@ function updatePage($name, $text, $summary){
     $art->updateArticle( $text, $summary);
 }
 
+/**
+* make a select query
+*
+* @return array the result of the query
+* @param string $table table name
+* @param array $columns columns list
+* @param string $cond conditions
+*/
 function select($table, $columns, $cond=''){
     #Get data from database
     $dbr = wfGetDB( DB_SLAVE );
@@ -121,6 +173,12 @@ function select($table, $columns, $cond=''){
     return $res;
 }
 
+/**
+* Get action method
+*
+* @return string action method
+* @param string $data uri request
+*/
 function getAction($data){
     $text = explode('?', strtolower($data));
     $text = explode('/', $text[0]);
@@ -128,6 +186,12 @@ function getAction($data){
     return $text[4];
 }
 
+/**
+* Get id
+*
+* @return string id
+* @param string $data uri request
+*/
 function getID($data){
     $text = explode('?', strtolower($data));
     $text = explode('/', $text[0]);

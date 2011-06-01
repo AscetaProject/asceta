@@ -1,6 +1,20 @@
 <?php
 
 
+/**
+* OAuth Controller
+*
+* To Control the Authorizatión process.
+* Allow the following actions
+*  Register
+*  Request-token
+*  Auth
+*  Access token
+*
+* @author Mara Jiménez Torres
+* @author Fundación I+D del Software Libre
+*
+*/
 class OAuthController {
 
 	public $is_signed;
@@ -8,6 +22,11 @@ class OAuthController {
 	public $consumer_secret;
 	public $consumer_id;
 	protected $store;
+
+        /**
+        * Construct function
+        *
+        */
 	public function __construct() {
 		global $do_return;
 		//print_r($_SESSION);
@@ -16,6 +35,12 @@ class OAuthController {
 		// Check if the request comes signed with oauth protocol
 		//$this->isSigned ();
 	}
+
+        /**
+        * From the variable $mwpr finds that action is to perform
+        * and execute the corresponding function
+        *
+        */
 	public function dispatch() {
 		global $mwpr;
 		switch (getAction($mwpr['uri'])) {
@@ -33,6 +58,11 @@ class OAuthController {
 				break;
 		}
 	}
+
+        /**
+        * Check if the uri call is signed.
+        *
+        */
 	public function isSigned() {
 		global $mwpr;
 		OAuthStore::instance ( 'MySQL', array ('conn' => $mwpr['conn'] ) );
@@ -57,9 +87,21 @@ class OAuthController {
 			$this->is_signed = false;
 		}
 	}
+
+        /**
+        * Sets the output header
+        *
+        */
 	protected static function header() {
 		header ( 'X-XRDS-Location: http://' . $_SERVER ['SERVER_NAME'] . '/services.xrds' );
 	}
+
+        /**
+        * Add the application in the system, generating the values ​​
+        * for the consumer key and the consumer secret
+        *
+        * @return object if the register finished ok
+        */
 	public function doRegister() {
                 global $mwuser;
                 // Future check for only registred users to sign to API
@@ -91,6 +133,11 @@ class OAuthController {
 			return null;
 		}
 	}
+
+        /**
+        * Obtain the request token
+        *
+        */
 	protected static function doRequestToken() {
 		global $mwpr;
 
@@ -100,6 +147,12 @@ class OAuthController {
 		$token = $server->requestToken ();
 		exit();
 	}
+
+        /**
+        * Ask to the user if allow that consumer can communicate with the
+        * server
+        *
+        */
 	protected static function doAuthorize() {
                 global $mwpr, $mwuser, $pages, $wgLang, $wgOut;
 		self::header ();
@@ -157,6 +210,11 @@ class OAuthController {
 		}
                 exit();
 	}
+
+        /**
+        * Obtain the access token
+        *
+        */
 	protected static function doAccessToken() {
 		global $wpdb;
 
@@ -167,6 +225,11 @@ class OAuthController {
 		exit();
 	}
 
+        /**
+        * Generate a html string with the form authorize
+        *
+        * @return string html string
+        */
         protected function printAuthorizeRequest(){
             global $pages, $wgLang;
             $lang = 'es';
