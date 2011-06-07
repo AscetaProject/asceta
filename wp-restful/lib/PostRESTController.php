@@ -59,6 +59,8 @@ class PostRESTController extends WPAPIRESTController {
 	throw new Exception("Post ID needed","400");
         }
 
+        //get_post($data['id']);
+
 
         $update_post['ID'] = $data['id'];
 

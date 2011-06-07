@@ -288,7 +288,7 @@ abstract class WPAPIRESTActionsController {
             return call_user_func ( array ($class, $method ), $parameter );
         } catch (Exception $e) {
             $code = $e->getCode();
-	WPRESTUtils::sendResponse($code, $e->getMessage());
+	die (WPRESTUtils::sendResponse($code, $e->getMessage()));
             exit ();
         }
 	// Exit with 404
@@ -556,7 +556,6 @@ class WPREST extends WPAPIRESTController {
 	$this->oauth = new OAuthController ( );
 	if($do_return)
 	    return;
-
 	$this->store = OAuthStore::instance ( 'MySQL', array ('conn' => $wpdb->dbh ) );
 	$this->req = new OAuthRequestVerifier ( );
 	//!!!!!!!!!!!!!!!!!   OAuth reads php://input and leaves it empty  !!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -612,9 +611,31 @@ class WPREST extends WPAPIRESTController {
 	//print_r($_POST);
 	//print_r($_GET);
 	//$this->requires_oauth ();
-	if (! $this->oauth->is_signed)
+//	$this->oauth->isSigned();
+//	if (! $this->oauth->is_signed)
 	    // Return Forbidden HTTP error
-	    die ( WPRESTUtils::sendResponse ( 401 ) );
+//	    die ( WPRESTUtils::sendResponse ( 401 ) );
+
+	try {
+
+	    // If request needs oauth authentication...
+	    if (in_array(ucfirst(wpr_pluralize($this->getAction())), get_option('wpr_requires_auth'))) {
+	        if ($this->req->requestIsSigned()) {
+		if (! $this->req->verify() ) {
+		    die ( WPRESTUtils::sendResponse ( 401 ) );
+		}
+	        } else {
+		    die ( WPRESTUtils::sendResponse ( 401 ) );
+	        }
+	    }
+	} catch ( OAuthException2 $e ) {
+	    // The request was signed, but failed verification
+	    header ( 'HTTP/1.1 401 Unauthorized' );
+	    header ( 'WWW-Authenticate: OAuth realm=""' );
+	    header ( 'Content-Type: text/plain; charset=utf8' );
+	    echo $e->getMessage ();
+	    exit ();
+	}
 
         } else {
 	$this->setAction ( "status" );
@@ -831,7 +852,7 @@ class OAuthController {
         // First check if we are working with one of oauth main methods (register, request_token, auth or access-token)
         $this->dispatch ();
         // Check if the request comes signed with oauth protocol
-        $this->isSigned ();
+        //$this->isSigned ();
     }
     public function dispatch() {
         global $wpr;
@@ -854,9 +875,15 @@ class OAuthController {
         global $wpdb;
         OAuthStore::instance ( 'MySQL', array ('conn' => $wpdb->dbh ) );
         if (OAuthRequestVerifier::requestIsSigned ()) {
+	if (in_array($wpr['call'], array("register","request-token","auth","access-token"))) {
+	    $token_type = 'request';
+	} else {
+	    $token_type = 'access';
+	}
+
 	try {
 	    $req = new OAuthRequestVerifier ( );
-	    $user_id = $req->verify ();
+	    $user_id = $req->verify ($token_type);
 	    // If we have an user_id, then login as that user (for this request)
 	    if ($user_id) {
 	        $this->is_signed = true;
