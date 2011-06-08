@@ -79,10 +79,10 @@ class CommentRESTController extends WPAPIRESTController {
         $comment_data['comment_date_gmt'] = date('Y-m-d H:i:s');
         $comment_data['comment_approved'] = 1;
 
-        $comment_id = wp_update_comment($comment_data);
+        $updated = wp_update_comment($comment_data);
 
-        if ($comment_id > 0) {
-	return $this->_return(get_comment($comment_data));
+        if ($updated == 1) {
+	return $this->_return(get_comment($data['id']));
         } else {
 	return new WP_Error('error', __('Error editing your comment.'));
         }

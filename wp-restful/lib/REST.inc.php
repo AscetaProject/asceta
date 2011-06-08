@@ -273,7 +273,7 @@ abstract class WPAPIRESTActionsController {
 	    $parameter = "";
 	    $method = wpr_pluralize($method);
 	} else {
-	    if (ctype_digit ( $this->action_request) && $this->datarequest->getMethod() == "put") {
+	    if (ctype_digit ( $this->action_request) && ($this->datarequest->getMethod() == "put" || $this->datarequest->getMethod() == "post" )) {
 	        $parameter = $this->datarequest->getRequestVars();
 	        $parameter['id'] = $this->action_request;
 	    } else if (ctype_digit ( $this->action_request)) {
