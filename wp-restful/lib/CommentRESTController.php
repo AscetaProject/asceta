@@ -29,7 +29,11 @@ class CommentRESTController extends WPAPIRESTController {
 
     protected function getComment($post) {
         // Get requested posts
-        return $this->_return(get_comment($post));
+        $comment_data = get_comment($post);
+        if(is_null($comment_data)){
+            throw new Exception("Comment '$post' does not exists \n","404");
+        }
+        return $this->_return($comment_data);
     }
 
     protected function postComment($data) {
@@ -79,20 +83,30 @@ class CommentRESTController extends WPAPIRESTController {
         $comment_data['comment_date_gmt'] = date('Y-m-d H:i:s');
         $comment_data['comment_approved'] = 1;
 
-        $updated = wp_update_comment($comment_data);
+        $comment_exists = get_comment($data['id']);
 
-        if ($updated == 1) {
-	return $this->_return(get_comment($data['id']));
+        if ($comment_exists) {
+	$updated = wp_update_comment($comment_data);
+
+	if ($updated == 1) {
+	    return $this->_return(get_comment($data['id']));
+	} else {
+	    throw new Exception("Comment '".$data['id']."' not modified \n","400");
+	}
+
         } else {
-	return new WP_Error('error', __('Error editing your comment.'));
+	throw new Exception("Comment '".$data['id']."' not found \n","404");
+
         }
+
+
     }
 
     protected function deleteComment($comment_id) {
         if (wp_delete_comment($comment_id)) {
 	return array('ID' => $comment_id, 'deleted' => true);
         } else {
-	return new WP_Error('error', __('Error deleting comment.'));
+	throw new Exception("Comment '".$data['id']."' not deleted \n","400");
         }
     }
 

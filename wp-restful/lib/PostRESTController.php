@@ -47,7 +47,7 @@ class PostRESTController extends WPAPIRESTController {
         if ($new_post_id > 0) {
 	return $this->_return(get_post($new_post_id));
         } else {
-	return new WP_Error('error', __('Error adding your post.'));
+            throw new Exception("Post '".$data['id']."' not modified \n","400");
         }
     }
 
