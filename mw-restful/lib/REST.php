@@ -44,7 +44,7 @@ class MWAPIREST {
                         $this->processGETRequest($mwpr['uri']);
                         break;
                 case 'post':
-                        $data = json_decode($GLOBALS['vars']);
+                        $data = $_POST;
                         $this->processPOSTRequest($mwpr['uri'], $data);
                         break;
                 case 'put':
@@ -160,7 +160,7 @@ class MWAPIREST {
     * @param array $data parameters from the body header
     */
     public function managePostPage($data){
-        createPage($data->titulo, $data->texto, $data->resumen);
+        createPage($data['titulo'], $data['texto'], $data['resumen']);
         return header("{$_SERVER['SERVER_PROTOCOL']} 201 Created");
     }
 

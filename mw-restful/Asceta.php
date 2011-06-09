@@ -109,7 +109,8 @@ $pages['en'] = array(
         'authorize' => 'MW-RESTful API AUTHORIZE',
         'authorizetext' => 'Do you give permission to ',
         'allow' => 'Allow',
-        'deny' => 'Deny'
+        'deny' => 'Deny',
+        'loginError' => 'The user must be logged into the System'
 );
 
 /* *** 	Afrikaans *** */
@@ -164,7 +165,8 @@ $pages['es'] = array(
         'authorize' => 'AUTORIZACIÓN API MW-REST',
         'authorizetext' => 'Autoriza el acceso a ',
         'allow' => 'Autorizar',
-        'deny' => 'Denegar'
+        'deny' => 'Denegar',
+        'loginError' => 'El usuario debe de estar logueado en el Sistema'
 );
 
 /* *** 	French *** */

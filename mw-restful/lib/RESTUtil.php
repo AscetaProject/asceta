@@ -45,18 +45,18 @@ function getUser($ID){
 function createUser($data){
     global $wgRequest;
 
-    $user = User::newFromName($data->name);
+    $user = User::newFromName($data['name']);
     if(!$user)
         throw new Exception("Invalid data\n", "001");
     if ( !$user->getID() ) {
 
-        $user->setPassword($data->password);
+        $user->setPassword($data['password']);
         $user->createNew($user->getName(), array(
 					"password" => $user->mPassword,
-					"email" => $data->email,
-					"real_name" => $data->realname));
+					"email" => $data['email'],
+					"real_name" => $data['realname']));
     } else {
-        $user->setPassword($data->password);
+        $user->setPassword($data['password']);
         echo "The password has been changed";
     }
     $user->saveSettings();
@@ -180,6 +180,9 @@ function select($table, $columns, $cond=''){
 * @param string $data uri request
 */
 function getAction($data){
+    if (is_null($data)){
+        return null;
+    }
     $text = explode('?', strtolower($data));
     $text = explode('/', $text[0]);
     $size = count($text);

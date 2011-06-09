@@ -21,11 +21,14 @@ class SpecialAsceta extends SpecialPage {
             if($_GET['page'] == $pages[$wgLang->getCode()]['mainpage']){
                 require_once 'lib/OAuthUtils.php';
 
-                $oauth = new OAuthController();
+                //$oauth = new OAuthController();
                 if($_POST['submit_application'] == 'Finish'){
                     $consumer = OAuthController::doRegister();
                     if($consumer != null){
                          $wgOut->addHTML($this->printConsumerInfo($consumer));
+                    } else {
+                        $texto = $pages[$this->getLanguage()]['loginError'];
+                        $wgOut->addHTML($texto);
                     }
                 }else{
                     $apiRegister = new MWAPIREGISTER();
@@ -55,12 +58,16 @@ class SpecialAsceta extends SpecialPage {
 
         }
 
-        protected function printConsumerInfo($consumer){
-            global $pages, $wgLang;
-            $lang = 'es';
+        protected function getLanguage(){
+            global $wgLang;
             if($wgLang->getCode() != 'es') {
-                   $lang = 'en';
+                   return 'en';
             }
+            return 'es';
+        }
+        protected function printConsumerInfo($consumer){
+            global $pages;
+            $lang = $this->getLanguage();
             return "<h2>".$pages[$lang]['credentials']."</h2>
                     <div style=\"margin-top: 40px;\">
                     <p><label>Consumer Token: </label><span style=\"font-size:18px; color: #999\">".$consumer['consumer_key']."</span></p>
@@ -69,10 +76,7 @@ class SpecialAsceta extends SpecialPage {
 
         protected function printRegisterForm(){
             global $pages, $wgLang;
-            $lang = 'es';
-            if($wgLang->getCode() != 'es') {
-                   $lang = 'en';
-            }
+            $lang = $this->getLanguage();
             return "<h2>".$pages[$lang]['credentials']."</h2>
                     <p>".$pages[$lang]['oauthmessage']."</p>
                     <div style=\"margin-top: 40px;\">
@@ -113,7 +117,7 @@ class SpecialAsceta extends SpecialPage {
                     </select>
                     <br/>
                     </p>
-                    <input type=\"submit\" value=\"".$pages[$lang]['finish']."\" name=\"submit_application\" class=\"submit\"/>
+                    <input type=\"submit\" value=\"Finish\" name=\"submit_application\" class=\"submit\"/>
                     </form>
                     </div>";
         }
