@@ -60,20 +60,30 @@ class PostRESTController extends WPAPIRESTController {
         }
 
         //get_post($data['id']);
+        $post_exists = get_post($data['id']);
 
+        if ($post_exists) {
 
-        $update_post['ID'] = $data['id'];
+	$update_post['ID'] = $data['id'];
 
-        if (isset($data['post_title'])) {
-	$update_post['post_title'] = $data['post_title'];
+	if (isset($data['post_title'])) {
+	    $update_post['post_title'] = $data['post_title'];
+	}
+
+	if (isset($data['post_content'])) {
+	    $update_post['post_content'] = $data['post_content'];
+	}
+	$updated = wp_update_post( $update_post );
+
+	if ($updated == 1) {
+	    return $this->_return(get_post($data['id']));
+	} else {
+	    throw new Exception("Post '".$data['id']."' not modified \n","400");
+	}
+
+        } else {
+	throw new Exception("Post '".$data['id']."' not found \n","404");
         }
-
-        if (isset($data['post_content'])) {
-	$update_post['post_content'] = $data['post_content'];
-        }
-        $updated_post_id = wp_update_post( $update_post );
-
-        return $this->_return(get_post($updated_post_id));
     }
 
     protected function deletePost($post) {
@@ -82,7 +92,6 @@ class PostRESTController extends WPAPIRESTController {
 	return array( 'ID' => $post, 'deleted' => true);
         } else {
 	throw new Exception("Error deleting post","403");
-	return new WP_Error('error', __('Error deleting post.'));
         }
     }
 

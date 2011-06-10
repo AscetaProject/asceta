@@ -31,7 +31,7 @@ class CommentRESTController extends WPAPIRESTController {
         // Get requested posts
         $comment_data = get_comment($post);
         if(is_null($comment_data)){
-            throw new Exception("Comment '$post' does not exists \n","404");
+            throw new Exception("Comment '$post' not found \n","404");
         }
         return $this->_return($comment_data);
     }
@@ -103,10 +103,18 @@ class CommentRESTController extends WPAPIRESTController {
     }
 
     protected function deleteComment($comment_id) {
-        if (wp_delete_comment($comment_id)) {
-	return array('ID' => $comment_id, 'deleted' => true);
+        $comment_exists = get_comment($comment_id);
+
+        if ($comment_exists) {
+
+	if (wp_delete_comment($comment_id)) {
+	    return array('ID' => $comment_id, 'deleted' => true);
+	} else {
+	    throw new Exception("Comment '".$data['id']."' not deleted \n","400");
+	}
         } else {
-	throw new Exception("Comment '".$data['id']."' not deleted \n","400");
+	throw new Exception("Comment '".$comment_id."' not found \n","404");
+
         }
     }
 
