@@ -158,7 +158,7 @@ class OAuthController {
 		self::header ();
 		// Future check for only registred users to sign to API
 		if (0 != $mwuser) {
-			OAuthStore::instance ( 'MySQL', array ('conn' => $mwpr['conn'] ) );
+			$store = OAuthStore::instance ( 'MySQL', array ('conn' => $mwpr['conn'] ) );
 			$server = new OAuthServer ( );
 			try {
 				// Check if there is a valid request token in the current request
@@ -172,14 +172,10 @@ class OAuthController {
 					// When there was a oauth_callback then this will redirect to the consumer
 					$result = $server->authorizeFinish ( $authorized, $mwuser );
 
-                                        if($result == null){
-                                            header ( 'HTTP/1.1 200 Ok' );
-                                        }else{
-                                            header ( 'HTTP/1.1 201 Created' );
-                                        }
-
 					// No oauth_callback, show the user the result of the authorization
 					// ** your code here **
+                                        $consumer = $store->getConsumer ( $rs['consumer_key'], $mwuser);
+                                        header ('Location: '.$consumer['callback_uri']);
 					//echo 'Authorized';
 				} elseif ($_SERVER ['REQUEST_METHOD'] == 'GET') {
 					//$authorized = true;

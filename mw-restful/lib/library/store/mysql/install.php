@@ -6,14 +6,13 @@
 
 /* Change and uncomment this when you need to: */
 
-/*
-mysql_connect('localhost', 'root');
+mysql_connect('INTRODUCE SERVER', 'INTRODUCE USER', 'INTRODUCE PASS');
 if (mysql_errno())
 {
 	die(' Error '.mysql_errno().': '.mysql_error());
 }
-mysql_select_db('test');
-*/
+mysql_select_db('INTRODUCE DATABASE');
+
 
 $sql = file_get_contents(dirname(__FILE__) . '/mysql.sql');
 $ps  = explode('#--SPLIT--', $sql);

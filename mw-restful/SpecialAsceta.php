@@ -47,6 +47,10 @@ class SpecialAsceta extends SpecialPage {
                     }
                 }
             }else{   //REST CALL
+                if($_GET['title'] == $pages[$wgLang->getCode()]['special'].':Asceta'){
+                    $url = $GLOBALS['wgServer'].$GLOBALS['wgScriptPath'];
+                    header("Location: ".$url);
+                }else{
                 // Set your content type... this can XML or binary or whatever you need.
                 header( "Content-type: text/plain; charset=utf-8" );
 
@@ -54,6 +58,7 @@ class SpecialAsceta extends SpecialPage {
                 $wgOut->disable();
                 $apiREST = new MWAPIREST();
                 $apiREST->processRequest();
+                }
             }
 
         }
