@@ -29,11 +29,28 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'modwordpress';
-$string['modulenameplural'] = 'modwordpresss';
-$string['modwordpressfieldset'] = 'Custom example fieldset';
-$string['modwordpressname'] = 'modwordpress name';
+$string['modulename'] = 'Wordpress';
+$string['modulenameplural'] = 'modwordpress3';
+$string['modwordpressname'] = 'modwordpress name5';
 $string['modwordpressname_help'] = 'This is the content of the help tooltip associated with the modwordpressname field. Markdown syntax is supported.';
-$string['modwordpress'] = 'modwordpress';
+$string['modwordpress'] = 'modwordpress2';
 $string['pluginadministration'] = 'modwordpress administration';
-$string['pluginname'] = 'modwordpress';
+$string['pluginname'] = 'modwordpress1';
+$string['name'] = 'Name';
+$string['actions'] = 'Actions';
+$string['register'] = 'Register';
+$string['request'] = 'Request';
+$string['authorize'] = 'Authorize';
+$string['authorized'] = 'Authorized';
+$string['new_server'] = 'New Server';
+$string['edit_server'] = 'Edit Server';
+$string['wordpress_rest_api_server_manager'] = 'REST server\'s Manager';
+$string['register_your_app'] = 'Register here';
+$string['register_help_message'] = 'Please visit the following link, log in if needed, and fill consumer_key and consumer_secret fields with the returned values.';
+$string['consumer_key'] = 'Consumer KEY';
+$string['consumer_secret'] = 'Consumer SECRET';
+$string['request_token'] = 'Request TOKEN';
+$string['request_secret'] = 'Request SECRET';
+$string['access_token'] = 'Access TOKEN';
+$string['access_secret'] = 'Access SECRET';
+$string['register_server'] = 'Register Moodle as Client';
