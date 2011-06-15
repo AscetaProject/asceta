@@ -955,7 +955,7 @@ class OAuthController {
         // Future check for only registred users to sign to API
 
         if (0 != $current_user->ID) {
-	OAuthStore::instance ( 'MySQL', array ('conn' => $wpdb->dbh ) );
+	$store = OAuthStore::instance ( 'MySQL', array ('conn' => $wpdb->dbh ) );
 	$server = new OAuthServer ( );
 	try {
 	    // Check if there is a valid request token in the current request
@@ -970,6 +970,8 @@ class OAuthController {
 	        $server->authorizeFinish ( $authorized, $current_user->ID );
 
 	        // No oauth_callback, show the user the result of the authorization
+                $consumer = $store->getConsumer ( $rs['consumer_key'], $current_user->ID);
+                header ('Location: '.$consumer['callback_uri']);
 	        // ** your code here **
 	        //echo 'Authorized';
 	    } elseif ($_SERVER ['REQUEST_METHOD'] == 'GET') {
