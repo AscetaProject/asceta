@@ -925,7 +925,21 @@ class OAuthController {
 	    $this->consumer_id = $consumer ['id'];
 	    $this->consumer_key = $consumer ['consumer_key'];
 	    $this->consumer_secret = $consumer ['consumer_secret'];
-	}
+	} else if (isset ($_GET ['callback_uri'])){
+            wpr_set_defaults ( $args, array ('requester_name' => $current_user->user_login, 'requester_email' => $current_user->user_email, 'callback_uri' => @$_GET ['callback_uri'], 'application_uri' => @$_GET ['application_uri'], 'application_title' => @$_GET ['application_title'], 'application_descr' => @$_GET ['application_descr'], 'application_notes' => @$_GET ['application_notes'], 'application_type' => @$_GET ['application_type'], 'application_commercial' => @$_GET ['application_commercial'] ) );
+	    unset ( $_GET );
+	    // Register the consumer
+	    $this->store = OAuthStore::instance ( 'MySQL', array ('conn' => $wpdb->dbh ) );
+	    $key = $this->store->updateConsumer ( $args, $current_user->ID );
+
+	    // Get the complete consumer from the store
+	    $consumer = $this->store->getConsumer ( $key, $current_user->ID );
+
+	    // Some interesting fields, the user will need the key and secret
+	    $this->consumer_id = $consumer ['id'];
+	    $this->consumer_key = $consumer ['consumer_key'];
+	    $this->consumer_secret = $consumer ['consumer_secret'];
+        }
 	require_once WPR_PLUGIN_FOLDER_PATH.'html_api_register.php';
 	// Safely break back to WordPress
 	$do_return = true;
