@@ -31,27 +31,29 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'modmediawiki';
 $string['modulenameplural'] = 'modmediawikis';
-$string['modmediawikifieldset'] = 'Configuration Mediawiki Server';
+$string['modmediawikifieldset'] = 'Configuración Servidor Mediawiki';
 $string['modmediawikiname'] = 'modmediawiki name';
 $string['modmediawikiname_help'] = 'This is the content of the help tooltip associated with the modmediawikiname field. Markdown syntax is supported.';
 $string['modmediawiki'] = 'modmediawiki';
-$string['pluginadministration'] = 'modmediawiki administration';
+$string['pluginadministration'] = 'Administración modmediawiki';
 $string['pluginname'] = 'modmediawiki';
 
-$string['modmediawikiservers'] = 'Servers';
+$string['modmediawikiservers'] = 'Servidores';
 
-$string['modmediawikiserverlist'] = 'Servers List';
+$string['modmediawikiserverlist'] = 'Lista de Servidores';
 
 $string['configname'] = 'Name';
 $string['confignamedesc'] = 'Server Name';
 $string['configurl'] = 'Url API';
 
-$string['tablename'] = 'Name';
-$string['tableurl'] = 'Url';
-$string['tablecourse'] = 'Course';
-$string['tableactions'] = 'Actions';
 
-$string['formname'] = 'Name';
+$string['tablename'] = 'Nombre';
+$string['tableurl'] = 'Url';
+$string['tablecourse'] = 'Curso';
+$string['tableactions'] = 'Acciones';
+
+
+$string['formname'] = 'Nombre';
 $string['formurl'] = 'Url';
 $string['formconsumerkey'] = 'Consumer key';
 $string['formconsumersecret'] = 'Consumer Secret';
@@ -59,7 +61,7 @@ $string['formrequesttoken'] = 'Request Token';
 $string['formrequestsecret'] = 'Request Secret';
 $string['formaccestoken'] = 'Access Token';
 $string['formaccesssecret'] = 'Access Secret';
-$string['formtitle'] = 'Edit Mediawiki Server';
-$string['formsavebutton'] = 'Save';
-$string['formregisterbutton'] = 'Register';
-$string['formauthorizebutton'] = 'Authorize';
+$string['formtitle'] = 'Editar Servidor de Mediawiki';
+$string['formsavebutton'] = 'Guardar';
+$string['formregisterbutton'] = 'Registrar';
+$string['formauthorizebutton'] = 'Autorizar';

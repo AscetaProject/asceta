@@ -52,7 +52,7 @@ defined('MOODLE_INTERNAL') || die();
  * @param object $modmediawiki An object from the form in mod_form.php
  * @return int The id of the newly inserted modmediawiki record
  */
-function modmediawiki_add_instance($modmediawiki) {
+function modmediawiki_add_instance($modmediawiki, $mform) {
     global $DB;
 
     $modmediawiki->timecreated = time();
@@ -70,7 +70,7 @@ function modmediawiki_add_instance($modmediawiki) {
  * @param object $modmediawiki An object from the form in mod_form.php
  * @return boolean Success/Fail
  */
-function modmediawiki_update_instance($modmediawiki) {
+function modmediawiki_update_instance($modmediawiki, $mform) {
     global $DB;
 
     $modmediawiki->timemodified = time();
