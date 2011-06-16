@@ -35,7 +35,7 @@ class mod_modwordpress_mod_form extends moodleform_mod {
 
     function definition() {
 
-        global $COURSE;
+        global $COURSE, $DB;
         $mform =& $this->_form;
 
 //-------------------------------------------------------------------------------
@@ -61,8 +61,17 @@ class mod_modwordpress_mod_form extends moodleform_mod {
     /// or adding more fieldsets ('header' elements) if needed for better logic
         $mform->addElement('static', 'label1', 'modwordpresssetting1', 'Your modwordpress fields go here. Replace me!');
 
-        $mform->addElement('header', 'modwordpressfieldset', get_string('modwordpressfieldset', 'modwordpress'));
-        $mform->addElement('static', 'label2', 'modwordpresssetting2', 'Your modwordpress fields go here. Replace me!');
+        $mform->addElement('header', 'modwordpressfieldset', get_string("new_server","modwordpress"));
+        //$mform->addElement('static', 'label2', 'modwordpresssetting2', 'Your modwordpress fields go here. Replace me!');
+        $options = array();
+        $options[0] = get_string('none');
+        if ($servers = $DB->get_records('modwordpress_servers', array())) {
+            foreach ($servers as $server) {
+                $options[$server->id] = format_string($server->name);
+            }
+        }
+        $mform->addElement('select', 'server_id', get_string('modmediawikiservers', 'modmediawiki'), $options);
+
 
 //-------------------------------------------------------------------------------
         // add standard elements, common to all modules

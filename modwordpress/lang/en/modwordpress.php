@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'Wordpress';
 $string['modulenameplural'] = 'modwordpress3';
-$string['modwordpressname'] = 'modwordpress name5';
+$string['modwordpressname'] = 'Wordpress name';
 $string['modwordpressname_help'] = 'This is the content of the help tooltip associated with the modwordpressname field. Markdown syntax is supported.';
 $string['modwordpress'] = 'modwordpress2';
 $string['pluginadministration'] = 'modwordpress administration';
