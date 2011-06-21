@@ -28,16 +28,7 @@
  * Post installation procedure
  */
 function xmldb_modmediawiki_install() {
-    global $DB;
-
-    $record = new stdClass();
-    $record->name         = 'servidor 1';
-    $record->url          = 'http://192.168.4.49/mediawiki/index.php/Especial:Asceta/';
-    $DB->insert_record('modmediawiki_server', $record);
-
-    $record = new stdClass();
-    $record->name         = 'servidor 2';
-    $record->url          = 'http://192.168.2.16/mediawiki/index.php/Especial:Asceta/';
-    $DB->insert_record('modmediawiki_server', $record);
+    
+    /// insert here code to perform some actions
     
 }

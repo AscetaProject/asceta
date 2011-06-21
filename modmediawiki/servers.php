@@ -1,43 +1,297 @@
 <?php
 
+/// This file allows to manage the default behaviour of the display formats
+
 require_once("../../config.php");
 require_once($CFG->libdir.'/adminlib.php');
+require_once("lib.php");
+require_once("locallib.php");
+require_once("OAuth.php");
 
-$id = required_param('id', 0, PARAM_INT); // server ID
-//$action  = require_param('action', 0, PARAM_INT);  // action
-$action = 'new';
+$id   = optional_param('id', '', PARAM_INT);
+$mode = optional_param('mode', '', PARAM_ACTION);
 
-/// Print the page header
-$PAGE->set_url('/mod/modmediawiki/server.php', array('id' => $id, 'action' => $action));
+$url = new moodle_url('/mod/modmediawiki/servers.php', array('id'=>$id));
+if ($mode !== '') {
+    $url->param('mode', $mode);
+}
+$PAGE->set_url($url);
+global $DB;
+
 admin_externalpage_setup('managemodules'); // this is hacky, tehre should be a special hidden page for it
 
-// Output starts here
-echo $OUTPUT->header();
+$form = data_submitted();
 
-switch ($action){
-    case 'new':
-        createNewServer();
-        break;
-    case 'register':
-        break;
-    case 'request':
-        break;
-    case 'auth':
-        break;
-    case 'access':
-        break;
-    default:
-        break;
+if ($id != '') {
+    $server = $DB->get_records("modmediawiki_servers", array('id'=>$id));
 }
 
-// Replace the following lines with you own code
-//echo $OUTPUT->heading('Yay! It works!');
+
+// --------------------------  SAVE NEW SERVER ----------------------------------------------------------------
+if ( $mode == 'save_new' and $form and confirm_sesskey()) {
+    $dataobject = array();
+    $dataobject['name'] = $form->server_name;
+    $dataobject['url'] = $form->server_url;
+    $DB->insert_record('modmediawiki_servers', $dataobject, false, false);
+    redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmediawiki#modmediawiki_servers_header");
+    die;
 
 
-// Finish the page
-echo $OUTPUT->footer();
 
-function createNewServer(){
-    echo $OUTPUT->heading('Yay! It works!');
+// -------------------------- MODIFY SERVER ----------------------------------------------------------------
+} elseif ( $mode == 'save_edit' and $form and confirm_sesskey()) {
+    $dataobject = array();
+    $dataobject['id'] = $form->id;
+    $dataobject['name'] = $form->server_name;
+    $dataobject['url'] = $form->server_url;
+    $dataobject['consumer_key'] = $form->consumer_key;
+    $dataobject['consumer_secret'] = $form->consumer_secret;
+    $dataobject['request_token'] = $form->request_token;
+    $dataobject['request_secret'] = $form->request_secret;
+    $dataobject['access_token'] = $form->access_token;
+    $dataobject['access_secret'] = $form->access_secret;
+    $DB->update_record('modmediawiki_servers', $dataobject, false, false);
+    redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmediawiki#modmediawiki_servers_header");
+    die;
+
+
+
+
+// -------------------------- DELETE SERVER ----------------------------------------------------------------
+} elseif ( $mode == 'delete_server' and $id != '' and confirm_sesskey()) {
+    $DB->delete_records("modmediawiki_servers", array('id'=>$id));
+    redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmediawiki#modmediawiki_servers_header");
+    die;
+
+} elseif ( $mode == 'edit' and $id != '' and confirm_sesskey()) {
+    $server = $DB->get_records("modmediawiki_servers", array('id'=>$id));
+
+// -------------------------- vvv New/Edit Server Form vvv ----------------------------------------------------------------
+} elseif ( $mode == 'register' and $id != '' and confirm_sesskey()) {
+    
+    $url = rtrim($server[$id]->url,'/').'/Página_Principal';
+    $params = array('callback_uri' => "$CFG->wwwroot/mod/modmediawiki/servers.php?mode=access&id=$id&sesskey=".sesskey(), 'application_uri' => $CFG->wwwroot, 'application_title' => $CFG->wwwroot, 'application_type' => 'website', 'application_commercial' => 0);
+    $params = implode_assoc('=', '&', $params);
+} elseif ( $mode == 'save_register' and $id != '' and confirm_sesskey()) {
+    $dataobject = array();
+    $dataobject['id'] = $form->id;
+    $dataobject['consumer_key'] = $form->consumer_key;
+    $dataobject['consumer_secret'] = $form->consumer_secret;
+    $DB->update_record('modmediawiki_servers', $dataobject, false, false);
+    //redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmediawiki#modmediawiki_servers_header");
+    redirect("$CFG->wwwroot/mod/modmediawiki/servers.php?id=$form->id&mode=request_token&sesskey=".sesskey());
+    die;
+} elseif ( $mode == 'request_token' and $id != '' and confirm_sesskey() ) {
+    $consumer_key = $server[$id]->consumer_key;
+    $consumer_secret = $server[$id]->consumer_secret;
+    $basefeed = rtrim($server[$id]->url,'/').'/request-token';
+    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+    $request = OAuthRequest::from_consumer_and_token($consumer, NULL, 'GET', $basefeed, array());
+    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, NULL);
+    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+    $response_data = explode_assoc("=","&",$response);
+    $dataobject = array();
+    $dataobject['id'] = $id;
+    $dataobject['request_token'] = $response_data['oauth_token'];
+    $dataobject['request_secret'] = $response_data['oauth_token_secret'];
+    $DB->update_record('modmediawiki_servers', $dataobject, false, false);
+    //redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmediawiki#modmediawiki_servers_header");
+    redirect("$CFG->wwwroot/mod/modmediawiki/servers.php?id=$id&mode=auth&sesskey=".sesskey());
+    die;
+} elseif ( $mode == 'auth' and $id != '' and confirm_sesskey() ) {
+    $consumer_key = $server[$id]->consumer_key;
+    $consumer_secret = $server[$id]->consumer_secret;
+    $request_token = $server[$id]->request_token;
+    $request_secret = $server[$id]->request_secret;
+    $basefeed = rtrim($server[$id]->url,'/').'/auth';
+    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+    $token = new OAuthToken($request_token, $request_secret, NULL);
+    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
+    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+    $url = $request->to_url();
+    $url .= '&returnto=Especial:Asceta&returntoquery=auth';
+    redirect($url);
+    die;
+} elseif ( $mode == 'access' and $id != '' and confirm_sesskey() ) {
+    $consumer_key = $server[$id]->consumer_key;
+    $consumer_secret = $server[$id]->consumer_secret;
+    $request_token = $server[$id]->request_token;
+    $request_secret = $server[$id]->request_secret;
+    $basefeed = rtrim($server[$id]->url,'/').'/access-token';
+    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+    $token = new OAuthToken($request_token, $request_secret, NULL);
+    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
+    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+    $response_data = explode_assoc("=","&",$response);
+    $dataobject = array();
+    $dataobject['id'] = $id;
+    $dataobject['access_token'] = $response_data['oauth_token'];
+    $dataobject['access_secret'] = $response_data['oauth_token_secret'];
+    $dataobject['request_token'] = "";
+    $dataobject['request_secret'] = "";
+    $DB->update_record('modmediawiki_servers', $dataobject, false, false);
+    redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmediawiki#modmediawiki_servers_header");
+    die;
 }
+
+$strmodulename = get_string("modulename", "modmediawiki");
+$yes = get_string("yes");
+$no  = get_string("no");
+
+
+
+
+
+
+// -------------------------- OAUTH REGISTER FORM ----------------------------------------------------------------
+if ($mode == 'register') {
+
+    echo $OUTPUT->header();
+    echo $OUTPUT->heading($strmodulename . ': ' . get_string("register_server","modmediawiki"));
+
+    echo $OUTPUT->box(get_string("register_help_message", 'modmediawiki')."<br><br><a href='$url?$params' target='_BLANK'>".get_string("register_your_app","modmediawiki")."</a>", "generalbox boxaligncenter boxwidthnormal");
+
+    echo '<form method="post" action="servers.php" id="form">';
+    echo '<table width="60%" align="center" class="generalbox">';
+    ?>
+    <tr>
+        <td>
+	<label for="consumer_key"><?php echo print_string('consumer_key','modmediawiki'); ?></label>
+        </td>
+        <td>
+	<input name="consumer_key" id="consumer_key" size="40" />
+        </td>
+    </tr>
+    <tr>
+        <td>
+	<label for="consumer_secret"><?php echo print_string('consumer_secret','modmediawiki'); ?></label>
+        </td>
+        <td>
+	<input name="consumer_secret" id="consumer_secret" size="40" />
+        </td>
+    </tr>
+    <tr>
+        <td colspan="3" align="left">
+	<input type="submit" value="<?php print_string("savechanges") ?>" />
+        </td>
+    </tr>
+    <input type="hidden" name="id"    value="<?php p($id) ?>" />
+    <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
+    <input type='hidden' name='mode'    value='save_register' />
+
+<?php
+    echo '</table>';
+    echo '</form>';
+    echo $OUTPUT->footer();
+
+
+
+
+
+
+
+
+
+// -------------------------- NEW/EDIT SERVER FORM ----------------------------------------------------------------
+} else {
+    echo $OUTPUT->header();
+    if ($mode == "edit")
+        echo $OUTPUT->heading($strmodulename . ': ' . get_string("edit_server","modmediawiki"));
+    else
+        echo $OUTPUT->heading($strmodulename . ': ' . get_string("new_server","modmediawiki"));
+
+
+    echo '<form method="post" action="servers.php" id="form">';
+    echo '<table width="60%" align="center" class="generalbox">';
+    ?>
+    <tr>
+        <td>
+	<label for="server_name"><?php echo print_string('name','modmediawiki'); ?></label>
+        </td>
+        <td>
+	<input name="server_name" id="server_name" size="60" <?php if ($mode == "edit") echo "value='".$server[$id]->name."'"; ?>/>
+        </td>
+    </tr>
+    <tr>
+        <td>
+	<label for="server_url">URL</label>
+        </td>
+        <td>
+	<input name="server_url" id="server_url" size="60" <?php if ($mode == "edit") echo "value='".$server[$id]->url."'"; ?> />
+        </td>
+    </tr>
+    <?php
+        if ($mode == "edit") {
+    ?>
+        <tr>
+	<td>
+	    <label for="consumer_key"><?php echo print_string('consumer_key','modmediawiki'); ?></label>
+	</td>
+	<td>
+	    <input name="consumer_key" id="consumer_key" size="40" <?php echo "value='".$server[$id]->consumer_key."'"; ?> />
+	</td>
+        </tr>
+        <tr>
+	<td>
+	    <label for="consumer_secret"><?php echo print_string('consumer_secret','modmediawiki'); ?></label>
+	</td>
+	<td>
+	    <input name="consumer_secret" id="consumer_secret" size="40" <?php echo "value='".$server[$id]->consumer_secret."'"; ?> />
+	</td>
+        </tr>
+        <tr>
+	<td>
+	    <label for="request_token"><?php echo print_string('request_token','modmediawiki'); ?></label>
+	</td>
+	<td>
+	    <input name="request_token" id="request_token" size="40" <?php echo "value='".$server[$id]->request_token."'"; ?> />
+	</td>
+        </tr>
+        <tr>
+	<td>
+	    <label for="request_secret"><?php echo print_string('request_secret','modmediawiki'); ?></label>
+	</td>
+	<td>
+	    <input name="request_secret" id="request_secret" size="40" <?php echo "value='".$server[$id]->request_secret."'"; ?> />
+	</td>
+        </tr>
+        <tr>
+	<td>
+	    <label for="access_token"><?php echo print_string('access_token','modmediawiki'); ?></label>
+	</td>
+	<td>
+	    <input name="access_token" id="access_token" size="40" <?php echo "value='".$server[$id]->access_token."'"; ?> />
+	</td>
+        </tr>
+        <tr>
+	<td>
+	    <label for="access_secret"><?php echo print_string('access_secret','modmediawiki'); ?></label>
+	</td>
+	<td>
+	    <input name="access_secret" id="access_secret" size="40" <?php echo "value='".$server[$id]->access_secret."'"; ?> />
+	</td>
+        </tr>
+    <?php
+        }
+    ?>
+    <tr>
+        <td colspan="3" align="left">
+	<input type="submit" value="<?php print_string("savechanges") ?>" />
+        </td>
+    </tr>
+    <input type="hidden" name="id"    value="<?php p($id) ?>" />
+    <input type="hidden" name="sesskey" value="<?php echo sesskey() ?>" />
+    <?php
+
+    if ($mode == "edit") {
+        echo "<input type='hidden' name='mode'    value='save_edit' />";
+    } else {
+        echo "<input type='hidden' name='mode'    value='save_new' />";
+    }
+    echo '</table>';
+    echo '</form>';
+    echo $OUTPUT->footer();
+}
+
 ?>

@@ -196,5 +196,51 @@ function xmldb_modmediawiki_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2011061310, 'modmediawiki');
     }
 
+
+ if ($oldversion < 2011061604) {
+
+        /// Define field server_id to be added to modmediawiki
+            $table = new xmldb_table('modmediawiki');
+            $field = new xmldb_field('api', XMLDB_TYPE_TEXT, 'medium', null, null, null, null,'intro');
+
+        /// Add field server_id
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
+        // modmediawiki savepoint reached
+        upgrade_mod_savepoint(true, 2011061604, 'modmediawiki');
+ }
+
+     if ($oldversion < 2011061607) {
+
+        // Define table modmediawiki_server to be created
+        $table = new xmldb_table('modmediawiki_servers');
+
+        // Adding fields to table modmediawiki_server
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('url', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('consumer_key', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('consumer_secret', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('request_token', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('request_secret', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('access_token', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('access_secret', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+
+        // Adding keys to table modmediawiki_server
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        // Adding indexes to table modmediawiki_server
+        $table->add_index('url', XMLDB_INDEX_NOTUNIQUE, array('url'));
+
+        // Conditionally launch create table for modmediawiki_server
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // modmediawiki savepoint reached
+        upgrade_mod_savepoint(true, 2011061607, 'modmediawiki');
+    }
+
     return true;
 }

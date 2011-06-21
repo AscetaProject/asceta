@@ -65,7 +65,7 @@ class mod_modmediawiki_mod_form extends moodleform_mod {
 
         $options = array();
         $options[0] = get_string('none');
-        if ($servers = $DB->get_records('modmediawiki_server', array())) {
+        if ($servers = $DB->get_records('modmediawiki_servers', array())) {
             foreach ($servers as $server) {
                 $options[$server->id] = format_string($server->name);
             }

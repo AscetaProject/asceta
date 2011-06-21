@@ -29,7 +29,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'modmediawiki';
+$string['modulename'] = 'Mediawiki';
 $string['modulenameplural'] = 'modmediawikis';
 $string['modmediawikifieldset'] = 'Configuration Mediawiki Server';
 $string['modmediawikiname'] = 'modmediawiki name';
@@ -42,24 +42,21 @@ $string['modmediawikiservers'] = 'Servers';
 
 $string['modmediawikiserverlist'] = 'Servers List';
 
-$string['configname'] = 'Name';
-$string['confignamedesc'] = 'Server Name';
-$string['configurl'] = 'Url API';
-
-$string['tablename'] = 'Name';
-$string['tableurl'] = 'Url';
-$string['tablecourse'] = 'Course';
-$string['tableactions'] = 'Actions';
-
-$string['formname'] = 'Name';
-$string['formurl'] = 'Url';
-$string['formconsumerkey'] = 'Consumer key';
-$string['formconsumersecret'] = 'Consumer Secret';
-$string['formrequesttoken'] = 'Request Token';
-$string['formrequestsecret'] = 'Request Secret';
-$string['formaccestoken'] = 'Access Token';
-$string['formaccesssecret'] = 'Access Secret';
-$string['formtitle'] = 'Edit Mediawiki Server';
-$string['formsavebutton'] = 'Save';
-$string['formregisterbutton'] = 'Register';
-$string['formauthorizebutton'] = 'Authorize';
+$string['name'] = 'Name';
+$string['actions'] = 'Actions';
+$string['register'] = 'Register';
+$string['request'] = 'Request';
+$string['authorize'] = 'Authorize';
+$string['authorized'] = 'Authorized';
+$string['new_server'] = 'New Server';
+$string['edit_server'] = 'Edit Server';
+$string['mediawiki_rest_api_server_manager'] = 'REST server\'s Manager';
+$string['register_your_app'] = 'Register here';
+$string['register_help_message'] = 'Please visit the following link, log in if needed, and fill consumer_key and consumer_secret fields with the returned values.';
+$string['consumer_key'] = 'Consumer KEY';
+$string['consumer_secret'] = 'Consumer SECRET';
+$string['request_token'] = 'Request TOKEN';
+$string['request_secret'] = 'Request SECRET';
+$string['access_token'] = 'Access TOKEN';
+$string['access_secret'] = 'Access SECRET';
+$string['register_server'] = 'Register Moodle as Client';
