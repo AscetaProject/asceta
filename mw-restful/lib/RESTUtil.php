@@ -200,4 +200,128 @@ function getID($data){
     $text = explode('/', $text[0]);
     return $text[5];
 }
+
+/**
+* Get name
+*
+* @return string name
+* @param string $data uri request
+*/
+function getName($data){
+    $text = explode('?', $data);
+    $text = explode('/', $text[0]);
+    return $text[0];
+}
+
+/**
+* Save params in $_SESSION
+*
+* @param string $data uri request
+*/
+function saveParams($data){
+    $expire=time()+60*60*24*30;
+    setcookie("callback_uri", $data['callback_uri'], $expire,'/');
+    setcookie("application_uri", $data['application_uri'], $expire,'/');
+    setcookie("application_title", $data['application_title'], $expire,'/');
+    setcookie("application_type", $data['application_type'], $expire,'/');
+    setcookie("application_commercial", $data['application_commercial'], $expire,'/');
+}
+
+/**
+ * Restore params saved into cookies
+ */
+function restoreParams(){
+    $expire=time()-3600;
+    setcookie("callback_uri", $data['callback_uri'], $expire,'/');
+    setcookie("application_uri", $data['application_uri'], $expire,'/');
+    setcookie("application_title", $data['application_title'], $expire,'/');
+    setcookie("application_type", $data['application_type'], $expire,'/');
+    setcookie("application_commercial", $data['application_commercial'], $expire,'/');
+}
+
+/**
+* Convert mediawiki url (title=value&page=value) to beauty url (/value/value)
+*
+* @return string url
+* @param string $url mediawiki url
+*/
+function convertToBeautyURL($url){
+    $title_pattern = '/title/i';
+    $page_pattern = '/page/i';
+    if(preg_match($title_pattern, $url) && preg_match($page_pattern, $url)){
+        $text = explode('?',$url);
+        $params = explode('&',$text[1]);
+        $result = array();
+        $result[] = $text[0];
+        foreach ($params as $param){
+            $value = explode('=',$param);
+            $result[] = $value[1];
+        }
+        $temp = implode('/',$result);
+        return $temp;
+    }
+    return $url;
+}
+
+/*
+ * Return url with the oauth data
+ * @return string url
+ */
+function getUrl(){
+    if(!isset($_GET['oauth_version'])){
+        $_GET['oauth_version'] = $_COOKIE['oauth_version'];
+        $_GET['oauth_nonce'] = $_COOKIE['oauth_nonce'];
+        $_GET['oauth_timestamp'] = $_COOKIE['oauth_timestamp'];
+        $_GET['oauth_consumer_key'] = $_COOKIE['oauth_consumer_key'];
+        $_GET['oauth_token'] = $_COOKIE['oauth_token'];
+        $_GET['oauth_signature_method'] = $_COOKIE['oauth_signature_method'];
+        $_GET['oauth_signature'] = $_COOKIE['oauth_signature'];
+    }
+    $url = $GLOBALS['wgServer'].$GLOBALS['wgScriptPath'].'/index.php/'.$_GET['title'].'/'.$_GET['page']
+    .'?oauth_version='.$_GET['oauth_version']
+    .'&oauth_nonce='.$_GET['oauth_nonce']
+    .'&oauth_timestamp='.$_GET['oauth_timestamp']
+    .'&oauth_consumer_key='.$_GET['oauth_consumer_key']
+    .'&oauth_token='.$_GET['oauth_token']
+    .'&oauth_signature_method='.$_GET['oauth_signature_method']
+    .'&oauth_signature='.$_GET['oauth_signature'];
+    return $url;
+}
+
+/**
+ * Restore the data Oauth save into cookies
+ */
+function restoreOauthCookies(){
+    if(isset($_COOKIE['oauth_version'])){
+        $_GET['oauth_version'] = $_COOKIE['oauth_version'];
+        $_GET['oauth_nonce'] = $_COOKIE['oauth_nonce'];
+        $_GET['oauth_timestamp'] = $_COOKIE['oauth_timestamp'];
+        $_GET['oauth_consumer_key'] = $_COOKIE['oauth_consumer_key'];
+        $_GET['oauth_token'] = $_COOKIE['oauth_token'];
+        $_GET['oauth_signature_method'] = $_COOKIE['oauth_signature_method'];
+        $_GET['oauth_signature'] = $_COOKIE['oauth_signature'];
+        $expire = time() - 3600;
+        setcookie('oauth_version', $_COOKIE['oauth_version'], $expire,'/');
+        setcookie('oauth_nonce', $_COOKIE['oauth_nonce'], $expire,'/');
+        setcookie('oauth_timestamp', $_COOKIE['oauth_timestamp'], $expire,'/');
+        setcookie('oauth_consumer_key', $_COOKIE['oauth_consumer_key'], $expire,'/');
+        setcookie('oauth_token', $_COOKIE['oauth_token'], $expire,'/');
+        setcookie('oauth_signature_method', $_COOKIE['oauth_signature_method'], $expire,'/');
+        setcookie('oauth_signature', $_COOKIE['oauth_signature'], $expire,'/');
+    }
+}
+
+/**
+ * Save the data Oauth into cookies
+ */
+function saveOauthCookies(){
+    $expire=time()+60*60*24*30;
+    setcookie('oauth_version', $_GET['oauth_version'], $expire,'/');
+    setcookie('oauth_nonce', $_GET['oauth_nonce'], $expire,'/');
+    setcookie('oauth_timestamp', $_GET['oauth_timestamp'], $expire,'/');
+    setcookie('oauth_consumer_key', $_GET['oauth_consumer_key'], $expire,'/');
+    setcookie('oauth_token', $_GET['oauth_token'], $expire,'/');
+    setcookie('oauth_signature_method', $_GET['oauth_signature_method'], $expire,'/');
+    setcookie('oauth_signature', $_GET['oauth_signature'], $expire,'/');
+}
 ?>

@@ -103,7 +103,7 @@ class OAuthController {
         * @return object if the register finished ok
         */
 	public function doRegister() {
-                global $mwuser;
+                global $mwuser, $wgLang, $pages;
                 // Future check for only registred users to sign to API
                 $args = array();
 		if (0 != $mwuser) {
@@ -130,7 +130,49 @@ class OAuthController {
                         $this->consumer_secret = $consumer ['consumer_secret'];
                         return $consumer;
 		} else {
-			return null;
+                        $url = $GLOBALS['wgServer'].$GLOBALS['wgScriptPath'].'/index.php/'.$pages[$wgLang->getCode()]['special'].':'.$pages[$wgLang->getCode()]['login'].'/'.$pages[$wgLang->getCode()]['mainpage'].'?returnto='.$pages[$wgLang->getCode()]['special'].':Asceta&returntoquery='.'page='.$pages[$wgLang->getCode()]['mainpage'];
+                        header("Location: ".$url);
+			exit();
+		}
+	}
+
+        /**
+        * Add the application in the system, generating the values ​​
+        * for the consumer key and the consumer secret
+        *
+        * @return object if the register finished ok
+        */
+	public function automaticRegister($params) {
+                global $mwuser, $wgLang, $pages;
+                // Future check for only registred users to sign to API
+                $args = array();
+		if (0 != $mwuser) {
+			self::header ();
+                        $user = getUser($mwuser);
+                        $args = array('requester_name' => $user->mName,
+                                'requester_email' => $user->mEmail,
+                                'callback_uri' => $params ['callback_uri'],
+                                'application_uri' => $params ['application_uri'],
+                                'application_title' => $params ['application_title'],
+                                'application_descr' => $params ['application_descr'],
+                                'application_notes' => $params ['application_notes'],
+                                'application_type' => $params ['application_type'],
+                                'application_commercial' => $params ['application_commercial']);
+                        restoreParams();
+                        // Register the consumer
+                        $this->store = OAuthStore::instance ( 'MySQL', array ('conn' => $mwpr['conn']));
+                        $key = $this->store->updateConsumer ( $args, $mwuser);
+                        // Get the complete consumer from the store
+                        $consumer = $this->store->getConsumer ( $key, $mwuser);
+                        // Some interesting fields, the user will need the key and secret
+                        $this->consumer_id = $consumer ['id'];
+                        $this->consumer_key = $consumer ['consumer_key'];
+                        $this->consumer_secret = $consumer ['consumer_secret'];
+                        return $consumer;
+		} else {
+                        $url = $GLOBALS['wgServer'].$GLOBALS['wgScriptPath'].'/index.php/'.$pages[$wgLang->getCode()]['special'].':'.$pages[$wgLang->getCode()]['login'].'/'.$pages[$wgLang->getCode()]['mainpage'].'?returnto='.$pages[$wgLang->getCode()]['special'].':Asceta&returntoquery='.'page='.$pages[$wgLang->getCode()]['mainpage'];
+                        header("Location: ".$url);
+			exit();
 		}
 	}
 
@@ -158,13 +200,16 @@ class OAuthController {
 		self::header ();
 		// Future check for only registred users to sign to API
 		if (0 != $mwuser) {
+
+                        $url = getUrl();
 			$store = OAuthStore::instance ( 'MySQL', array ('conn' => $mwpr['conn'] ) );
-			$server = new OAuthServer ( );
+			$server = new OAuthServer ($url );
 			try {
 				// Check if there is a valid request token in the current request
 				// Returns an array with the consumer key, consumer secret, token, token secret and token type.
 				$rs = $server->authorizeVerify ();
 				if ($_SERVER ['REQUEST_METHOD'] == 'POST') {
+                                        restoreOauthCookies();
 					// See if the user clicked the 'allow' submit button (or whatever you choose)
 					$authorized = array_key_exists ( 'allow', $_POST );
 					//$authorized = true;
@@ -187,7 +232,7 @@ class OAuthController {
                                         header('Content-Type: text/html; charset=ISO-8859-4');
 					$html = self::printAuthorizeRequest(); //file_get_contents($GLOBALS['dir'].'lib/html_api_authorize.php');
                                         echo $html;
-					// Safely break back to WordPress
+					// Safely break back to MediaWiki
 					exit ();
 					//$server->authorizeFinish ( $authorized, $_SESSION ['user_id'] );
 					//echo 'Authorized';
@@ -200,7 +245,8 @@ class OAuthController {
 			}
 		} else {
 			//WPRESTUtils::sendResponse ( 401 );
-			$url = $GLOBALS['wgServer'].$GLOBALS['wgScriptPath'].'/index.php/'.$pages[$wgLang->getCode()]['special'].':'.$pages[$wgLang->getCode()]['login'].'/'.$pages[$wgLang->getCode()]['mainpage'];
+                        saveOauthCookies();
+			$url = $GLOBALS['wgServer'].$GLOBALS['wgScriptPath'].'/index.php/'.$pages[$wgLang->getCode()]['special'].':'.$pages[$wgLang->getCode()]['login'].'/'.$pages[$wgLang->getCode()]['mainpage'].'?returnto='.$_GET['returnto'].'&returntoquery=page='.$_GET['returntoquery'];
                         header("Location: ".$url);
 			exit ();
 		}

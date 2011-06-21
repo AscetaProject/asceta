@@ -26,7 +26,7 @@ class MWAPIREST {
         global $mwpr;
 
         $mwpr['method'] = strtolower($_SERVER['REQUEST_METHOD']);
-        $mwpr['uri'] = strtolower($_SERVER['REQUEST_URI']);
+        $mwpr['uri'] = convertToBeautyURL(strtolower($_SERVER['REQUEST_URI']));
         $data = null;
 
         try{
@@ -289,6 +289,20 @@ class MWAPIREGISTER {
         $list = $store->listConsumers($user_id);
 
         return $list;
+    }
+
+
+    /**
+     * Update callback_uri data from the consumer
+     *
+     * @return
+     * @param string $user_id user identification number
+     * @param array $consumer consumer data
+     */
+    public function updateConsumer($user_id, $consumer){
+        global $mwpr;
+        $store = OAuthStore::instance('MySQL', array('conn' => $mwpr['conn']));
+        $key = $store->updateConsumer ( $consumer, $user_id);
     }
 
 }

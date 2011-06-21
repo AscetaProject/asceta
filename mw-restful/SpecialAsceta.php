@@ -17,11 +17,12 @@ class SpecialAsceta extends SpecialPage {
 
             require_once 'lib/REST.php';
             $mwuser = $_SESSION['wsUserID'];
+            $apiRegister = new MWAPIREGISTER();
+            
             //Call to the main page (Register)
-            if($_GET['page'] == $pages[$wgLang->getCode()]['mainpage']){
+            if(getName($_GET['page']) == $pages[$wgLang->getCode()]['mainpage'] || $_GET['title'] == $pages[$wgLang->getCode()]['special'].':Asceta/'.$pages[$wgLang->getCode()]['mainpage']){
                 require_once 'lib/OAuthUtils.php';
 
-                //$oauth = new OAuthController();
                 if($_POST['submit_application'] == 'Finish'){
                     $consumer = OAuthController::doRegister();
                     if($consumer != null){
@@ -30,37 +31,51 @@ class SpecialAsceta extends SpecialPage {
                         $texto = $pages[$this->getLanguage()]['loginError'];
                         $wgOut->addHTML($texto);
                     }
+                }else if (isset($_GET['callback_uri']) || isset($_COOKIE['callback_uri'])){
+                        $parameters = $this->getValues();
+                        $consumer_list = $apiRegister->isRegistred($mwuser);
+                        if(!empty ($consumer_list)){
+                            $consumer_list[0]['callback_uri'] = $parameters['callback_uri'];
+                            $apiRegister->updateConsumer($mwuser, $consumer_list[0]);
+                            $html = $this->printConsumerInfo($consumer_list[0]);
+                            $wgOut->addHTML($html);
+                        }else{
+                            $consumer = OAuthController::automaticRegister($parameters);
+                            if($consumer != null){
+                                 $wgOut->addHTML($this->printConsumerInfo($consumer));
+                            } else {
+                                $texto = $pages[$this->getLanguage()]['loginError'];
+                                $wgOut->addHTML($texto);
+                            }
+                        }
+                        unset($parameters);
                 }else{
-                    $apiRegister = new MWAPIREGISTER();
                     if($apiRegister->isLogged()){
                         $path = null;
                         $consumer_list = $apiRegister->isRegistred($mwuser);
                         if(!empty ($consumer_list)){
                             $html = $this->printConsumerInfo($consumer_list[0]);
                         }else{
-                            $html = $this->printRegisterForm(); //file_get_contents($GLOBALS['dir'] . 'lib/html_api_register.php');
+                            $html = $this->printRegisterForm(); 
                         }
                        $wgOut->addHTML($html);
                     }else{
-                        $url = $GLOBALS['wgServer'].$GLOBALS['wgScriptPath'].'/index.php/'.$pages[$wgLang->getCode()]['special'].':'.$pages[$wgLang->getCode()]['login'].'/'.$pages[$wgLang->getCode()]['mainpage'];
-                        header("Location: ".$url);
+                        $get_params = "";
+                        if($_GET['callback_uri']){
+                            saveParams($_GET);
+                        }
+                        $url = $GLOBALS['wgServer'].$GLOBALS['wgScriptPath'].'/index.php/'.$pages[$wgLang->getCode()]['special'].':'.$pages[$wgLang->getCode()]['login'].'/'.$pages[$wgLang->getCode()]['mainpage'].'?returnto='.$pages[$wgLang->getCode()]['special'].':Asceta&returntoquery='.'page='.$pages[$wgLang->getCode()]['mainpage'];
+                        //header("Location: ".$url);
+                        $wgOut->redirect($url);
                     }
                 }
-            }else{   //REST CALL
-                if($_GET['title'] == $pages[$wgLang->getCode()]['special'].':Asceta'){
-                    $url = $GLOBALS['wgServer'].$GLOBALS['wgScriptPath'];
-                    header("Location: ".$url);
-                }else{
-                // Set your content type... this can XML or binary or whatever you need.
+            }else{   
                 header( "Content-type: text/plain; charset=utf-8" );
-
                 // Disable the regular OutputPage stuff -- we're taking over output!
                 $wgOut->disable();
                 $apiREST = new MWAPIREST();
                 $apiREST->processRequest();
-                }
             }
-
         }
 
         protected function getLanguage(){
@@ -125,6 +140,15 @@ class SpecialAsceta extends SpecialPage {
                     <input type=\"submit\" value=\"Finish\" name=\"submit_application\" class=\"submit\"/>
                     </form>
                     </div>";
+        }
+
+        protected function getValues(){
+               if(isset($_GET['callback_uri'])){
+                    saveParams($_GET);
+                    return $_GET;
+                }else{
+                    return $_COOKIE;
+                }
         }
 
 
