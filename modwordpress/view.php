@@ -23,9 +23,10 @@
  * if you like, and it can span multiple lines.
  *
  * @package   mod_modwordpress
- * @copyright 2010 Your Name
+ * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 
 /// (Replace modwordpress with the name of your module and remove this line)
 

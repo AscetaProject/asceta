@@ -22,7 +22,7 @@
  * in the previous 1.9 NEWMODULE.
  *
  * @package   mod_modwordpress
- * @copyright 2010 Your Name <your@email.adress>
+ * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

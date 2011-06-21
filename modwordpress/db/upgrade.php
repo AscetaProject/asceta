@@ -27,9 +27,10 @@
  * here will all be database-neutral, using the functions defined in DLL libraries.
  *
  * @package   mod_modwordpress
- * @copyright 2010 Your Name
+ * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 
 defined('MOODLE_INTERNAL') || die();
 

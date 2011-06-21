@@ -26,11 +26,13 @@
  * Moodle is performing actions across all modules.
  *
  * @package   mod_modwordpress
- * @copyright 2010 Your Name
+ * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
+
+require_once("locallib.php");
+require_once("OAuth.php");
 
 /** example constant */
 //define('NEWMODULE_ULTIMATE_ANSWER', 42);
@@ -58,8 +60,40 @@ function modwordpress_add_instance($modwordpress) {
     $modwordpress->timecreated = time();
 
     # You may have to add extra stuff in here #
+    $newmod = $DB->insert_record('modwordpress', $modwordpress);
 
-    return $DB->insert_record('modwordpress', $modwordpress);
+    if ($newmod) {
+        $modwordpress_instance = $DB->get_record_select("modwordpress", "id=$newmod");
+        $course_id = $modwordpress_instance->course;
+        $server_id = $modwordpress_instance->server_id;
+        $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
+
+        $consumer_key = $server->consumer_key;
+        $consumer_secret = $server->consumer_secret;
+        $access_token = $server->access_token;
+        $access_secret = $server->access_secret;
+        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+        $token = new OAuthToken($access_token, $access_secret, NULL);
+
+        $context = get_context_instance(CONTEXT_COURSE, $course_id);
+        $contextlists = get_related_contexts_string($context);
+
+        $sql = "SELECT u.id, u.username, u.firstname, u.email
+	      FROM {user} u
+	      JOIN {role_assignments} ra ON ra.userid = u.id
+	     WHERE u.deleted = 0 AND u.confirmed = 1 AND ra.contextid $contextlists";
+        $course_users = $DB->get_records_sql($sql);
+
+        foreach ($course_users as $user) {
+	$basefeed = rtrim($server->url, '/') . '/user';
+	$params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
+	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+	//$json_output = json_decode($response);
+        }
+    }
+    return $newmod;
 }
 
 /**
@@ -92,7 +126,7 @@ function modwordpress_update_instance($modwordpress) {
 function modwordpress_delete_instance($id) {
     global $DB;
 
-    if (! $modwordpress = $DB->get_record('modwordpress', array('id' => $id))) {
+    if (!$modwordpress = $DB->get_record('modwordpress', array('id' => $id))) {
         return false;
     }
 
@@ -150,8 +184,8 @@ function modwordpress_print_recent_activity($course, $viewfullnames, $timestart)
  *
  * @return boolean
  * @todo Finish documenting this function
- **/
-function modwordpress_cron () {
+ * */
+function modwordpress_cron() {
     return true;
 }
 
@@ -220,3 +254,332 @@ function modwordpress_scale_used_anywhere($scaleid) {
 function modwordpress_uninstall() {
     return true;
 }
+
+/**
+ * This function gets run whenever user is enrolled into course
+ *
+ * @param object $cp
+ * @return void
+ */
+function modwordpress_user_enrolled($cp) {
+    $context = get_context_instance(CONTEXT_COURSE, $cp->courseid);
+    modwordpress_add_user_default_subscriptions($cp->userid, $context);
+
+
+
+    /*
+      $attrs = get_object_vars($cp);
+      error_log(" #####>   modwordpress_user_enrolled > ".count($class_methods));
+      foreach ($attrs as $k => $v) {
+      error_log("   $k ------> $v");
+      }
+
+      $attrs = get_object_vars($context);
+      error_log(" ::::::::>   modwordpress_user_enrolled > ".count($class_methods));
+      foreach ($attrs as $k => $v) {
+      error_log("   $k .......> $v");
+      }
+     */
+}
+
+/**
+ * This function gets run whenever user is unenrolled from course
+ *
+ * @param object $cp
+ * @return void
+ */
+function modwordpress_user_unenrolled($cp) {
+    if ($cp->lastenrol) {
+        $context = get_context_instance(CONTEXT_COURSE, $cp->courseid);
+        modwordpress_remove_user_subscriptions($cp->userid, $context);
+    }
+}
+
+/**
+ * Add subscriptions for new users
+ *
+ * @global object
+ * @uses CONTEXT_SYSTEM
+ * @uses CONTEXT_COURSE
+ * @uses CONTEXT_COURSECAT
+ * @uses FORUM_INITIALSUBSCRIBE
+ * @param int $userid
+ * @param object $context
+ * @return bool
+ */
+function modwordpress_add_user_default_subscriptions($userid, $context) {
+    global $DB;
+    if (empty($context->contextlevel)) {
+        return false;
+    }
+
+    switch ($context->contextlevel) {
+
+        case CONTEXT_SYSTEM:   // For the whole site
+	$rs = $DB->get_recordset('course', null, '', 'id');
+	foreach ($rs as $course) {
+	    $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
+	    forum_add_user_default_subscriptions($userid, $subcontext);
+	}
+	$rs->close();
+	break;
+
+        case CONTEXT_COURSECAT:   // For a whole category
+	$rs = $DB->get_recordset('course', array('category' => $context->instanceid), '', 'id');
+	foreach ($rs as $course) {
+	    $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
+	    forum_add_user_default_subscriptions($userid, $subcontext);
+	}
+	$rs->close();
+	if ($categories = $DB->get_records('course_categories', array('parent' => $context->instanceid))) {
+	    foreach ($categories as $category) {
+	        $subcontext = get_context_instance(CONTEXT_COURSECAT, $category->id);
+	        forum_add_user_default_subscriptions($userid, $subcontext);
+	    }
+	}
+	break;
+
+
+        case CONTEXT_COURSE:   // For a whole course
+	if (is_enrolled($context, $userid)) {
+	    if ($course = $DB->get_record('course', array('id' => $context->instanceid))) {
+	        if ($forums = get_all_instances_in_course('forum', $course, $userid, false)) {
+		foreach ($forums as $forum) {
+		    if ($forum->forcesubscribe != FORUM_INITIALSUBSCRIBE) {
+		        continue;
+		    }
+		    if ($modcontext = get_context_instance(CONTEXT_MODULE, $forum->coursemodule)) {
+		        if (has_capability('mod/forum:viewdiscussion', $modcontext, $userid)) {
+			forum_subscribe($userid, $forum->id);
+		        }
+		    }
+		}
+	        }
+	    }
+	}
+	break;
+
+        case CONTEXT_MODULE:   // Just one forum
+	if ($cm = get_coursemodule_from_id('modwordpress', $context->instanceid)) {
+	    if ($wordpress = $DB->get_record('modwordpress', array('id' => $cm->instance))) {
+
+	        $server = $DB->get_record_select("modwordpress_servers", "id=$wordpress->server_id");
+	        $consumer_key = $server->consumer_key;
+	        $consumer_secret = $server->consumer_secret;
+	        $access_token = $server->access_token;
+	        $access_secret = $server->access_secret;
+	        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+	        $token = new OAuthToken($access_token, $access_secret, NULL);
+
+	        $sql = "SELECT u.id, u.username, u.firstname, u.email
+		      FROM {user} u
+		     WHERE u.deleted = 0 AND u.confirmed = 1 AND u.id = $userid";
+	        $enrolled_user = $DB->get_records_sql($sql);
+	        if (count($enrolled_user))
+		$user = $enrolled_user[0];
+
+
+	        $basefeed = rtrim($server->url, '/') . '/user';
+	        $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
+	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+	        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+	    }
+	}
+	break;
+    }
+
+    return true;
+}
+
+/**
+ * Remove subscriptions for a user in a context
+ *
+ * @global object
+ * @global object
+ * @uses CONTEXT_SYSTEM
+ * @uses CONTEXT_COURSECAT
+ * @uses CONTEXT_COURSE
+ * @uses CONTEXT_MODULE
+ * @param int $userid
+ * @param object $context
+ * @return bool
+ */
+function modwordpress_remove_user_subscriptions($userid, $context) {
+
+    global $CFG, $DB;
+
+    if (empty($context->contextlevel)) {
+        return false;
+    }
+
+    error_log(" Context Level: $context->contextlevel");
+
+    switch ($context->contextlevel) {
+
+        case CONTEXT_SYSTEM:   // For the whole site
+	// find all courses in which this user has a forum subscription
+	if ($courses = $DB->get_records_sql("SELECT c.id
+                                                  FROM {course} c,
+                                                       {forum_subscriptions} fs,
+                                                       {forum} f
+                                                       WHERE c.id = f.course AND f.id = fs.forum AND fs.userid = ?
+                                                       GROUP BY c.id", array($userid))) {
+
+	    foreach ($courses as $course) {
+	        $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
+	        forum_remove_user_subscriptions($userid, $subcontext);
+	    }
+	}
+	break;
+
+        case CONTEXT_COURSECAT:   // For a whole category
+	if ($courses = $DB->get_records('course', array('category' => $context->instanceid), '', 'id')) {
+	    foreach ($courses as $course) {
+	        $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
+	        forum_remove_user_subscriptions($userid, $subcontext);
+	    }
+	}
+	if ($categories = $DB->get_records('course_categories', array('parent' => $context->instanceid), '', 'id')) {
+	    foreach ($categories as $category) {
+	        $subcontext = get_context_instance(CONTEXT_COURSECAT, $category->id);
+	        forum_remove_user_subscriptions($userid, $subcontext);
+	    }
+	}
+	break;
+
+        case CONTEXT_COURSE:   // For a whole course
+	if (!is_enrolled($context, $userid)) {
+	    if ($course = $DB->get_record('course', array('id' => $context->instanceid), 'id')) {
+	        // find all forums in which this user has a subscription, and its coursemodule id
+	        if ($modswordpress = $DB->get_records_sql("SELECT *
+                                                         FROM {modwordpress}
+                                                        WHERE course = ?", array($context->instanceid))) {
+		foreach ($modswordpress as $wordpress) {
+		    $server = $DB->get_record_select("modwordpress_servers", "id=$wordpress->server_id");
+		    $consumer_key = $server->consumer_key;
+		    $consumer_secret = $server->consumer_secret;
+		    $access_token = $server->access_token;
+		    $access_secret = $server->access_secret;
+		    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+		    $token = new OAuthToken($access_token, $access_secret, NULL);
+
+		    $sql = "SELECT u.id, u.username, u.firstname, u.email
+			  FROM {user} u
+			 WHERE u.deleted = 0 AND u.confirmed = 1 AND u.id = $userid";
+		    $user = $DB->get_record_sql($sql);
+
+		    $basefeed = rtrim($server->url, '/') . '/users.json';
+		    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed);
+		    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+		    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+		    $wp_users = json_decode($response);
+		    var_dump($wp_users);
+		    echo (gettype($wp_users));
+		    foreach ($wp_users as $wp_user) {
+		        if ($wp_user->user_login == $user->username) {
+			error_log("Usuario a Borrar encontrado: $user->username");
+			$basefeed = rtrim($server->url, '/') . "/user/$wp_users->id";
+			$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
+			$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+			$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+			error_log($response);
+			break;
+		        }
+		    }
+		}
+	        }
+	    }
+	}
+	break;
+
+        case CONTEXT_MODULE:   // Just one forum
+	if (!is_enrolled($context, $userid)) {
+	    if ($cm = get_coursemodule_from_id('forum', $context->instanceid)) {
+	        if ($wordpress = $DB->get_record('modwordpress', array('id' => $cm->instance))) {
+		$server = $DB->get_record_select("modwordpress_servers", "id=$wordpress->server_id");
+		$consumer_key = $server->consumer_key;
+		$consumer_secret = $server->consumer_secret;
+		$access_token = $server->access_token;
+		$access_secret = $server->access_secret;
+		$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+		$token = new OAuthToken($access_token, $access_secret, NULL);
+
+		$sql = "SELECT u.id, u.username, u.firstname, u.email
+		          FROM {user} u
+		         WHERE u.deleted = 0 AND u.confirmed = 1 AND u.id = $userid";
+		$enrolled_users = $DB->get_records_sql($sql);
+		if (count($enrolled_users))
+		    $user = $enrolled_users[0];
+
+		$basefeed = rtrim($server->url, '/') . '/users.json';
+		$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed);
+		$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+		$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+
+		$wp_users = json_decode($response);
+		foreach ($wp_users->users as $wp_user) {
+		    if ($wp_user->user_login == $user->username) {
+		        error_log("Usuario a Borrar encontrado: $user->username");
+		        $basefeed = rtrim($server->url, '/') . "/user/$wp_users->id";
+		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
+		        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+		        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+		        error_log($response);
+		        break;
+		    }
+		}
+	        }
+	    }
+	}
+	break;
+    }
+
+    return true;
+}
+
+
+/**
+ * Makes an HTTP request to the specified URL
+ * @param string $http_method The HTTP method (GET, POST, PUT, DELETE)
+ * @param string $url Full URL of the resource to access
+ * @param string $auth_header (optional) Authorization header
+ * @param string $postData (optional) POST/PUT request body
+ * @return string Response body from the server
+ */
+function send_request($http_method, $url, $auth_header=null, $postData=null) {
+  $curl = curl_init($url);
+  //curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  //curl_setopt($curl, CURLOPT_FAILONERROR, false);
+  //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+
+  switch($http_method) {
+    case 'GET':
+      if ($auth_header) {
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
+      }
+      break;
+    case 'POST':
+      //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml',$auth_header));
+      curl_setopt($curl, CURLOPT_POST, 1);
+      curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
+      break;
+    case 'PUT':
+      //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml',$auth_header));
+      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $http_method);
+      curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
+      break;
+    case 'DELETE':
+      curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
+      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $http_method);
+      break;
+  }
+  $response = curl_exec($curl);
+  if (!$response) {
+    $response = curl_error($curl);
+  }
+  curl_close($curl);
+  return $response;
+}
+
+

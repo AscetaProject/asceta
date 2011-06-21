@@ -23,9 +23,10 @@
  * logic, should go here. Never include this file from your lib.php!
  *
  * @package   mod_modwordpress
- * @copyright 2010 Your Name
+ * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -39,9 +40,9 @@ defined('MOODLE_INTERNAL') || die();
  */
 function send_request($http_method, $url, $auth_header=null, $postData=null) {
   $curl = curl_init($url);
-  curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-  curl_setopt($curl, CURLOPT_FAILONERROR, false);
-  curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+  //curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  //curl_setopt($curl, CURLOPT_FAILONERROR, false);
+  //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
   switch($http_method) {
     case 'GET':
@@ -50,14 +51,12 @@ function send_request($http_method, $url, $auth_header=null, $postData=null) {
       }
       break;
     case 'POST':
-      curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml',
-                                                   $auth_header));
+      //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml',$auth_header));
       curl_setopt($curl, CURLOPT_POST, 1);
       curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
       break;
     case 'PUT':
-      curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml',
-                                                   $auth_header));
+      //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml',$auth_header));
       curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $http_method);
       curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
       break;
