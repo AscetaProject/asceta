@@ -455,6 +455,8 @@ function modwordpress_remove_user_subscriptions($userid, $context) {
 	        if ($modswordpress = $DB->get_records_sql("SELECT *
                                                          FROM {modwordpress}
                                                         WHERE course = ?", array($context->instanceid))) {
+
+		// TODO no todos los wordpress usan OAUTH
 		foreach ($modswordpress as $wordpress) {
 		    $server = $DB->get_record_select("modwordpress_servers", "id=$wordpress->server_id");
 		    $consumer_key = $server->consumer_key;
@@ -474,16 +476,13 @@ function modwordpress_remove_user_subscriptions($userid, $context) {
 		    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 		    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
 		    $wp_users = json_decode($response);
-		    var_dump($wp_users);
-		    echo (gettype($wp_users));
+		    // TODO tabla correspondencia ids de moodle y ids de wordpress
 		    foreach ($wp_users as $wp_user) {
 		        if ($wp_user->user_login == $user->username) {
-			error_log("Usuario a Borrar encontrado: $user->username");
-			$basefeed = rtrim($server->url, '/') . "/user/$wp_users->id";
+			$basefeed = rtrim($server->url, '/') . "/user/$wp_user->ID";
 			$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
 			$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 			$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-			error_log($response);
 			break;
 		        }
 		    }
@@ -549,7 +548,7 @@ function modwordpress_remove_user_subscriptions($userid, $context) {
  */
 function send_request($http_method, $url, $auth_header=null, $postData=null) {
   $curl = curl_init($url);
-  //curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
   //curl_setopt($curl, CURLOPT_FAILONERROR, false);
   //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
