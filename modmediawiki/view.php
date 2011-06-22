@@ -31,6 +31,8 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
+require_once(dirname(__FILE__).'/locallib.php');
+require_once(dirname(__FILE__).'/OAuth.php');
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // modmediawiki instance ID - it should be named as the first character of the module
@@ -47,6 +49,9 @@ if ($id) {
     error('You must specify a course_module ID or an instance ID');
 }
 
+if ($modmediawiki->server_id) {
+    $server = $DB->get_record('modmediawiki_servers', array('id' => $modmediawiki->server_id), '*', MUST_EXIST);
+}
 require_login($course, true, $cm);
 
 add_to_log($course->id, 'modmediawiki', 'view', "view.php?id=$cm->id", $modmediawiki->name, $cm->id);
@@ -65,8 +70,19 @@ $PAGE->set_button(update_module_button($cm->id, $course->id, get_string('modulen
 // Output starts here
 echo $OUTPUT->header();
 
-// Replace the following lines with you own code
-echo $OUTPUT->heading('Yay! It works!');
+if (!$modmediawiki->server_id) {
+    echo $OUTPUT->heading(get_string("configure_server_url","modmediawiki"));
+} else {
+    echo $OUTPUT->heading($modmediawiki->name.'\'s Pages');
+    $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
+    $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
+    $basefeed = rtrim($server->url,'/').'/pages';
+    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
+    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+    echo htmlentities($response);
+
+}
 
 // Finish the page
 echo $OUTPUT->footer();
