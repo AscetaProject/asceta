@@ -250,6 +250,34 @@ function xmldb_modwordpress_upgrade($oldversion) {
     }
 
 
+   if ($oldversion < 2011062402) {
+
+        // Define table modwordpress_users to be created
+        $table = new xmldb_table('modwordpress_users');
+
+        // Adding fields to table modwordpress_users
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('moodle_id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+        $table->add_field('wordpress_id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+        $table->add_field('server_id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table modwordpress_users
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('server', XMLDB_KEY_FOREIGN, array('server_id'), 'modwordpress_servers', array('id'));
+        $table->add_key('user', XMLDB_KEY_FOREIGN, array('moodle_id'), 'user', array('id'));
+
+        // Conditionally launch create table for modwordpress_users
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // modwordpress savepoint reached
+        upgrade_mod_savepoint(true, 2011062402, 'modwordpress');
+    }
+
+
+
+
 
 
 

@@ -63,6 +63,8 @@ function modwordpress_add_instance($modwordpress) {
     $newmod = $DB->insert_record('modwordpress', $modwordpress);
 
     if ($newmod) {
+
+        //Adding Moodle users to wordpress
         $modwordpress_instance = $DB->get_record_select("modwordpress", "id=$newmod");
         $course_id = $modwordpress_instance->course;
         $server_id = $modwordpress_instance->server_id;
@@ -85,12 +87,17 @@ function modwordpress_add_instance($modwordpress) {
         $course_users = $DB->get_records_sql($sql);
 
         foreach ($course_users as $user) {
-	$basefeed = rtrim($server->url, '/') . '/user';
+	$basefeed = rtrim($server->url, '/') . '/user.json';
 	$params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
 	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
 	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-	//$json_output = json_decode($response);
+	$json = json_decode($response);
+	$dataobject = array();
+	$dataobject['moodle_id'] = $user->id;
+	$dataobject['wordpress_id'] = $json->ID;
+	$dataobject['server_id'] = $server_id;
+	$DB->insert_record('modwordpress_users', $dataobject, false, false);
         }
     }
     return $newmod;
@@ -126,13 +133,38 @@ function modwordpress_update_instance($modwordpress) {
 function modwordpress_delete_instance($id) {
     global $DB;
 
-    if (!$modwordpress = $DB->get_record('modwordpress', array('id' => $id))) {
+    if (!$modwordpress_instance = $DB->get_record('modwordpress', array('id' => $id))) {
         return false;
     }
 
     # Delete any dependent records here #
 
-    $DB->delete_records('modwordpress', array('id' => $modwordpress->id));
+    $course_id = $modwordpress_instance->course;
+    $server_id = $modwordpress_instance->server_id;
+    $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
+
+    $consumer_key = $server->consumer_key;
+    $consumer_secret = $server->consumer_secret;
+    $access_token = $server->access_token;
+    $access_secret = $server->access_secret;
+    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+    $token = new OAuthToken($access_token, $access_secret, NULL);
+
+
+    $users = $DB->get_records_select("modwordpress_users", "server_id=$server_id");
+    foreach ($users as $user) {
+        $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
+        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
+        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+        $json = json_decode($response);
+        if ($json->deleted) {
+	$DB->delete_records("modwordpress_users", array('id'=>$user->id));
+        }
+        break;
+    }
+
+    $DB->delete_records('modwordpress', array('id' => $modwordpress_instance->id));
 
     return true;
 }
@@ -345,11 +377,18 @@ function modwordpress_add_user($userid, $context) {
 			 WHERE u.id = $userid";
 		    $user = $DB->get_record_sql($sql);
 
-		    $basefeed = rtrim($server->url, '/') . '/user';
+		    $basefeed = rtrim($server->url, '/') . '/user.json';
 		    $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
 		    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
 		    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 		    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+		    $json = json_decode($response);
+		    $dataobject = array();
+		    $dataobject['moodle_id'] = $user->id;
+		    $dataobject['wordpress_id'] = $json->ID;
+		    $dataobject['server_id'] = $server_id;
+		    $DB->insert_record('modwordpress_users', $dataobject, false, false);
+
 		}
 	        }
 	    }
@@ -375,11 +414,19 @@ function modwordpress_add_user($userid, $context) {
 		     WHERE u.id = $userid";
 	        $user = $DB->get_record_sql($sql);
 
-	        $basefeed = rtrim($server->url, '/') . '/user';
+	        $basefeed = rtrim($server->url, '/') . '/user.json';
 	        $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
 	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
 	        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+	        $json = json_decode($response);
+	        
+	        $dataobject = array();
+	        $dataobject['moodle_id'] = $user->id;
+	        $dataobject['wordpress_id'] = $json->ID;
+	        $dataobject['server_id'] = $server_id;
+	        $DB->insert_record('modwordpress_users', $dataobject, false, false);
+
 	    }
 	}
 	break;
@@ -460,25 +507,17 @@ function modwordpress_remove_user($userid, $context) {
 		    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
 		    $token = new OAuthToken($access_token, $access_secret, NULL);
 
-		    $sql = "SELECT u.id, u.username, u.firstname, u.email
-			  FROM {user} u
-			 WHERE u.deleted = 0 AND u.confirmed = 1 AND u.id = $userid";
-		    $user = $DB->get_record_sql($sql);
-
-		    $basefeed = rtrim($server->url, '/') . '/users.json';
-		    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed);
-		    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-		    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-		    $wp_users = json_decode($response);
-		    // TODO tabla correspondencia ids de moodle y ids de wordpress
-		    foreach ($wp_users as $wp_user) {
-		        if ($wp_user->user_login == $user->username) {
-			$basefeed = rtrim($server->url, '/') . "/user/$wp_user->ID";
-			$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
-			$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-			$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-			break;
+		    $users = $DB->get_records_select("modwordpress_users", "server_id=$wordpress->server_id");
+		    foreach ($users as $user) {
+		        $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
+		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
+		        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+		        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+		        $json = json_decode($response);
+		        if ($json->deleted) {
+			$DB->delete_records("modwordpress_users", array('id'=>$user->id));
 		        }
+		        break;
 		    }
 		}
 	        }
@@ -498,29 +537,17 @@ function modwordpress_remove_user($userid, $context) {
 		$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
 		$token = new OAuthToken($access_token, $access_secret, NULL);
 
-		$sql = "SELECT u.id, u.username, u.firstname, u.email
-		          FROM {user} u
-		         WHERE u.deleted = 0 AND u.confirmed = 1 AND u.id = $userid";
-		$enrolled_users = $DB->get_records_sql($sql);
-		if (count($enrolled_users))
-		    $user = $enrolled_users[0];
-
-		$basefeed = rtrim($server->url, '/') . '/users.json';
-		$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed);
-		$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-		$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-
-		$wp_users = json_decode($response);
-		foreach ($wp_users->users as $wp_user) {
-		    if ($wp_user->user_login == $user->username) {
-		        error_log("Usuario a Borrar encontrado: $user->username");
-		        $basefeed = rtrim($server->url, '/') . "/user/$wp_users->id";
-		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
-		        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-		        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-		        error_log($response);
-		        break;
+		$users = $DB->get_records_select("modwordpress_users", "server_id=$wordpress->server_id");
+		foreach ($users as $user) {
+		    $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
+		    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
+		    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+		    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+		    $json = json_decode($response);
+		    if ($json->deleted) {
+		        $DB->delete_records("modwordpress_users", array('id'=>$user->id));
 		    }
+		    break;
 		}
 	        }
 	    }

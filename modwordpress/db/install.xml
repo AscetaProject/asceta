@@ -24,7 +24,7 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="modwordpress_servers" COMMENT="REST API servers for modwordpress" PREVIOUS="modwordpress">
+    <TABLE NAME="modwordpress_servers" COMMENT="REST API servers for modwordpress" PREVIOUS="modwordpress" NEXT="modwordpress_users">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="name"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="REST API's Server Name" PREVIOUS="id" NEXT="url"/>
@@ -42,6 +42,19 @@
       <INDEXES>
         <INDEX NAME="url" UNIQUE="false" FIELDS="url"/>
       </INDEXES>
+    </TABLE>
+    <TABLE NAME="modwordpress_users" COMMENT="Users relation between moodle and wordpress" PREVIOUS="modwordpress_servers">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="moodle_id"/>
+        <FIELD NAME="moodle_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" PREVIOUS="id" NEXT="wordpress_id"/>
+        <FIELD NAME="wordpress_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" PREVIOUS="id" NEXT="server_id"/>
+        <FIELD NAME="server_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" PREVIOUS="id"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="server"/>
+        <KEY NAME="server" TYPE="foreign" FIELDS="server_id" REFTABLE="modwordpress_servers" REFFIELDS="id" PREVIOUS="primary" NEXT="user"/>
+        <KEY NAME="user" TYPE="foreign" FIELDS="moodle_id" REFTABLE="user" REFFIELDS="id" PREVIOUS="server"/>
+      </KEYS>
     </TABLE>
   </TABLES>
 </XMLDB>
