@@ -70,12 +70,15 @@ function modwordpress_add_instance($modwordpress) {
         $server_id = $modwordpress_instance->server_id;
         $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
 
-        $consumer_key = $server->consumer_key;
-        $consumer_secret = $server->consumer_secret;
-        $access_token = $server->access_token;
-        $access_secret = $server->access_secret;
-        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-        $token = new OAuthToken($access_token, $access_secret, NULL);
+
+        if ($server->oauth) {
+	$consumer_key = $server->consumer_key;
+	$consumer_secret = $server->consumer_secret;
+	$access_token = $server->access_token;
+	$access_secret = $server->access_secret;
+	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+	$token = new OAuthToken($access_token, $access_secret, NULL);
+        }
 
         $context = get_context_instance(CONTEXT_COURSE, $course_id);
         $contextlists = get_related_contexts_string($context);
@@ -89,9 +92,15 @@ function modwordpress_add_instance($modwordpress) {
         foreach ($course_users as $user) {
 	$basefeed = rtrim($server->url, '/') . '/user.json';
 	$params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
-	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
-	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+
+	if ($server->oauth) {
+	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+	} else {
+	    $response = send_request('POST', $basefeed, null, $params);
+	}
+
 	$json = json_decode($response);
 	$dataobject = array();
 	$dataobject['moodle_id'] = $user->id;
@@ -99,6 +108,7 @@ function modwordpress_add_instance($modwordpress) {
 	$dataobject['server_id'] = $server_id;
 	$DB->insert_record('modwordpress_users', $dataobject, false, false);
         }
+
     }
     return $newmod;
 }
@@ -143,20 +153,27 @@ function modwordpress_delete_instance($id) {
     $server_id = $modwordpress_instance->server_id;
     $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
 
-    $consumer_key = $server->consumer_key;
-    $consumer_secret = $server->consumer_secret;
-    $access_token = $server->access_token;
-    $access_secret = $server->access_secret;
-    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-    $token = new OAuthToken($access_token, $access_secret, NULL);
-
+    if ($server->oauth) {
+        $consumer_key = $server->consumer_key;
+        $consumer_secret = $server->consumer_secret;
+        $access_token = $server->access_token;
+        $access_secret = $server->access_secret;
+        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+        $token = new OAuthToken($access_token, $access_secret, NULL);
+    }
 
     $users = $DB->get_records_select("modwordpress_users", "server_id=$server_id");
     foreach ($users as $user) {
         $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
-        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
-        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+
+        if ($server->oauth) {
+	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
+	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+        } else {
+	$response = send_request('DELETE', $basefeed);
+        }
+
         $json = json_decode($response);
         if ($json->deleted) {
 	$DB->delete_records("modwordpress_users", array('id'=>$user->id));
@@ -365,12 +382,14 @@ function modwordpress_add_user($userid, $context) {
 		    $server_id = $modwordpress_instance->server_id;
 		    $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
 
-		    $consumer_key = $server->consumer_key;
-		    $consumer_secret = $server->consumer_secret;
-		    $access_token = $server->access_token;
-		    $access_secret = $server->access_secret;
-		    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-		    $token = new OAuthToken($access_token, $access_secret, NULL);
+		    if ($server->oauth) {
+		        $consumer_key = $server->consumer_key;
+		        $consumer_secret = $server->consumer_secret;
+		        $access_token = $server->access_token;
+		        $access_secret = $server->access_secret;
+		        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+		        $token = new OAuthToken($access_token, $access_secret, NULL);
+		    }
 
 		    $sql = "SELECT u.id, u.username, u.firstname, u.email
 			  FROM {user} u
@@ -379,9 +398,15 @@ function modwordpress_add_user($userid, $context) {
 
 		    $basefeed = rtrim($server->url, '/') . '/user.json';
 		    $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
-		    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
-		    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-		    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+
+		    if ($server->oauth) {
+		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+		        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+		        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+		    } else {
+		        $response = send_request('POST', $basefeed, null, $params);
+		    }
+
 		    $json = json_decode($response);
 		    $dataobject = array();
 		    $dataobject['moodle_id'] = $user->id;
@@ -402,12 +427,14 @@ function modwordpress_add_user($userid, $context) {
 	        $server_id = $modwordpress_instance->server_id;
 	        $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
 
-	        $consumer_key = $server->consumer_key;
-	        $consumer_secret = $server->consumer_secret;
-	        $access_token = $server->access_token;
-	        $access_secret = $server->access_secret;
-	        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	        $token = new OAuthToken($access_token, $access_secret, NULL);
+	        if ($server->oauth) {
+		$consumer_key = $server->consumer_key;
+		$consumer_secret = $server->consumer_secret;
+		$access_token = $server->access_token;
+		$access_secret = $server->access_secret;
+		$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+		$token = new OAuthToken($access_token, $access_secret, NULL);
+	        }
 
 	        $sql = "SELECT u.id, u.username, u.firstname, u.email
 		      FROM {user} u
@@ -416,9 +443,15 @@ function modwordpress_add_user($userid, $context) {
 
 	        $basefeed = rtrim($server->url, '/') . '/user.json';
 	        $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
-	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
-	        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+
+	        if ($server->oauth) {
+		$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+		$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+		$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+	        } else {
+		$response = send_request('POST', $basefeed, null, $params);
+	        }
+
 	        $json = json_decode($response);
 	        
 	        $dataobject = array();
@@ -500,19 +533,28 @@ function modwordpress_remove_user($userid, $context) {
 		// TODO no todos los wordpress usan OAUTH
 		foreach ($modswordpress as $wordpress) {
 		    $server = $DB->get_record_select("modwordpress_servers", "id=$wordpress->server_id");
-		    $consumer_key = $server->consumer_key;
-		    $consumer_secret = $server->consumer_secret;
-		    $access_token = $server->access_token;
-		    $access_secret = $server->access_secret;
-		    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-		    $token = new OAuthToken($access_token, $access_secret, NULL);
+
+		    if ($server->oauth) {
+		        $consumer_key = $server->consumer_key;
+		        $consumer_secret = $server->consumer_secret;
+		        $access_token = $server->access_token;
+		        $access_secret = $server->access_secret;
+		        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+		        $token = new OAuthToken($access_token, $access_secret, NULL);
+		    }
 
 		    $users = $DB->get_records_select("modwordpress_users", "server_id=$wordpress->server_id");
 		    foreach ($users as $user) {
 		        $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
-		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
-		        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-		        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+
+		        if ($server->oauth) {
+			$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
+			$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+			$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+		        } else {
+			$response = send_request('DELETE', $basefeed);
+		        }
+
 		        $json = json_decode($response);
 		        if ($json->deleted) {
 			$DB->delete_records("modwordpress_users", array('id'=>$user->id));
@@ -530,19 +572,28 @@ function modwordpress_remove_user($userid, $context) {
 	    if ($cm = get_coursemodule_from_id('forum', $context->instanceid)) {
 	        if ($wordpress = $DB->get_record('modwordpress', array('id' => $cm->instance))) {
 		$server = $DB->get_record_select("modwordpress_servers", "id=$wordpress->server_id");
-		$consumer_key = $server->consumer_key;
-		$consumer_secret = $server->consumer_secret;
-		$access_token = $server->access_token;
-		$access_secret = $server->access_secret;
-		$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-		$token = new OAuthToken($access_token, $access_secret, NULL);
+
+		if ($server->oauth) {
+		    $consumer_key = $server->consumer_key;
+		    $consumer_secret = $server->consumer_secret;
+		    $access_token = $server->access_token;
+		    $access_secret = $server->access_secret;
+		    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+		    $token = new OAuthToken($access_token, $access_secret, NULL);
+		}
 
 		$users = $DB->get_records_select("modwordpress_users", "server_id=$wordpress->server_id");
 		foreach ($users as $user) {
 		    $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
-		    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
-		    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-		    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+
+		    if ($server->oauth) {
+		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
+		        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+		        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+		    } else {
+		        $response = send_request('DELETE', $basefeed);
+		    }
+
 		    $json = json_decode($response);
 		    if ($json->deleted) {
 		        $DB->delete_records("modwordpress_users", array('id'=>$user->id));

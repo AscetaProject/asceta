@@ -34,8 +34,8 @@
         <FIELD NAME="request_token" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Request Token" PREVIOUS="consumer_secret" NEXT="request_secret"/>
         <FIELD NAME="request_secret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Request Secret" PREVIOUS="request_token" NEXT="access_token"/>
         <FIELD NAME="access_token" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Access Token" PREVIOUS="request_secret" NEXT="access_secret"/>
-        <FIELD NAME="access_secret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Access Secret" PREVIOUS="access_token"/>
-      </FIELDS>
+        <FIELD NAME="access_secret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Access Secret" PREVIOUS="access_token" NEXT="oauth"/>
+        <FIELD NAME="oauth" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" COMMENT="Requires OAuth authentication" PREVIOUS="access_secret"/>      </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>

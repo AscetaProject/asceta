@@ -276,6 +276,23 @@ function xmldb_modwordpress_upgrade($oldversion) {
     }
 
 
+    if ($oldversion < 2011062403) {
+
+        // Define field oauth to be added to modwordpress_servers
+        $table = new xmldb_table('modwordpress_servers');
+        $field = new xmldb_field('oauth', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '1', 'access_secret');
+
+        // Conditionally launch add field oauth
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // modwordpress savepoint reached
+        upgrade_mod_savepoint(true, 2011062403, 'modwordpress');
+    }
+
+
+
 
 
 
