@@ -30,12 +30,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'Wordpress';
-$string['modulenameplural'] = 'modwordpress3';
+$string['modulenameplural'] = 'modwordpress';
 $string['modwordpressname'] = 'Wordpress name';
 $string['modwordpressname_help'] = 'This is the content of the help tooltip associated with the modwordpressname field. Markdown syntax is supported.';
-$string['modwordpress'] = 'modwordpress2';
+$string['modwordpress'] = 'modwordpress';
 $string['pluginadministration'] = 'modwordpress administration';
-$string['pluginname'] = 'modwordpress1';
+$string['pluginname'] = 'modwordpress';
 $string['name'] = 'Name';
 $string['actions'] = 'Actions';
 $string['register'] = 'Register';
@@ -54,3 +54,5 @@ $string['request_secret'] = 'Request SECRET';
 $string['access_token'] = 'Access TOKEN';
 $string['access_secret'] = 'Access SECRET';
 $string['register_server'] = 'Register Moodle as Client';
+$string['available_servers'] = "Available Wordpress Servers";
+$string['requires_oauth'] = "Requires OAuth Authentication";

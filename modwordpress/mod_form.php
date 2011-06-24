@@ -67,10 +67,16 @@ class mod_modwordpress_mod_form extends moodleform_mod {
         $options[0] = get_string('none');
         if ($servers = $DB->get_records('modwordpress_servers', array())) {
             foreach ($servers as $server) {
-                $options[$server->id] = format_string($server->name);
+	    if ($server->oauth) {
+	        if ($server->consumer_key != '' && $server->consumer_secret != '' && $server->access_token != '' && $server->access_secret != '') {
+		$options[$server->id] = format_string($server->name);
+	        }
+	    } else {
+	        $options[$server->id] = format_string($server->name);
+	    }
             }
         }
-        $mform->addElement('select', 'server_id', get_string('modmediawikiservers', 'modmediawiki'), $options);
+        $mform->addElement('select', 'server_id', get_string('available_servers', 'modwordpress'), $options);
 
 
 //-------------------------------------------------------------------------------

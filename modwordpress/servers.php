@@ -32,6 +32,7 @@ if ( $mode == 'save_new' and $form and confirm_sesskey()) {
     $dataobject = array();
     $dataobject['name'] = $form->server_name;
     $dataobject['url'] = $form->server_url;
+    $dataobject['oauth'] = (isset($form->oauth) ? 1 : 0);
     $DB->insert_record('modwordpress_servers', $dataobject, false, false);
     redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodwordpress#modwordpress_servers_header");
     die;
@@ -50,6 +51,7 @@ if ( $mode == 'save_new' and $form and confirm_sesskey()) {
     $dataobject['request_secret'] = $form->request_secret;
     $dataobject['access_token'] = $form->access_token;
     $dataobject['access_secret'] = $form->access_secret;
+    $dataobject['oauth'] = (isset($form->oauth) ? 1 : 0);
     $DB->update_record('modwordpress_servers', $dataobject, false, false);
     redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodwordpress#modwordpress_servers_header");
     die;
@@ -218,6 +220,14 @@ if ($mode == 'register') {
         </td>
         <td>
 	<input name="server_url" id="server_url" size="60" <?php if ($mode == "edit") echo "value='".$server[$id]->url."'"; ?> />
+        </td>
+    </tr>
+    <tr>
+        <td>
+	<label for="oauth"><?php echo print_string('requires_oauth','modwordpress'); ?></label>
+        </td>
+        <td>
+	<input type="checkbox" name="oauth" id="oauth" size="60" value="1" <?php if ($mode == "edit" && $server[$id]->oauth) echo "checked='checked'"; ?>/>
         </td>
     </tr>
     <?php
