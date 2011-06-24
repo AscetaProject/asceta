@@ -263,23 +263,7 @@ function modwordpress_uninstall() {
  */
 function modwordpress_user_enrolled($cp) {
     $context = get_context_instance(CONTEXT_COURSE, $cp->courseid);
-    modwordpress_add_user_default_subscriptions($cp->userid, $context);
-
-
-
-    /*
-      $attrs = get_object_vars($cp);
-      error_log(" #####>   modwordpress_user_enrolled > ".count($class_methods));
-      foreach ($attrs as $k => $v) {
-      error_log("   $k ------> $v");
-      }
-
-      $attrs = get_object_vars($context);
-      error_log(" ::::::::>   modwordpress_user_enrolled > ".count($class_methods));
-      foreach ($attrs as $k => $v) {
-      error_log("   $k .......> $v");
-      }
-     */
+    modwordpress_add_user($cp->userid, $context);
 }
 
 /**
@@ -291,7 +275,7 @@ function modwordpress_user_enrolled($cp) {
 function modwordpress_user_unenrolled($cp) {
     if ($cp->lastenrol) {
         $context = get_context_instance(CONTEXT_COURSE, $cp->courseid);
-        modwordpress_remove_user_subscriptions($cp->userid, $context);
+        modwordpress_remove_user($cp->userid, $context);
     }
 }
 
@@ -307,7 +291,7 @@ function modwordpress_user_unenrolled($cp) {
  * @param object $context
  * @return bool
  */
-function modwordpress_add_user_default_subscriptions($userid, $context) {
+function modwordpress_add_user($userid, $context) {
     global $DB;
     if (empty($context->contextlevel)) {
         return false;
@@ -319,7 +303,7 @@ function modwordpress_add_user_default_subscriptions($userid, $context) {
 	$rs = $DB->get_recordset('course', null, '', 'id');
 	foreach ($rs as $course) {
 	    $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
-	    forum_add_user_default_subscriptions($userid, $subcontext);
+	    modwordpress_add_user($userid, $subcontext);
 	}
 	$rs->close();
 	break;
@@ -328,13 +312,13 @@ function modwordpress_add_user_default_subscriptions($userid, $context) {
 	$rs = $DB->get_recordset('course', array('category' => $context->instanceid), '', 'id');
 	foreach ($rs as $course) {
 	    $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
-	    forum_add_user_default_subscriptions($userid, $subcontext);
+	    modwordpress_add_user($userid, $subcontext);
 	}
 	$rs->close();
 	if ($categories = $DB->get_records('course_categories', array('parent' => $context->instanceid))) {
 	    foreach ($categories as $category) {
 	        $subcontext = get_context_instance(CONTEXT_COURSECAT, $category->id);
-	        forum_add_user_default_subscriptions($userid, $subcontext);
+	        modwordpress_add_user($userid, $subcontext);
 	    }
 	}
 	break;
@@ -343,16 +327,29 @@ function modwordpress_add_user_default_subscriptions($userid, $context) {
         case CONTEXT_COURSE:   // For a whole course
 	if (is_enrolled($context, $userid)) {
 	    if ($course = $DB->get_record('course', array('id' => $context->instanceid))) {
-	        if ($forums = get_all_instances_in_course('forum', $course, $userid, false)) {
-		foreach ($forums as $forum) {
-		    if ($forum->forcesubscribe != FORUM_INITIALSUBSCRIBE) {
-		        continue;
-		    }
-		    if ($modcontext = get_context_instance(CONTEXT_MODULE, $forum->coursemodule)) {
-		        if (has_capability('mod/forum:viewdiscussion', $modcontext, $userid)) {
-			forum_subscribe($userid, $forum->id);
-		        }
-		    }
+	        if ($modswordpress = get_all_instances_in_course('modwordpress', $course, $userid, false)) {
+		foreach ($modswordpress as $modwordpress_instance) {
+		    $course_id = $modwordpress_instance->course;
+		    $server_id = $modwordpress_instance->server_id;
+		    $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
+
+		    $consumer_key = $server->consumer_key;
+		    $consumer_secret = $server->consumer_secret;
+		    $access_token = $server->access_token;
+		    $access_secret = $server->access_secret;
+		    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+		    $token = new OAuthToken($access_token, $access_secret, NULL);
+
+		    $sql = "SELECT u.id, u.username, u.firstname, u.email
+			  FROM {user} u
+			 WHERE u.id = $userid";
+		    $user = $DB->get_record_sql($sql);
+
+		    $basefeed = rtrim($server->url, '/') . '/user';
+		    $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
+		    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+		    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+		    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 		}
 	        }
 	    }
@@ -361,9 +358,11 @@ function modwordpress_add_user_default_subscriptions($userid, $context) {
 
         case CONTEXT_MODULE:   // Just one forum
 	if ($cm = get_coursemodule_from_id('modwordpress', $context->instanceid)) {
-	    if ($wordpress = $DB->get_record('modwordpress', array('id' => $cm->instance))) {
+	    if ($modwordpress_instance = $DB->get_record('modwordpress', array('id' => $cm->instance))) {
+	        $course_id = $modwordpress_instance->course;
+	        $server_id = $modwordpress_instance->server_id;
+	        $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
 
-	        $server = $DB->get_record_select("modwordpress_servers", "id=$wordpress->server_id");
 	        $consumer_key = $server->consumer_key;
 	        $consumer_secret = $server->consumer_secret;
 	        $access_token = $server->access_token;
@@ -373,11 +372,8 @@ function modwordpress_add_user_default_subscriptions($userid, $context) {
 
 	        $sql = "SELECT u.id, u.username, u.firstname, u.email
 		      FROM {user} u
-		     WHERE u.deleted = 0 AND u.confirmed = 1 AND u.id = $userid";
-	        $enrolled_user = $DB->get_records_sql($sql);
-	        if (count($enrolled_user))
-		$user = $enrolled_user[0];
-
+		     WHERE u.id = $userid";
+	        $user = $DB->get_record_sql($sql);
 
 	        $basefeed = rtrim($server->url, '/') . '/user';
 	        $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
@@ -405,7 +401,7 @@ function modwordpress_add_user_default_subscriptions($userid, $context) {
  * @param object $context
  * @return bool
  */
-function modwordpress_remove_user_subscriptions($userid, $context) {
+function modwordpress_remove_user($userid, $context) {
 
     global $CFG, $DB;
 
@@ -428,7 +424,7 @@ function modwordpress_remove_user_subscriptions($userid, $context) {
 
 	    foreach ($courses as $course) {
 	        $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
-	        forum_remove_user_subscriptions($userid, $subcontext);
+	        modwordpress_remove_user($userid, $subcontext);
 	    }
 	}
 	break;
@@ -437,13 +433,13 @@ function modwordpress_remove_user_subscriptions($userid, $context) {
 	if ($courses = $DB->get_records('course', array('category' => $context->instanceid), '', 'id')) {
 	    foreach ($courses as $course) {
 	        $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
-	        forum_remove_user_subscriptions($userid, $subcontext);
+	        modwordpress_remove_user($userid, $subcontext);
 	    }
 	}
 	if ($categories = $DB->get_records('course_categories', array('parent' => $context->instanceid), '', 'id')) {
 	    foreach ($categories as $category) {
 	        $subcontext = get_context_instance(CONTEXT_COURSECAT, $category->id);
-	        forum_remove_user_subscriptions($userid, $subcontext);
+	        modwordpress_remove_user($userid, $subcontext);
 	    }
 	}
 	break;
@@ -452,9 +448,7 @@ function modwordpress_remove_user_subscriptions($userid, $context) {
 	if (!is_enrolled($context, $userid)) {
 	    if ($course = $DB->get_record('course', array('id' => $context->instanceid), 'id')) {
 	        // find all forums in which this user has a subscription, and its coursemodule id
-	        if ($modswordpress = $DB->get_records_sql("SELECT *
-                                                         FROM {modwordpress}
-                                                        WHERE course = ?", array($context->instanceid))) {
+	        if ($modswordpress = $DB->get_records_sql("SELECT * FROM {modwordpress} WHERE course = ?", array($context->instanceid))) {
 
 		// TODO no todos los wordpress usan OAUTH
 		foreach ($modswordpress as $wordpress) {
