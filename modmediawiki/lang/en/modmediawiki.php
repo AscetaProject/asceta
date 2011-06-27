@@ -30,18 +30,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'Mediawiki';
-$string['modulenameplural'] = 'modmediawikis';
-$string['modmediawikifieldset'] = 'Configuration Mediawiki Server';
-$string['modmediawikiname'] = 'modmediawiki name';
+$string['modulenameplural'] = 'modmediawiki';
+$string['modmediawikiname'] = 'Mediawiki name';
 $string['modmediawikiname_help'] = 'This is the content of the help tooltip associated with the modmediawikiname field. Markdown syntax is supported.';
-$string['modmediawiki'] = 'modmediawiki';
+$string['modmediawiki'] = 'modmediawiki2';
 $string['pluginadministration'] = 'modmediawiki administration';
-$string['pluginname'] = 'modmediawiki';
-
-$string['modmediawikiservers'] = 'Servers';
-
-$string['modmediawikiserverlist'] = 'Servers List';
-
+$string['pluginname'] = 'modmediawiki1';
 $string['name'] = 'Name';
 $string['actions'] = 'Actions';
 $string['register'] = 'Register';

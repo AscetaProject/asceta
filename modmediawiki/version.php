@@ -23,13 +23,13 @@
  * /admin/index.php
  *
  * @package   mod_modmediawiki
- * @copyright 2010 Your Name
+ * @copyright 2011 María del Mar Jiménez Torres (mjimenez@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$module->version  = 2011061609;           // If version == 0 then module will not be installed
+$module->version  = 2011062403;           // If version == 0 then module will not be installed
 //$module->version  = 2010032200;  // The current module version (Date: YYYYMMDDXX)
 $module->requires = 2010031900;  // Requires this Moodle version
 $module->cron     = 0;           // Period for cron to check this module (secs)

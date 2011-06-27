@@ -23,7 +23,7 @@
  * visit: http://docs.moodle.org/en/Development:lib/formslib.php
  *
  * @package   mod_modmediawiki
- * @copyright 2010 Your Name
+ * @copyright 2011 María del Mar Jiménez Torres (mjimenez@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

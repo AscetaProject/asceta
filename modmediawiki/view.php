@@ -23,7 +23,7 @@
  * if you like, and it can span multiple lines.
  *
  * @package   mod_modmediawiki
- * @copyright 2010 Your Name
+ * @copyright 2011 María del Mar Jiménez Torres (mjimenez@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -79,7 +79,7 @@ if (!$modmediawiki->server_id) {
     $basefeed = rtrim($server->url,'/').'/pages';
     $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
     $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+    $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
     echo htmlentities($response);
 
 }

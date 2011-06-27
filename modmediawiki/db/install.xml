@@ -23,7 +23,7 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="modmediawiki_servers" COMMENT="List of Mediawiki servers registers" PREVIOUS="modmediawiki">
+    <TABLE NAME="modmediawiki_servers" COMMENT="List of Mediawiki servers registers" PREVIOUS="modmediawiki" NEXT="modmediawiki_users">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="name"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="REST API's Server Name" PREVIOUS="id" NEXT="url"/>
@@ -33,7 +33,8 @@
         <FIELD NAME="request_token" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Request Token" PREVIOUS="consumer_secret" NEXT="request_secret"/>
         <FIELD NAME="request_secret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Request Secret" PREVIOUS="request_token" NEXT="access_token"/>
         <FIELD NAME="access_token" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Access Token" PREVIOUS="request_secret" NEXT="access_secret"/>
-        <FIELD NAME="access_secret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Access Secret" PREVIOUS="access_token"/>
+        <FIELD NAME="access_secret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Access Secret" PREVIOUS="access_token" NEXT="oauth" />
+        <FIELD NAME="oauth" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" COMMENT="Requires OAuth authentication" PREVIOUS="access_secret"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -41,6 +42,19 @@
       <INDEXES>
         <INDEX NAME="url" UNIQUE="false" FIELDS="url"/>
       </INDEXES>
+    </TABLE>
+    <TABLE NAME="modmediawiki_users" COMMENT="Users relation between moodle and mediawiki" PREVIOUS="modmediawiki_servers">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="moodle_id"/>
+        <FIELD NAME="moodle_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true"  SEQUENCE="false" PREVIOUS="id" NEXT="mediawiki_id"/>
+        <FIELD NAME="mediawiki_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true"  SEQUENCE="false" PREVIOUS="moodle_id" NEXT="server_id"/>
+        <FIELD NAME="server_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true"  SEQUENCE="false" PREVIOUS="mediawiki_id"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="server"/>
+        <KEY NAME="server" TYPE="foreign" FIELDS="server_id" REFTABLE="modmediawiki_servers" REFFIELDS="id" PREVIOUS="primary" NEXT="user"/>
+        <KEY NAME="user" TYPE="foreign" FIELDS="moodle_id" REFTABLE="user" REFFIELDS="id" PREVIOUS="server"/>
+      </KEYS>
     </TABLE>
   </TABLES>
 </XMLDB>

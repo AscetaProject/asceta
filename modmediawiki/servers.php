@@ -88,7 +88,7 @@ if ( $mode == 'save_new' and $form and confirm_sesskey()) {
     $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
     $request = OAuthRequest::from_consumer_and_token($consumer, NULL, 'GET', $basefeed, array());
     $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, NULL);
-    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+    $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
     $response_data = explode_assoc("=","&",$response);
     $dataobject = array();
     $dataobject['id'] = $id;
@@ -122,7 +122,7 @@ if ( $mode == 'save_new' and $form and confirm_sesskey()) {
     $token = new OAuthToken($request_token, $request_secret, NULL);
     $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
     $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+    $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
     $response_data = explode_assoc("=","&",$response);
     $dataobject = array();
     $dataobject['id'] = $id;

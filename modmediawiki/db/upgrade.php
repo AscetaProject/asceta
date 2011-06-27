@@ -27,7 +27,7 @@
  * here will all be database-neutral, using the functions defined in DLL libraries.
  *
  * @package   mod_modmediawiki
- * @copyright 2010 Your Name
+ * @copyright 2011 María del Mar Jiménez Torres (mjimenez@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -240,6 +240,40 @@ function xmldb_modmediawiki_upgrade($oldversion) {
 
         // modmediawiki savepoint reached
         upgrade_mod_savepoint(true, 2011061607, 'modmediawiki');
+    }
+
+    if ($oldversion < 2011062403) {
+
+        /// Define field server_id to be added to modmediawiki
+        $table = new xmldb_table('modmediawiki_servers');
+        $field = new xmldb_field('oauth', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '1','access_secret');
+
+        /// Add field server_id
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define table modmediawiki_users to be created
+        $table = new xmldb_table('modmediawiki_users');
+
+        // Adding fields to table modmediawiki_users
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('moodle_id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+        $table->add_field('mediawiki_id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+        $table->add_field('server_id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table modmediawiki_users
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('server', XMLDB_KEY_FOREIGN, array('server_id'), 'modmediawiki_servers', array('id'));
+        $table->add_key('user', XMLDB_KEY_FOREIGN, array('moodle_id'), 'user', array('id'));
+
+        // Conditionally launch create table for modmediawiki_users
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // modmediawiki savepoint reached
+        upgrade_mod_savepoint(true, 2011062403, 'modmediawiki');
     }
 
     return true;
