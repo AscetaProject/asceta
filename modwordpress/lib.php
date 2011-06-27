@@ -31,8 +31,8 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-require_once("locallib.php");
-require_once("OAuth.php");
+if (!function_exists('implode_assoc')) require_once("locallib.php");
+if (!class_exists('OAuthConsumer')) require_once("OAuth.php");
 
 /** example constant */
 //define('NEWMODULE_ULTIMATE_ANSWER', 42);
@@ -87,6 +87,7 @@ function modwordpress_add_instance($modwordpress) {
 	      FROM {user} u
 	      JOIN {role_assignments} ra ON ra.userid = u.id
 	     WHERE u.deleted = 0 AND u.confirmed = 1 AND ra.contextid $contextlists";
+        error_log($sql);
         $course_users = $DB->get_records_sql($sql);
 
         foreach ($course_users as $user) {
@@ -102,11 +103,13 @@ function modwordpress_add_instance($modwordpress) {
 	}
 
 	$json = json_decode($response);
-	$dataobject = array();
-	$dataobject['moodle_id'] = $user->id;
-	$dataobject['wordpress_id'] = $json->ID;
-	$dataobject['server_id'] = $server_id;
-	$DB->insert_record('modwordpress_users', $dataobject, false, false);
+	if ($json->ID != null) {
+	    $dataobject = array();
+	    $dataobject['moodle_id'] = $user->id;
+	    $dataobject['wordpress_id'] = $json->ID;
+	    $dataobject['server_id'] = $server_id;
+	    $DB->insert_record('modwordpress_users', $dataobject, false, false);
+	}
         }
 
     }
@@ -129,7 +132,64 @@ function modwordpress_update_instance($modwordpress) {
 
     # You may have to add extra stuff in here #
 
-    return $DB->update_record('modwordpress', $modwordpress);
+    $newmod = $DB->update_record('modwordpress', $modwordpress);
+
+
+    if ($newmod) {
+
+        //Adding Moodle users to wordpress
+        //$modwordpress_instance = $DB->get_record_select("modwordpress", "id=$newmod");
+        $course_id = $modwordpress->course;
+        $server_id = $modwordpress->server_id;
+        $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
+
+
+        if ($server->oauth) {
+	$consumer_key = $server->consumer_key;
+	$consumer_secret = $server->consumer_secret;
+	$access_token = $server->access_token;
+	$access_secret = $server->access_secret;
+	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+	$token = new OAuthToken($access_token, $access_secret, NULL);
+        }
+
+        $context = get_context_instance(CONTEXT_COURSE, $course_id);
+        $contextlists = get_related_contexts_string($context);
+
+        // Get new enrolled users that are not in the wordpress-moodle equivalence's table
+        $sql = "SELECT u.id, u.username, u.firstname, u.email
+	      FROM {user} u
+	      JOIN {role_assignments} ra ON ra.userid = u.id
+	      LEFT OUTER JOIN {modwordpress_users} wpu ON u.id = wpu.moodle_id
+	     WHERE u.deleted = 0 AND u.confirmed = 1 AND ra.contextid $contextlists AND wpu.wordpress_id IS NULL";
+
+        error_log(str_replace("\r\n\t",'',$sql));
+        $course_users = $DB->get_records_sql($sql);
+
+        foreach ($course_users as $user) {
+	$basefeed = rtrim($server->url, '/') . '/user.json';
+	$params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
+
+	if ($server->oauth) {
+	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+	} else {
+	    $response = send_request('POST', $basefeed, null, $params);
+	}
+
+	$json = json_decode($response);
+	if ($json->ID != null) {
+	    $dataobject = array();
+	    $dataobject['moodle_id'] = $user->id;
+	    $dataobject['wordpress_id'] = $json->ID;
+	    $dataobject['server_id'] = $server_id;
+	    $DB->insert_record('modwordpress_users', $dataobject, false, false);
+	}
+        }
+
+    }
+    return $newmod;
 }
 
 /**
