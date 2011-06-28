@@ -95,7 +95,7 @@ function modwordpress_add_instance($modwordpress) {
 	$params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
 
 	if ($server->oauth) {
-	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
 	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 	} else {
@@ -171,7 +171,7 @@ function modwordpress_update_instance($modwordpress) {
 	$params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
 
 	if ($server->oauth) {
-	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
 	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 	} else {
@@ -442,15 +442,6 @@ function modwordpress_add_user($userid, $context) {
 		    $server_id = $modwordpress_instance->server_id;
 		    $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
 
-		    if ($server->oauth) {
-		        $consumer_key = $server->consumer_key;
-		        $consumer_secret = $server->consumer_secret;
-		        $access_token = $server->access_token;
-		        $access_secret = $server->access_secret;
-		        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-		        $token = new OAuthToken($access_token, $access_secret, NULL);
-		    }
-
 		    $sql = "SELECT u.id, u.username, u.firstname, u.email
 			  FROM {user} u
 			 WHERE u.id = $userid";
@@ -460,7 +451,13 @@ function modwordpress_add_user($userid, $context) {
 		    $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
 
 		    if ($server->oauth) {
-		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+		        $consumer_key = $server->consumer_key;
+		        $consumer_secret = $server->consumer_secret;
+		        $access_token = $server->access_token;
+		        $access_secret = $server->access_secret;
+		        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+		        $token = new OAuthToken($access_token, $access_secret, NULL);
+		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
 		        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 		        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 		    } else {
@@ -487,6 +484,14 @@ function modwordpress_add_user($userid, $context) {
 	        $server_id = $modwordpress_instance->server_id;
 	        $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
 
+	        $sql = "SELECT u.id, u.username, u.firstname, u.email
+		      FROM {user} u
+		     WHERE u.id = $userid";
+	        $user = $DB->get_record_sql($sql);
+
+	        $basefeed = rtrim($server->url, '/') . '/user.json?XSESS';
+	        $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
+
 	        if ($server->oauth) {
 		$consumer_key = $server->consumer_key;
 		$consumer_secret = $server->consumer_secret;
@@ -494,18 +499,7 @@ function modwordpress_add_user($userid, $context) {
 		$access_secret = $server->access_secret;
 		$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
 		$token = new OAuthToken($access_token, $access_secret, NULL);
-	        }
-
-	        $sql = "SELECT u.id, u.username, u.firstname, u.email
-		      FROM {user} u
-		     WHERE u.id = $userid";
-	        $user = $DB->get_record_sql($sql);
-
-	        $basefeed = rtrim($server->url, '/') . '/user.json';
-	        $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
-
-	        if ($server->oauth) {
-		$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+		$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
 		$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 		$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 	        } else {
@@ -691,12 +685,12 @@ function send_request($http_method, $url, $auth_header=null, $postData=null) {
       }
       break;
     case 'POST':
-      //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml',$auth_header));
+      curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
       curl_setopt($curl, CURLOPT_POST, 1);
       curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
       break;
     case 'PUT':
-      //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml',$auth_header));
+      curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
       curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $http_method);
       curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
       break;
