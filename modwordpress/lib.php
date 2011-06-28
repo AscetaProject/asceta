@@ -465,12 +465,13 @@ function modwordpress_add_user($userid, $context) {
 		    }
 
 		    $json = json_decode($response);
-		    $dataobject = array();
-		    $dataobject['moodle_id'] = $user->id;
-		    $dataobject['wordpress_id'] = $json->ID;
-		    $dataobject['server_id'] = $server_id;
-		    $DB->insert_record('modwordpress_users', $dataobject, false, false);
-
+		    if (isset($json->ID)) {
+		        $dataobject = array();
+		        $dataobject['moodle_id'] = $user->id;
+		        $dataobject['wordpress_id'] = $json->ID;
+		        $dataobject['server_id'] = $server_id;
+		        $DB->insert_record('modwordpress_users', $dataobject, false, false);
+		    }
 		}
 	        }
 	    }
@@ -507,13 +508,14 @@ function modwordpress_add_user($userid, $context) {
 	        }
 
 	        $json = json_decode($response);
-	        
-	        $dataobject = array();
-	        $dataobject['moodle_id'] = $user->id;
-	        $dataobject['wordpress_id'] = $json->ID;
-	        $dataobject['server_id'] = $server_id;
-	        $DB->insert_record('modwordpress_users', $dataobject, false, false);
 
+	        if (isset($json->ID)) {
+		$dataobject = array();
+		$dataobject['moodle_id'] = $user->id;
+		$dataobject['wordpress_id'] = $json->ID;
+		$dataobject['server_id'] = $server_id;
+		$DB->insert_record('modwordpress_users', $dataobject, false, false);
+	        }
 	    }
 	}
 	break;
