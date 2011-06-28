@@ -56,3 +56,4 @@ $string['access_secret'] = 'Access SECRET';
 $string['register_server'] = 'Register Moodle as Client';
 $string['available_servers'] = "Available Wordpress Servers";
 $string['requires_oauth'] = "Requires OAuth Authentication";
+$string['no_configured_servers'] = "There are no configured server. Without at least one, the activity will not be functional.";
