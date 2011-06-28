@@ -589,6 +589,7 @@ function modwordpress_remove_user($userid, $context) {
 		// TODO no todos los wordpress usan OAUTH
 		foreach ($modswordpress as $wordpress) {
 		    $server = $DB->get_record_select("modwordpress_servers", "id=$wordpress->server_id");
+		    error_log(" ---> ".$wordpress->server_id);
 
 		    if ($server->oauth) {
 		        $consumer_key = $server->consumer_key;
@@ -599,7 +600,8 @@ function modwordpress_remove_user($userid, $context) {
 		        $token = new OAuthToken($access_token, $access_secret, NULL);
 		    }
 
-		    $users = $DB->get_records_select("modwordpress_users", "server_id=$wordpress->server_id");
+		    $users = $DB->get_records_select("modwordpress_users", "server_id=$wordpress->server_id and moodle_id=$userid");
+		    error_log(" --->> ".count($users));
 		    foreach ($users as $user) {
 		        $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
 
@@ -638,7 +640,7 @@ function modwordpress_remove_user($userid, $context) {
 		    $token = new OAuthToken($access_token, $access_secret, NULL);
 		}
 
-		$users = $DB->get_records_select("modwordpress_users", "server_id=$wordpress->server_id");
+		$users = $DB->get_record_select("modwordpress_users", "server_id=$wordpress->server_id and moodle_id=$userid");
 		foreach ($users as $user) {
 		    $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
 
