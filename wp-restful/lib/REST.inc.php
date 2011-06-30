@@ -589,6 +589,7 @@ class WPREST extends WPAPIRESTController {
 	        $this->setActionRequest ( "all" );
 	        break;
 	    case 1 :
+	        $this->setAction ( current ( $basename ) );
 	        $this->setActionRequest ( "all" );
 	        break;
 	    case 2 :
@@ -699,6 +700,7 @@ class WPRESTUtils {
 	// so are posts
 	case 'post' :
 	    $data = $_POST;
+	    error_log(">>>> _POST >>>> $data : ".count($data));
 	    break;
 	// here's the tricky bit...
 	case 'put' :
