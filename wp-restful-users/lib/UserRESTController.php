@@ -27,12 +27,13 @@ class UserRESTController extends WPAPIRESTController {
     protected function postUser($data) {
 
         $user_data = array();
-        if (isset($data['user_login']) && isset($data['user_password'])) {
+        error_log(">>>>> user_login >>>+++>>>> ".$data['user_login']);
+        error_log(">>>>> user_password >>>+++>>>> ".$data['user_password']);
+
+        if (isset($data['user_login']) && isset($data['user_password']) && isset($data['user_email'])) {
 	$user_data['user_login'] = $data['user_login'];
 	$user_data['user_password'] = $data['user_password'];
-	if (isset($data['user_email'])) {
-	    $user_data['user_email'] = $data['user_email'];
-	}
+	$user_data['user_email'] = $data['user_email'];
 	if (isset($data['user_url'])) {
 	    $user_data['user_url'] = $data['user_url'];
 	}
@@ -56,10 +57,11 @@ class UserRESTController extends WPAPIRESTController {
 	$new_user_id = wp_insert_user($user_data);
         }
 
-        if ($new_user_id > 0) {
-	return $this->_return(get_userdata($new_user_id));
-        } else {
+        if (is_wp_error($new_user_id)) {
+	   error_log($new_user_id->get_error_message());
 	return new WP_Error('error', __('Error adding new user.'));
+        } else {
+	return $this->_return(get_userdata($new_user_id));
         }
     }
 
