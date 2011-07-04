@@ -25,7 +25,7 @@ if ($ADMIN->fulltree) {
         $odd = $odd ? false : true;
     }
     } else {
-        $html .= "<tr style='background-color: #e0e0e0;'><td colspan=3>".get_string('no_configured_servers','modwordpress')."</td></tr>";
+        $html .= "<tr style='background-color: #e0e0e0;'><td colspan=3>".get_string('no_servers','modwordpress')."</td></tr>";
     }
     $html .= "</tbody></table>";
     $html .= "<a title='".get_string("new_server","modwordpress")."' href='$CFG->wwwroot/mod/modwordpress/servers.php'>".get_string("new_server","modwordpress")."</a>";
