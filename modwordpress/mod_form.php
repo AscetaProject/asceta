@@ -26,47 +26,46 @@
  * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
 
 class mod_modwordpress_mod_form extends moodleform_mod {
 
     function definition() {
 
         global $COURSE, $DB;
-        $mform =& $this->_form;
-
-//-------------------------------------------------------------------------------
-    /// Adding the "general" fieldset, where all the common settings are showed
-        $mform->addElement('header', 'general', get_string('general', 'form'));
-
-    /// Adding the standard "name" field
-        $mform->addElement('text', 'name', get_string('modwordpressname', 'modwordpress'), array('size'=>'64'));
-        if (!empty($CFG->formatstringstriptags)) {
-            $mform->setType('name', PARAM_TEXT);
-        } else {
-            $mform->setType('name', PARAM_CLEAN);
-        }
-        $mform->addRule('name', null, 'required', null, 'client');
-        $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        $mform->addHelpButton('name', 'modwordpressname', 'modwordpress');
-
-    /// Adding the standard "intro" and "introformat" fields
-        $this->add_intro_editor();
-
-//-------------------------------------------------------------------------------
-    /// Adding the rest of modwordpress settings, spreeading all them into this fieldset
-    /// or adding more fieldsets ('header' elements) if needed for better logic
-        $mform->addElement('static', 'label1', 'modwordpresssetting1', 'Your modwordpress fields go here. Replace me!');
-
-        $mform->addElement('header', 'modwordpressfieldset', get_string("new_server","modwordpress"));
-        //$mform->addElement('static', 'label2', 'modwordpresssetting2', 'Your modwordpress fields go here. Replace me!');
-        $options = array();
-        $options[0] = get_string('none');
+        $mform = & $this->_form;
         if ($servers = $DB->get_records('modwordpress_servers', array())) {
-            foreach ($servers as $server) {
+
+//-------------------------------------------------------------------------------
+	/// Adding the "general" fieldset, where all the common settings are showed
+	$mform->addElement('header', 'general', get_string('general', 'form'));
+
+	/// Adding the standard "name" field
+	$mform->addElement('text', 'name', get_string('modwordpressname', 'modwordpress'), array('size' => '64'));
+	if (!empty($CFG->formatstringstriptags)) {
+	    $mform->setType('name', PARAM_TEXT);
+	} else {
+	    $mform->setType('name', PARAM_CLEAN);
+	}
+	$mform->addRule('name', null, 'required', null, 'client');
+	$mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+	$mform->addHelpButton('name', 'modwordpressname', 'modwordpress');
+
+	/// Adding the standard "intro" and "introformat" fields
+	$this->add_intro_editor();
+
+//-------------------------------------------------------------------------------
+	/// Adding the rest of modwordpress settings, spreeading all them into this fieldset
+	/// or adding more fieldsets ('header' elements) if needed for better logic
+	$mform->addElement('static', 'label1', 'modwordpresssetting1', 'Your modwordpress fields go here. Replace me!');
+
+	$mform->addElement('header', 'modwordpressfieldset', get_string("new_server", "modwordpress"));
+	//$mform->addElement('static', 'label2', 'modwordpresssetting2', 'Your modwordpress fields go here. Replace me!');
+	$options = array();
+	$options[0] = get_string('none');
+	foreach ($servers as $server) {
 	    if ($server->oauth) {
 	        if ($server->consumer_key != '' && $server->consumer_secret != '' && $server->access_token != '' && $server->access_secret != '') {
 		$options[$server->id] = format_string($server->name);
@@ -74,17 +73,19 @@ class mod_modwordpress_mod_form extends moodleform_mod {
 	    } else {
 	        $options[$server->id] = format_string($server->name);
 	    }
-            }
+	}
+	$mform->addElement('select', 'server_id', get_string('available_servers', 'modwordpress'), $options);
+
+
+//-------------------------------------------------------------------------------
+	// add standard elements, common to all modules
+	$this->standard_coursemodule_elements();
+//-------------------------------------------------------------------------------
+	// add standard buttons, common to all modules
+	$this->add_action_buttons();
+        } else {
+	$mform->addElement('static', 'update', '', get_string("no_server", "modwordpress"));
         }
-        $mform->addElement('select', 'server_id', get_string('available_servers', 'modwordpress'), $options);
-
-
-//-------------------------------------------------------------------------------
-        // add standard elements, common to all modules
-        $this->standard_coursemodule_elements();
-//-------------------------------------------------------------------------------
-        // add standard buttons, common to all modules
-        $this->add_action_buttons();
-
     }
+
 }
