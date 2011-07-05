@@ -42,13 +42,14 @@
  * The variable name for the capability definitions array is $capabilities
  *
  * @package   mod_modmediawiki
- * @copyright 2010 Your Name
+ * @copyright 2011 María del Mar Jiménez Torres (mjimenez@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
+
 /***************************** remove these comment marks and modify the code as needed
     'mod/modmediawiki:view' => array(
         'captype' => 'read',
@@ -69,7 +70,7 @@ $capabilities = array(
         'legacy' => array(
             'student' => CAP_ALLOW
         )
-    )
+    ),
  ***********************************/
 );
 

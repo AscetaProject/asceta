@@ -276,5 +276,18 @@ function xmldb_modmediawiki_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2011062403, 'modmediawiki');
     }
 
+    if ($oldversion < 2011063002) {
+
+        // Define key url (foreign) to be added to modmediawiki
+        $table = new xmldb_table('modmediawiki');
+        $key = new xmldb_key('url', XMLDB_KEY_FOREIGN, array('server_id'), 'modmediawiki_servers', array('id'));
+
+        // Launch add key url
+        $dbman->add_key($table, $key);
+
+        // modmediawiki savepoint reached
+        upgrade_mod_savepoint(true, 2011063002, 'modmediawiki');
+    }
+
     return true;
 }

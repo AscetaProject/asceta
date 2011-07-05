@@ -27,7 +27,10 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
 defined('MOODLE_INTERNAL') || die();
+
+
 
 /**
  * Joins key:value pairs by inner_glue and each pair together by outer_glue

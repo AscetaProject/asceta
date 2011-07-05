@@ -28,18 +28,34 @@ if ($id != '') {
 
 
 // --------------------------  SAVE NEW SERVER ----------------------------------------------------------------
-if ( $mode == 'save_new' and $form and confirm_sesskey()) {
+if ($mode == 'save_new' and $form and confirm_sesskey()) {
+    if (!strlen($form->server_name)) {
+        echo print_string('server_name_empty', 'modmediawiki');
+        die;
+    } elseif (!strlen($form->server_url)) {
+        echo print_string('server_url_empty', 'modmediawiki');
+        die;
+    } else {
     $dataobject = array();
     $dataobject['name'] = $form->server_name;
     $dataobject['url'] = $form->server_url;
+    $dataobject['oauth'] = (isset($form->oauth) ? 1 : 0);
     $DB->insert_record('modmediawiki_servers', $dataobject, false, false);
     redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmediawiki#modmediawiki_servers_header");
     die;
+    }
 
 
 
 // -------------------------- MODIFY SERVER ----------------------------------------------------------------
-} elseif ( $mode == 'save_edit' and $form and confirm_sesskey()) {
+} elseif ($mode == 'save_edit' and $form and confirm_sesskey()) {
+    if (!strlen($form->server_name)) {
+        echo print_string('server_name_empty', 'modmediawiki');
+        die;
+    } elseif (!strlen($form->server_url)) {
+        echo print_string('server_url_empty', 'modmediawiki');
+        die;
+    } else {
     $dataobject = array();
     $dataobject['id'] = $form->id;
     $dataobject['name'] = $form->server_name;
@@ -50,9 +66,11 @@ if ( $mode == 'save_new' and $form and confirm_sesskey()) {
     $dataobject['request_secret'] = $form->request_secret;
     $dataobject['access_token'] = $form->access_token;
     $dataobject['access_secret'] = $form->access_secret;
+    $dataobject['oauth'] = (isset($form->oauth) ? 1 : 0);
     $DB->update_record('modmediawiki_servers', $dataobject, false, false);
     redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmediawiki#modmediawiki_servers_header");
     die;
+    }    
 
 
 
@@ -202,7 +220,7 @@ if ($mode == 'register') {
         echo $OUTPUT->heading($strmodulename . ': ' . get_string("new_server","modmediawiki"));
 
 
-    echo '<form method="post" action="servers.php" id="form">';
+    echo '<form name="serverform" method="post" action="servers.php" onsubmit="return serverform_validation();" id="serverform">';
     echo '<table width="60%" align="center" class="generalbox">';
     ?>
     <tr>
@@ -219,6 +237,14 @@ if ($mode == 'register') {
         </td>
         <td>
 	<input name="server_url" id="server_url" size="60" <?php if ($mode == "edit") echo "value='".$server[$id]->url."'"; ?> />
+        </td>
+    </tr>
+        <tr>
+        <td>
+	<label for="oauth"><?php echo print_string('requires_oauth','modwordpress'); ?></label>
+        </td>
+        <td>
+	<input type="checkbox" name="oauth" id="oauth" size="60" value="1" checked="checked" />
         </td>
     </tr>
     <?php
@@ -295,3 +321,18 @@ if ($mode == 'register') {
 }
 
 ?>
+<script type="text/javascript">
+    function serverform_validation() {
+        if (document.serverform.server_name.value.length == 0) {
+	alert("<?php echo print_string('server_name_empty', 'modwordpress'); ?>");
+	document.serverform.server_name.focus();
+	return false;
+        }
+        if (document.serverform.server_url.value.length == 0) {
+	alert("<?php echo print_string('server_url_empty', 'modwordpress'); ?>");
+	document.serverform.server_url.focus();
+	return false;
+        }
+        document.serverform.submit();
+    }
+</script>

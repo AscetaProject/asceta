@@ -4,7 +4,7 @@
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="modmediawiki" COMMENT="Default comment for modmediawiki, please edit me" NEXT="modmediawiki_servers">
+    <TABLE NAME="modmediawiki" COMMENT="Mediawiki for moodle" NEXT="modmediawiki_servers">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="course"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Course modmediawiki activity belongs to" PREVIOUS="id" NEXT="name"/>
@@ -17,13 +17,14 @@
         <FIELD NAME="server_id" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timemodified"/>
       </FIELDS>
       <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="url"/>
+        <KEY NAME="url" TYPE="foreign" FIELDS="server_id" REFTABLE="modmediawiki_servers" REFFIELDS="id" PREVIOUS="primary"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="modmediawiki_servers" COMMENT="List of Mediawiki servers registers" PREVIOUS="modmediawiki" NEXT="modmediawiki_users">
+    <TABLE NAME="modmediawiki_servers" COMMENT="REST API servers for modmediawiki" PREVIOUS="modmediawiki" NEXT="modmediawiki_users">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="name"/>
         <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="REST API's Server Name" PREVIOUS="id" NEXT="url"/>

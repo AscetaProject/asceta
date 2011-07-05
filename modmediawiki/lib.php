@@ -29,11 +29,11 @@
  * @copyright 2011 María del Mar Jiménez Torres (mjimenez@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 
 if (!function_exists('implode_assoc')) require_once("locallib.php");
 if (!class_exists('OAuthConsumer')) require_once("OAuth.php");
+
 /** example constant */
 //define('NEWMODULE_ULTIMATE_ANSWER', 42);
 
@@ -90,11 +90,11 @@ function modmediawiki_add_instance($modmediawiki, $mform) {
         $course_users = $DB->get_records_sql($sql);
 
         foreach ($course_users as $user) {
-	$basefeed = rtrim($server->url, '/') . '/users';
+        $basefeed = rtrim($server->url, '/') . '/users';
 	$params = array('name' => $user->username, 'email' => $user->email, 'realname' => $user->firstname, 'password' => substr(md5(rand() . rand()), 0, 15));
 
 	if ($server->oauth) {
-	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
 	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	    $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 	} else {
@@ -102,12 +102,14 @@ function modmediawiki_add_instance($modmediawiki, $mform) {
 	}
 
 	$json = json_decode($response);
+	if ($json->mId != null) {
 	$dataobject = array();
 	$dataobject['moodle_id'] = $user->id;
-	$dataobject['mediawiki_id'] = $json->ID;
+	$dataobject['mediawiki_id'] = $json->mId;
 	$dataobject['server_id'] = $server_id;
 	$DB->insert_record('modmediawiki_users', $dataobject, false, false);
-        }
+    }
+	 	}
 
     }
     return $newmod;
@@ -121,7 +123,7 @@ function modmediawiki_add_instance($modmediawiki, $mform) {
  * @param object $modmediawiki An object from the form in mod_form.php
  * @return boolean Success/Fail
  */
-function modmediawiki_update_instance($modmediawiki, $mform) {
+function modmediawiki_update_instance($modmediawiki) {
     global $DB;
 
     $modmediawiki->timemodified = time();
@@ -129,7 +131,64 @@ function modmediawiki_update_instance($modmediawiki, $mform) {
 
     # You may have to add extra stuff in here #
 
-    return $DB->update_record('modmediawiki', $modmediawiki);
+    $newmod = $DB->update_record('modmediawiki', $modmediawiki);
+
+
+    if ($newmod) {
+
+        //Adding Moodle users to mediawiki
+        //$modmediawiki_instance = $DB->get_record_select("modmediawiki", "id=$newmod");
+        $course_id = $modmediawiki->course;
+        $server_id = $modmediawiki->server_id;
+        $server = $DB->get_record_select("modmediawiki_servers", "id=$server_id");
+
+
+        if ($server->oauth) {
+	$consumer_key = $server->consumer_key;
+	$consumer_secret = $server->consumer_secret;
+	$access_token = $server->access_token;
+	$access_secret = $server->access_secret;
+	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+	$token = new OAuthToken($access_token, $access_secret, NULL);
+        }
+
+        $context = get_context_instance(CONTEXT_COURSE, $course_id);
+        $contextlists = get_related_contexts_string($context);
+
+        // Get new enrolled users that are not in the mediawiki-moodle equivalence's table
+        $sql = "SELECT u.id, u.username, u.firstname, u.email
+	      FROM {user} u
+	      JOIN {role_assignments} ra ON ra.userid = u.id
+	      LEFT OUTER JOIN {modmediawiki_users} mwu ON u.id = mwu.moodle_id
+	     WHERE u.deleted = 0 AND u.confirmed = 1 AND ra.contextid $contextlists AND mwu.mediawiki_id IS NULL";
+
+        error_log(str_replace("\r\n\t",'',$sql));
+        $course_users = $DB->get_records_sql($sql);
+
+        foreach ($course_users as $user) {
+	$basefeed = rtrim($server->url, '/') . '/users';
+	$params = array('name' => $user->username, 'email' => $user->email, 'realname' => $user->firstname, 'password' => substr(md5(rand() . rand()), 0, 15));
+
+	if ($server->oauth) {
+	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
+	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+	} else {
+	    $response = send_request('POST', $basefeed, null, $params);
+	}
+
+	$json = json_decode($response);
+	if ($json->mId != null) {
+	    $dataobject = array();
+	    $dataobject['moodle_id'] = $user->id;
+	    $dataobject['mediawiki_id'] = $json->mId;
+	    $dataobject['server_id'] = $server_id;
+	    $DB->insert_record('modmediawiki_users', $dataobject, false, false);
+	}
+        }
+
+    }
+    return $newmod;
 }
 
 /**
@@ -143,7 +202,7 @@ function modmediawiki_update_instance($modmediawiki, $mform) {
 function modmediawiki_delete_instance($id) {
     global $DB;
 
-    if (! $modmediawiki = $DB->get_record('modmediawiki', array('id' => $id))) {
+    if (! $modmediawiki_instance = $DB->get_record('modmediawiki', array('id' => $id))) {
         return false;
     }
 
@@ -164,7 +223,7 @@ function modmediawiki_delete_instance($id) {
 
     $users = $DB->get_records_select("modmediawiki_users", "server_id=$server_id");
     foreach ($users as $user) {
-        $basefeed = rtrim($server->url, '/') . "/user/$user->mediawiki_id.json";
+        $basefeed = rtrim($server->url, '/') . "/users/$user->mediawiki_id";
 
         if ($server->oauth) {
 	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
@@ -178,7 +237,6 @@ function modmediawiki_delete_instance($id) {
         if ($json->deleted) {
 	$DB->delete_records("modmediawiki_users", array('id'=>$user->id));
         }
-        break;
     }
 
     $DB->delete_records('modmediawiki', array('id' => $modmediawiki_instance->id));
@@ -304,7 +362,6 @@ function modmediawiki_uninstall() {
     return true;
 }
 
-
 /**
  * This function gets run whenever user is enrolled into course
  *
@@ -383,6 +440,14 @@ function modmediawiki_add_user($userid, $context) {
 		    $server_id = $modmediawiki_instance->server_id;
 		    $server = $DB->get_record_select("modmediawiki_servers", "id=$server_id");
 
+		    $sql = "SELECT u.id, u.username, u.firstname, u.email
+			  FROM {user} u
+			 WHERE u.id = $userid";
+		    $user = $DB->get_record_sql($sql);
+
+		    $basefeed = rtrim($server->url, '/') . '/users';
+                    $params = array('name' => $user->username, 'email' => $user->email, 'realname' => $user->firstname, 'password' => substr(md5(rand() . rand()), 0, 15));
+
 		    if ($server->oauth) {
 		        $consumer_key = $server->consumer_key;
 		        $consumer_secret = $server->consumer_secret;
@@ -390,18 +455,7 @@ function modmediawiki_add_user($userid, $context) {
 		        $access_secret = $server->access_secret;
 		        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
 		        $token = new OAuthToken($access_token, $access_secret, NULL);
-		    }
-
-		    $sql = "SELECT u.id, u.username, u.firstname, u.email
-			  FROM {user} u
-			 WHERE u.id = $userid";
-		    $user = $DB->get_record_sql($sql);
-
-		    $basefeed = rtrim($server->url, '/') . '/user.json';
-		    $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
-
-		    if ($server->oauth) {
-		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
 		        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 		        $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 		    } else {
@@ -409,12 +463,13 @@ function modmediawiki_add_user($userid, $context) {
 		    }
 
 		    $json = json_decode($response);
-		    $dataobject = array();
-		    $dataobject['moodle_id'] = $user->id;
-		    $dataobject['mediawiki_id'] = $json->ID;
-		    $dataobject['server_id'] = $server_id;
-		    $DB->insert_record('modmediawiki_users', $dataobject, false, false);
-
+		    if (isset($json->mId)) {
+		        $dataobject = array();
+		        $dataobject['moodle_id'] = $user->id;
+		        $dataobject['mediawiki_id'] = $json->mId;
+		        $dataobject['server_id'] = $server_id;
+		        $DB->insert_record('modmediawiki_users', $dataobject, false, false);
+		    }
 		}
 	        }
 	    }
@@ -428,6 +483,14 @@ function modmediawiki_add_user($userid, $context) {
 	        $server_id = $modmediawiki_instance->server_id;
 	        $server = $DB->get_record_select("modmediawiki_servers", "id=$server_id");
 
+	        $sql = "SELECT u.id, u.username, u.firstname, u.email
+		      FROM {user} u
+		     WHERE u.id = $userid";
+	        $user = $DB->get_record_sql($sql);
+
+	        $basefeed = rtrim($server->url, '/') . '/users';
+	        $params = array('name' => $user->username, 'email' => $user->email, 'realname' => $user->firstname, 'password' => substr(md5(rand() . rand()), 0, 15));
+
 	        if ($server->oauth) {
 		$consumer_key = $server->consumer_key;
 		$consumer_secret = $server->consumer_secret;
@@ -435,18 +498,7 @@ function modmediawiki_add_user($userid, $context) {
 		$access_secret = $server->access_secret;
 		$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
 		$token = new OAuthToken($access_token, $access_secret, NULL);
-	        }
-
-	        $sql = "SELECT u.id, u.username, u.firstname, u.email
-		      FROM {user} u
-		     WHERE u.id = $userid";
-	        $user = $DB->get_record_sql($sql);
-
-	        $basefeed = rtrim($server->url, '/') . '/user.json';
-	        $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
-
-	        if ($server->oauth) {
-		$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed);
+		$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
 		$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 		$response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 	        } else {
@@ -454,13 +506,13 @@ function modmediawiki_add_user($userid, $context) {
 	        }
 
 	        $json = json_decode($response);
-
-	        $dataobject = array();
-	        $dataobject['moodle_id'] = $user->id;
-	        $dataobject['mediawiki_id'] = $json->ID;
-	        $dataobject['server_id'] = $server_id;
-	        $DB->insert_record('modmediawiki_users', $dataobject, false, false);
-
+	        if (isset($json->mId)) {
+				$dataobject = array();
+				$dataobject['moodle_id'] = $user->id;
+				$dataobject['mediawiki_id'] = $json->mId;
+				$dataobject['server_id'] = $server_id;
+				$DB->insert_record('modmediawiki_users', $dataobject, false, false);
+	        }
 	    }
 	}
 	break;
@@ -544,10 +596,9 @@ function modmediawiki_remove_user($userid, $context) {
 		        $token = new OAuthToken($access_token, $access_secret, NULL);
 		    }
 
-		    $users = $DB->get_records_select("modmediawiki_users", "server_id=$mediawiki->server_id");
+		    $users = $DB->get_records_select("modmediawiki_users", "server_id=$mediawiki->server_id and moodle_id=$userid");
 		    foreach ($users as $user) {
-		        $basefeed = rtrim($server->url, '/') . "/users/$user->mediawiki_id.json";
-
+		        $basefeed = rtrim($server->url, '/') . "/users/$user->mediawiki_id";
 		        if ($server->oauth) {
 			$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
 			$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
@@ -583,9 +634,9 @@ function modmediawiki_remove_user($userid, $context) {
 		    $token = new OAuthToken($access_token, $access_secret, NULL);
 		}
 
-		$users = $DB->get_records_select("modmediawiki_users", "server_id=$mediawiki->server_id");
+		$users = $DB->get_record_select("modmediawiki_users", "server_id=$mediawiki->server_id");
 		foreach ($users as $user) {
-		    $basefeed = rtrim($server->url, '/') . "/users/$user->mediawiki_id.json";
+		    $basefeed = rtrim($server->url, '/') . "/users/$user->mediawiki_id";
 
 		    if ($server->oauth) {
 		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
@@ -610,6 +661,7 @@ function modmediawiki_remove_user($userid, $context) {
     return true;
 }
 
+
 /**
  * Makes an HTTP request to the specified URL
  * @param string $http_method The HTTP method (GET, POST, PUT, DELETE)
@@ -631,12 +683,12 @@ function modmediawiki_send_request($http_method, $url, $auth_header=null, $postD
       }
       break;
     case 'POST':
-      //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml',$auth_header));
+      curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
       curl_setopt($curl, CURLOPT_POST, 1);
       curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
       break;
     case 'PUT':
-      //curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type: application/atom+xml',$auth_header));
+      curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
       curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $http_method);
       curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
       break;

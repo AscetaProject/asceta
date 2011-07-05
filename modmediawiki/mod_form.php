@@ -37,7 +37,7 @@ class mod_modmediawiki_mod_form extends moodleform_mod {
 
         global $COURSE, $DB;
         $mform =& $this->_form;
-
+        if ($servers = $DB->get_records('modmediawiki_servers', array())) {
 //-------------------------------------------------------------------------------
     /// Adding the "general" fieldset, where all the common settings are showed
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -61,16 +61,20 @@ class mod_modmediawiki_mod_form extends moodleform_mod {
     /// or adding more fieldsets ('header' elements) if needed for better logic
         //$mform->addElement('static', 'label1', 'modmediawikisetting1', 'Your modmediawiki fields go here. Replace me!');
 
-        $mform->addElement('header', 'modmediawikifieldset', get_string('modmediawikifieldset', 'modmediawiki'));
+        $mform->addElement('header', 'modmediawikifieldset', get_string('new_server', 'modmediawiki'));
 
         $options = array();
         $options[0] = get_string('none');
-        if ($servers = $DB->get_records('modmediawiki_servers', array())) {
-            foreach ($servers as $server) {
-                $options[$server->id] = format_string($server->name);
+        foreach ($servers as $server) {
+        if ($server->oauth) {
+            if ($server->consumer_key != '' && $server->consumer_secret != '' && $server->access_token != '' && $server->access_secret != '') {
+            $options[$server->id] = format_string($server->name);
             }
+        } else {
+            $options[$server->id] = format_string($server->name);
         }
-        $mform->addElement('select', 'server_id', get_string('modmediawikiservers', 'modmediawiki'), $options);
+        }
+        $mform->addElement('select', 'server_id', get_string('available_servers', 'modmediawiki'), $options);
 
 //-------------------------------------------------------------------------------
         // add standard elements, common to all modules
@@ -78,6 +82,8 @@ class mod_modmediawiki_mod_form extends moodleform_mod {
 //-------------------------------------------------------------------------------
         // add standard buttons, common to all modules
         $this->add_action_buttons();
-
+        } else {
+	$mform->addElement('static', 'update', '', get_string("no_server", "modmediawiki"));
+        }
     }
 }
