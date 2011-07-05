@@ -93,7 +93,8 @@ if (!$modwordpress->server_id) {
 	foreach ($json->comments as $comment) {
 	    echo "<div id='$comment->comment_ID' style='margin-bottom: 50px;'>";
 	    echo "<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 1px;'>";
-	    echo "<h4>Comentario de $comment->comment_author publicado en $comment->comment_date</h4>";
+	    echo "<span style='margin: 0; font-weight:bold'>$comment->comment_author</span> dijo:";
+	    echo "<p style='font-size: 75%; color: gray;'>Publicado en $comment->comment_date</p>";
 	    echo "</div>";
 	    echo "<div class='clearfix' style='margin: 5px 10px;'>$comment->comment_content</div>";
 	    echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
