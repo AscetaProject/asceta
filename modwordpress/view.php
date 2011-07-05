@@ -84,11 +84,30 @@ if (!$modwordpress->server_id) {
     echo $OUTPUT->heading($modwordpress->name.'\'s Posts');
     $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
     $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
-    $basefeed = rtrim($server->url,'/').'/posts';
+    $basefeed = rtrim($server->url,'/').'/posts.json';
     $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
     $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
     $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-    echo htmlentities($response);
+    $json = json_decode($response);
+
+    foreach ($json as $post) {
+        echo "<div id='$post->ID' style='margin-bottom: 50px;'>";
+        echo "<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 5px;'><h3 style='margin: 0;'>$post->post_title</h3>";
+        echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $post->post_author</p>";
+        echo "</div>";
+        echo "<div class='clearfix' style='margin: 5px 10px;'>$post->post_content</div>";
+        echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
+        if ($post->comment_count > 1) {
+	echo "$post->comment_count Comentarios";
+        } elseif ($post->comment_count == 1) {
+	echo "$post->comment_count Comentario";
+        } else {
+	echo "Deja un comentario";
+        }
+        echo "</div>";
+        echo "</div>";
+    }
+    //echo htmlentities($response);
 
 }
 
