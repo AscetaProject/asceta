@@ -73,14 +73,25 @@ echo $OUTPUT->header();
 if (!$modmediawiki->server_id) {
     echo $OUTPUT->heading(get_string("configure_server_url","modmediawiki"));
 } else {
-    echo $OUTPUT->heading($modmediawiki->name.'\'s Pages');
+    echo $OUTPUT->heading($modmediawiki->name);
     $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
     $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
     $basefeed = rtrim($server->url,'/').'/pages';
     $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
     $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
     $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-    echo htmlentities($response);
+    $json = json_decode($response);
+
+    foreach ($json as $page) {
+        echo "<div id='$page->ID' style='margin-bottom: 50px;'>";
+        echo "<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 5px;'><h3 style='margin: 0;'>$page->page_title</h3>";
+        echo "</div>";
+        echo "<div class='clearfix' style='margin: 5px 10px;'>$page->page_content</div>";
+        echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'> $page->page_resume";
+        echo "</div>";
+        echo "</div>";
+    }
+    //echo htmlentities($response);
 
 }
 

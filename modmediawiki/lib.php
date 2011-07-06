@@ -161,8 +161,6 @@ function modmediawiki_update_instance($modmediawiki) {
 	      JOIN {role_assignments} ra ON ra.userid = u.id
 	      LEFT OUTER JOIN {modmediawiki_users} mwu ON u.id = mwu.moodle_id
 	     WHERE u.deleted = 0 AND u.confirmed = 1 AND ra.contextid $contextlists AND mwu.mediawiki_id IS NULL";
-
-        error_log(str_replace("\r\n\t",'',$sql));
         $course_users = $DB->get_records_sql($sql);
 
         foreach ($course_users as $user) {
@@ -541,8 +539,6 @@ function modmediawiki_remove_user($userid, $context) {
     if (empty($context->contextlevel)) {
         return false;
     }
-
-    error_log(" Context Level: $context->contextlevel");
 
     switch ($context->contextlevel) {
 
