@@ -179,7 +179,7 @@ class MWAPIREST {
     * @param array $data parameters from the body header
     */
     public function managePostPage($data){
-        createPage($data['titulo'], $data['texto'], $data['resumen']);
+        createPage($data['page_title'], $data['page_content'], $data['page_resume']);
         return header("{$_SERVER['SERVER_PROTOCOL']} 201 Created");
     }
 
