@@ -238,7 +238,6 @@ function modwordpress_delete_instance($id) {
         if ($json->deleted) {
 	$DB->delete_records("modwordpress_users", array('id'=>$user->id));
         }
-        break;
     }
 
     $DB->delete_records('modwordpress', array('id' => $modwordpress_instance->id));

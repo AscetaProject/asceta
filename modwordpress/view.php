@@ -36,6 +36,9 @@ require_once(dirname(__FILE__) . '/OAuth.php');
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $n = optional_param('n', 0, PARAM_INT);  // modwordpress instance ID - it should be named as the first character of the module
 $comments = optional_param('comments', 0, PARAM_INT); // Post ID to get comments
+$new_comment = optional_param('new_comment', 0, PARAM_INT); // Post ID to get comments
+$comment_content = optional_param('comment_content', '', PARAM_TEXT); // Post ID to get comments
+$comment_post_ID = optional_param('comment_post_ID', 0, PARAM_INT); // Post ID to get comments
 
 if ($id) {
     $cm = get_coursemodule_from_id('modwordpress', $id, 0, false, MUST_EXIST);
@@ -73,14 +76,13 @@ $PAGE->set_button(update_module_button($cm->id, $course->id, get_string('modulen
 //$PAGE->set_cacheable(false);
 //$PAGE->set_focuscontrol('some-html-id');
 // Output starts here
-echo $OUTPUT->header();
 
 
 if (!$modwordpress->server_id) {
     echo $OUTPUT->heading(get_string("configure_server_url", "modwordpress"));
 } else {
 
-    if (isset($comments) && $comments > 0) {
+    if ($comments and confirm_sesskey()) {
         $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
         $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
         $basefeed = rtrim($server->url, '/') . "/post/$comments.json";
@@ -88,6 +90,7 @@ if (!$modwordpress->server_id) {
         $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
         $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
         $json = json_decode($response);
+        echo $OUTPUT->header();
         if (count($json)) {
 	echo $OUTPUT->heading($modwordpress->name.": ".$json->post_title);
 	foreach ($json->comments as $comment) {
@@ -98,13 +101,43 @@ if (!$modwordpress->server_id) {
 	    echo "</div>";
 	    echo "<div class='clearfix' style='margin: 5px 10px;'>$comment->comment_content</div>";
 	    echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
-	        echo "Deja un comentario";
+	    echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$json->ID&amp;sesskey=" . sesskey() . "'>Deja un comentario</a>";
 	    echo "</div>";
 	    echo "</div>";
 	}
         }
         echo "<button onclick='javascript:history.back()'>Volver</button>  ";
+    } elseif ($new_comment and confirm_sesskey()) {
+        echo $OUTPUT->header();
+        echo $OUTPUT->heading($modwordpress->name);
+        echo '<form name="new_comment_form" method="post" action="view.php" id="new_comment_form" onsubmit="return new_comment_form_validation();">';
+        echo '<p>Escriba su comentario:</p>';
+        echo '<textarea cols=90 rows=10 name="comment_content"></textarea>';
+        echo "<input type='hidden' name='sesskey' value='".sesskey()."' />";
+        echo "<input type='hidden' name='comment_post_ID' value='$new_comment' />";
+        echo "<input type='hidden' name='id' value='$cm->id' />";
+        echo "<br><input type='submit' value='Guardar' />";
+        echo "<button onclick='javascript:history.back()'>Volver</button>  ";
+        echo '</form>';
+        echo " <script type='text/javascript'> function new_comment_form_validation() { if (document.new_comment_form.comment_content.value.length == 0) { alert('".print_string('comment_empty', 'modwordpress')."'); document.new_comment_form.comment_content.focus(); return false; } }</script>";
+    } elseif ($comment_content != '') {
+        // TODO: Poner como comment_author el usuario de moodle mirando en mdl_modwordpress_users
+        $params = array('comment_content' => $comment_content, 'comment_author' => 1);
+        $consumer_key = $server->consumer_key;
+        $consumer_secret = $server->consumer_secret;
+        $access_token = $server->access_token;
+        $access_secret = $server->access_secret;
+        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+        $token = new OAuthToken($access_token, $access_secret, NULL);
+        $basefeed = rtrim($server->url, '/') . "/comment/$comment_post_ID.json";
+        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
+        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+        redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id");
+        die;
+
     } else {
+        echo $OUTPUT->header();
         echo $OUTPUT->heading($modwordpress->name);
         $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
         $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
@@ -124,14 +157,13 @@ if (!$modwordpress->server_id) {
 	if ($post->comment_count > 1) {
 	    echo "<a title='' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;comments=$post->ID&amp;sesskey=" . sesskey() . "'>";
 	    echo "$post->comment_count Comentarios";
-	    echo "</a>";
+	    echo "</a> | ";
 	} elseif ($post->comment_count == 1) {
 	    echo "<a title='' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;comments=$post->ID&amp;sesskey=" . sesskey() . "'>";
 	    echo "$post->comment_count Comentario";
-	    echo "</a>";
-	} else {
-	    echo "Deja un comentario";
+	    echo "</a> | ";
 	}
+	echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>Deja un comentario</a>";
 	echo "</div>";
 	echo "</div>";
         }
