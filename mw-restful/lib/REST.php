@@ -45,11 +45,6 @@ class MWAPIREST {
                         break;
                 case 'post':
                         $data = $_POST;
-                        if ($data == null) error_log ("DATA IS NULL");
-                        error_log('JSON DATA '. $GLOBALS['vars']);
-                        foreach($_POST as $value => $key){
-                            error_log('key '.$key.' => '.$value);
-                        }
                         $this->processPOSTRequest($mwpr['uri'], $data);
                         break;
                 case 'put':

@@ -108,7 +108,7 @@ function deleteUser($ID){
 /**
 * GET api/pages -> list all pages
 *
-* @return array list all users data {user_id, user_name, user_real_name, user_email}
+* @return array list all pages data {page_id, page_title, page_resume}
 */
 function  getPages(){
     $res = select('page',array('page_id', 'page_title'));
@@ -116,11 +116,10 @@ function  getPages(){
     $result = array();
     while ( $row = $dbr->fetchObject( $res ) ) {
         $art = new Article(Title::newFromText($row->page_title));
-        array_push($result, array($row->page_id, $row->page_title, $art->getComment()));
+        array_push($result, array('ID' => $row->page_id, 'page_title' => $row->page_title, 'page_content' => $art->getContent(), 'page_resume' => $art->getComment()));
     }
     $dbr->freeResult( $res );
     return $result;
-    return $res;
 }
 
 /**
