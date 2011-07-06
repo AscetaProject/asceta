@@ -35,7 +35,7 @@ class MWAPIREST {
 
             $req = new OAuthRequestVerifier();
             $GLOBALS['vars'] = $req->getBody();
-            $user_id = $req->verify();
+            //$user_id = $req->verify();
 
             switch ($mwpr['method'])
             {
@@ -45,11 +45,19 @@ class MWAPIREST {
                         break;
                 case 'post':
                         $data = $_POST;
+                        if ($data == null) error_log ("DATA IS NULL");
+                        error_log('JSON DATA '. $GLOBALS['vars']);
+                        foreach($_POST as $value => $key){
+                            error_log('key '.$key.' => '.$value);
+                        }
                         $this->processPOSTRequest($mwpr['uri'], $data);
                         break;
                 case 'put':
                         $data = json_decode($GLOBALS['vars']);
                         $this->processPUTRequest($mwpr['uri'], $data);
+                        break;
+                case 'delete':
+                        $this->processDELETERequest($mwpr['uri']);
                         break;
            }
         } catch (OAuthException2 $e){
@@ -130,6 +138,22 @@ class MWAPIREST {
         }
     }
 
+    /**
+    * Proccess DELETE request
+    *
+    * @param string $request_uri request uri
+    */
+    function processDELETERequest($request_uri){
+        switch(getAction($request_uri))
+        {
+            case 'pages':
+                break;
+            case 'users':
+                $this->manageDELETEUser(getID($request_uri));
+                break;
+        }
+    }
+
 
     /**
     * Manage GET request page
@@ -201,8 +225,9 @@ class MWAPIREST {
     * @param array $data parameters from the body header
     */
     public function managePostUser($data){
-        createUser($data);
-        return header("{$_SERVER['SERVER_PROTOCOL']} 201 Created");
+        $res = createUser($data);
+        $this->manageResponse($res);
+        //return header("{$_SERVER['SERVER_PROTOCOL']} 201 Created");
     }
 
     /**
@@ -215,6 +240,19 @@ class MWAPIREST {
     public function managePutUser($ID, $data){
         updateUser($ID, $data);
         return header("{$_SERVER['SERVER_PROTOCOL']} 200 OK");
+    }
+
+    /**
+    * Manage DELETE user
+    *
+    * @return string header with the message 201 Created
+    * @param string $ID user identification number
+    * @param array $data parameters from the body header
+    */
+    public function manageDELETEUser($ID){
+        $res = deleteUser($ID);
+        $this->manageResponse($res);
+        //return header("{$_SERVER['SERVER_PROTOCOL']} 200 OK");
     }
 
 

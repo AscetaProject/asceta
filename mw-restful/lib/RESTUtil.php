@@ -39,6 +39,7 @@ function getUser($ID){
 /**
 * POST api/users -> create a new user
 *
+* @return object User
 * @param array $data user data
 */
 
@@ -49,17 +50,17 @@ function createUser($data){
     if(!$user)
         throw new Exception("Invalid data\n", "001");
     if ( !$user->getID() ) {
-
         $user->setPassword($data['password']);
-        $user->createNew($user->getName(), array(
+        $newuser = $user->createNew($user->getName(), array(
 					"password" => $user->mPassword,
 					"email" => $data['email'],
 					"real_name" => $data['realname']));
     } else {
         $user->setPassword($data['password']);
-        echo "The password has been changed";
+        $newuser = $user;
     }
     $user->saveSettings();
+    return $newuser;
 }
 
 /**
@@ -80,6 +81,28 @@ function updateUser($ID, $data){
         }
     }
     $user->saveSettings();
+}
+
+/**
+ * DELETE api/users/1 -> delete user with id
+ *
+ * @return array (User id, result operation)
+ * @param integer $ID user identification number
+ */
+
+function deleteUser($ID){
+    global $mwpr;
+    $user = User::newFromId($ID);
+    $user->load();
+    if($user->mId == 0)
+        throw new Exception("Not exists user with id '$ID'\n","001");
+    $db = wfGetDB( DB_MASTER );
+    $result = $db->delete( 'user', array( 'user_id' => $ID ) );
+    if ($db->delete( 'user', array( 'user_id' => $ID ) )){
+        return array( 'ID' => $ID, 'deleted' => true);
+    } else {
+        throw new Exception('Error deleting user.');
+    }
 }
 
 /**

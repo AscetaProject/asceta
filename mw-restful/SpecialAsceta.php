@@ -16,7 +16,7 @@ class SpecialAsceta extends SpecialPage {
             wfLoadExtensionMessages('asceta ');
 
             require_once 'lib/REST.php';
-            $mwuser = $_SESSION['wsUserID'];
+            if(isset($_SESSION)) $mwuser = $_SESSION['wsUserID'];
             $apiRegister = new MWAPIREGISTER();
             
             //Call to the main page (Register)
