@@ -59,6 +59,8 @@ if ($id) {
 
 if ($modwordpress->server_id) {
     $server = $DB->get_record('modwordpress_servers', array('id' => $modwordpress->server_id), '*', MUST_EXIST);
+    $mdl_users = $DB->get_records_sql('SELECT moodle_id, wordpress_id, username, firstname from {modwordpress_users} mu, {user} u WHERE u.id = mu.moodle_id and mu.server_id=?',array($modwordpress->server_id));
+    $wp_users = $DB->get_records_sql('SELECT wordpress_id, moodle_id, username, firstname from {modwordpress_users} mu, {user} u WHERE u.id = mu.moodle_id and mu.server_id=?',array($modwordpress->server_id));
 }
 
 //var_dump($cm);
@@ -86,10 +88,13 @@ $PAGE->set_button(update_module_button($cm->id, $course->id, get_string('modulen
 if (!$modwordpress->server_id) {
     echo $OUTPUT->heading(get_string("configure_server_url", "modwordpress"));
 } else {
+    
+    global $USER;
 
     if ($comment_content != '' and confirm_sesskey()) {
-        // TODO: Poner como comment_author el usuario de moodle mirando en mdl_modwordpress_users
-        $params = array('comment_content' => $comment_content, 'comment_author' => 1);
+        $user_id = 1;
+        if (isset($mdl_users[$USER->id]->wordpress_id)) $user_id = $mdl_users[$USER->id]->wordpress_id;
+        $params = array('comment_content' => $comment_content, 'comment_author' => $user_id);
         $consumer_key = $server->consumer_key;
         $consumer_secret = $server->consumer_secret;
         $access_token = $server->access_token;
@@ -103,8 +108,9 @@ if (!$modwordpress->server_id) {
         redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id");
         die;
     } elseif ($post_title != '' and $post_content != '' and confirm_sesskey()) {
-        // TODO: Poner como post_author el usuario de moodle mirando en mdl_modwordpress_users
-        $params = array('post_title' => $post_title, 'post_content' => $post_content, 'post_author' => 1);
+        $user_id = 1;
+        if (isset($mdl_users[$USER->id]->wordpress_id)) $user_id = $mdl_users[$USER->id]->wordpress_id;
+        $params = array('post_title' => $post_title, 'post_content' => $post_content, 'post_author' => $user_id);
         $consumer_key = $server->consumer_key;
         $consumer_secret = $server->consumer_secret;
         $access_token = $server->access_token;
@@ -138,7 +144,7 @@ if (!$modwordpress->server_id) {
 	foreach ($json->comments as $comment) {
 	    echo "<div id='$comment->comment_ID' style='margin-bottom: 50px;'>";
 	    echo "<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 1px;'>";
-	    echo "<span style='margin: 0; font-weight:bold'>$comment->comment_author</span> dijo:";
+	    echo "<span style='margin: 0; font-weight:bold'>".$comment->comment_author."</span> dijo:";
 	    echo "<p style='font-size: 75%; color: gray;'>Publicado en $comment->comment_date</p>";
 	    echo "</div>";
 	    echo "<div class='clearfix' style='margin: 5px 10px;'>$comment->comment_content</div>";
@@ -256,9 +262,10 @@ if (!$modwordpress->server_id) {
         $json = json_decode($response);
 
         foreach ($json as $post) {
+	$post_author = (isset($wp_users[$post->post_author]) ? $wp_users[$post->post_author]->firstname : $post->post_author);
 	echo "<div id='$post->ID' style='margin-bottom: 50px;'>";
 	echo "<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 5px;'><h3 style='margin: 0;'><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;post=$post->ID&amp;sesskey=" . sesskey() . "'>$post->post_title</a></h3>";
-	echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $post->post_author</p>";
+	echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $post_author</p>";
 	echo "</div>";
 	echo "<div class='clearfix' style='margin: 5px 10px;'>$post->post_content</div>";
 	echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
