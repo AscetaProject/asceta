@@ -264,7 +264,7 @@ abstract class WPAPIRESTActionsController {
 
 	    } else {
 	        //throw new InvalidArgumentException ( 'Method was not found in class ' . $this->action_name . '.' );
-	        error_log("---------------------- 404");
+	        error_log("404: Metodo no encontrado en la clase ".$this->action_name." - ".$this->datarequest->getMethod().ucwords($this->action));
 	        die ( WPRESTUtils::sendResponse ( 404 ) );
 	    }
 	}

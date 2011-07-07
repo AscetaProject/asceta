@@ -58,7 +58,24 @@ $wpr['fields'] = array(
 		'comment_date' => 'Comment Date',
 		'comment_date_gmt' => 'Comment Date (GMT)',
 		'comment_content' => 'Comment Content'
-	)
+	),
+	'Pages' => array(
+		'ID' => 'Post ID',
+		'post_title' => 'Post Title',
+		'post_content' => 'Post Content',
+		'guid' => 'Post Link',
+		'post_type' => 'Post Type',
+		'post_date' => 'Post Date',
+		'post_author' => 'Post Author',
+		'comment_count' => 'Comment Count',
+		'comments' => 'Comments',
+		'comment_ID' => 'Comments ID',
+		'comment_author' => 'Comments Authors',
+		'comment_date' => 'Comments Date',
+		'comment_date_gmt' => 'Comments Date (GMT)',
+		'comment_content' => 'Commeents Content'
+	),
+
 );
 
 // Pluarlization array.
@@ -85,7 +102,7 @@ define("WPR_PLUGIN_FOLDER_NAME","wp-restful");
 define("WPR_PLUGIN_FOLDER_PATH",wpr_check_for_trailing_slash(WP_PLUGIN_DIR).wpr_check_for_trailing_slash(WPR_PLUGIN_FOLDER_NAME));
 define("WPR_XMLWRAPPER_PATH",WPR_PLUGIN_FOLDER_PATH."lib/xmlwrapper/xmlwrapper.php");
 define("WPR_SCRIPT_MAIN",wpr_check_for_trailing_slash(WP_PLUGIN_URL).wpr_check_for_trailing_slash(WPR_PLUGIN_FOLDER_NAME)."js/main.js");
-define("WPR_ALLOWED_REGEX",'/\bposts?\b|\busers?\b|\bstatus\b|\bcomments?\b|\bcategories\b|\btags\b/i');
+define("WPR_ALLOWED_REGEX",'/\bposts?\b|\busers?\b|\bpages?\b|\bstatus\b|\bcomments?\b|\bcategories\b|\btags\b/i');
 define("WPR_REQUIRES_OAUTH_REGEX",wpr_build_requires_auth_regex());
 //define("WPR_REQUIRES_OAUTH_REGEX",'/\bnone\b/i');
 
