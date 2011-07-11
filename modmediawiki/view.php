@@ -133,7 +133,7 @@ if (!$modmediawiki->server_id) {
         $basefeed = rtrim($server->url, '/') . "/pages/$page";
         $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
         $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+        $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
         $page = json_decode($response);
         if (count($page)) {
 	echo $OUTPUT->heading($modmediawiki->name." : ".$page->page_title);
