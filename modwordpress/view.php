@@ -42,8 +42,10 @@ $comment_post_ID = optional_param('comment_post_ID', 0, PARAM_INT); // Post ID t
 $post = optional_param('post', 0, PARAM_INT);
 $page = optional_param('page', 0, PARAM_INT);
 $new_post = optional_param('new_post', '', PARAM_TEXT); // Post ID to get comments
+$new_page = optional_param('new_page', '', PARAM_TEXT); // Post ID to get comments
 $post_title = optional_param('post_title', '', PARAM_TEXT); // Post ID to get comments
 $post_content = optional_param('post_content', '', PARAM_TEXT); // Post ID to get comments
+$post_type = optional_param('post_type', '', PARAM_TEXT); // Post ID to get comments
 
 if ($id) {
     $cm = get_coursemodule_from_id('modwordpress', $id, 0, false, MUST_EXIST);
@@ -117,7 +119,11 @@ if (!$modwordpress->server_id) {
         $access_secret = $server->access_secret;
         $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
         $token = new OAuthToken($access_token, $access_secret, NULL);
-        $basefeed = rtrim($server->url, '/') . "/post.json";
+        if ($post_type != '') {
+	$basefeed = rtrim($server->url, '/') . "/page.json";
+        } else {
+	$basefeed = rtrim($server->url, '/') . "/post.json";
+        }
         $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
         $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
         $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
@@ -210,8 +216,12 @@ if (!$modwordpress->server_id) {
         echo "<button onclick='javascript:history.back()'>".get_string("back","modwordpress")."</button>  ";
         echo '</form>';
         echo " <script type='text/javascript'> function new_comment_form_validation() { if (document.new_comment_form.comment_content.value.length == 0) { alert('" . print_string('comment_empty', 'modwordpress') . "'); document.new_comment_form.comment_content.focus(); return false; } }</script>";
-    } elseif ( $new_post != '' and confirm_sesskey()) {
-        echo $OUTPUT->heading($modwordpress->name." : Nuevo Post");
+    } elseif ( ($new_post != '' or $new_page != '') and confirm_sesskey()) {
+        if ($new_page != '') {
+	echo $OUTPUT->heading($modwordpress->name." : ".get_string('new_page','modwordpress'));
+        } else {
+	echo $OUTPUT->heading($modwordpress->name." : ".get_string('new_post','modwordpress'));
+        }
         echo '<form name="new_post_form" method="post" action="view.php" id="new_post_form" onsubmit="return new_post_form_validation();">';
         echo '<table><thead></thead><tbody>';
         echo '<tr>';
@@ -224,6 +234,9 @@ if (!$modwordpress->server_id) {
         echo "<button onclick='javascript:history.back()'>".get_string("back","modwordpress")."</button>  ";
         echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
         echo "<input type='hidden' name='id' value='$cm->id' />";
+        if ($new_page != '') {
+	echo "<input type='hidden' name='post_type' value='page' />";
+        }
         echo '</form>';
         echo " <script type='text/javascript'>";
         echo "function new_post_form_validation() {";
@@ -240,6 +253,39 @@ if (!$modwordpress->server_id) {
         echo "}";
         echo "</script>";
     } else {
+
+$url = rtrim($server->url, '/');
+$url = rtrim($url, '/api');
+$url = rtrim($url, '/API');
+$url = rtrim($url, '/API');
+$url .= "/";
+$curl = curl_init();
+curl_setopt($curl, CURLOPT_URL, $url);
+$ch = $curl;
+curl_setopt($ch, CURLOPT_FAILONERROR, true);
+curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER,true);
+curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+$html= curl_exec($ch);
+$dom = new DOMDocument();
+@$dom->loadHTML($html);
+$xpath = new DOMXPath($dom);
+$hrefs = $xpath->evaluate("/html/head/child::link[attribute::type='text/css'][attribute::rel='stylesheet']");
+$css = '';
+if ($hrefs->length) {
+    $href = $hrefs->item(0);
+    $css = $href->getAttribute('href');
+}
+
+if ($css != '') {
+    echo "<link rel='stylesheet' href='$css' />";
+}
+
+
+
+
+
         $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
         $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
         $basefeed = rtrim($server->url, '/') . '/pages.json';
@@ -249,11 +295,40 @@ if (!$modwordpress->server_id) {
         $json = json_decode($response);
 
         echo $OUTPUT->heading($modwordpress->name);
-        echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_post=post&amp;sesskey=" . sesskey() . "'>Nuevo Post</a>";
+
+echo "<div id='access' role='navigation' >";
+echo "<div class='menu'>";
+echo "<ul>";
+echo "  <li class='page-item'>";
+echo "	<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_post=post&amp;sesskey=" . sesskey() . "'>".get_string('new_post','modwordpress')."</a>";
+echo "  </li>";
+echo "  <li class='page_item'>";
+echo "	<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_page=page&amp;sesskey=" . sesskey() . "'>".get_string('new_page','modwordpress')."</a>";
+echo "  </li>";
+        foreach ($json as $page) {
+	if ($page->post_title != 'api') {
+	    echo "  <li class='page_item'>";
+	    echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;page=$page->ID&amp;sesskey=" . sesskey() . "'>$page->post_title</a>";
+	    echo "  </li>";
+	}
+        }
+echo "</ul>";
+echo "</div>";
+echo "</div>";
+
+
+
+        /*
+         // Estilo Moodle
+
+        echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_post=post&amp;sesskey=" . sesskey() . "'>".get_string('new_post','modwordpress')."</a>";
+        echo " | <a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_page=page&amp;sesskey=" . sesskey() . "'>".get_string('new_page','modwordpress')."</a>";
         foreach ($json as $page) {
 	if ($page->post_title != 'api')
 	    echo " | <a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;page=$page->ID&amp;sesskey=" . sesskey() . "'>$page->post_title</a>";
         }
+         
+         */
 
         $basefeed = rtrim($server->url, '/') . '/posts.json';
         $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
@@ -262,7 +337,43 @@ if (!$modwordpress->server_id) {
         $json = json_decode($response);
 
         foreach ($json as $post) {
-	$post_author = (isset($wp_users[$post->post_author]) ? $wp_users[$post->post_author]->firstname : $post->post_author);
+	$post_author = (isset($wp_users[$post->post_author]) ? $wp_users[$post->post_author]->firstname : $post->user_nicename);
+
+echo "<div id='post-$post->ID' class='post-$post->ID post type-post status-publish format-standard hentry category-sin-categoria'>";
+echo "  <h2 class='entry-title'><a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;post=$post->ID&amp;sesskey=" . sesskey() . "'>$post->post_title</a></h2>";
+echo "  <div class='entry-meta'>";
+echo "	<span class='meta-prep meta-prep-author'>Publicado en</span> <span class='entry-date'>$post->post_date</span> <span class='meta-sep'>por</span> <span class='author vcard'>$post_author</span>";
+echo "  </div>";
+echo "  <div class='entry-content'>";
+echo $post->post_content;
+echo "  </div>";
+echo "  <div class='entry-utility'>";
+echo "	<span class='cat-links'>";
+echo "	    <span class='comments-link'>";
+	if ($post->comment_count > 1) {
+	    echo "<a title='' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;comments=$post->ID&amp;sesskey=" . sesskey() . "'>";
+	    echo "$post->comment_count Comentarios";
+	    echo "</a> | ";
+	} elseif ($post->comment_count == 1) {
+	    echo "<a title='' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;comments=$post->ID&amp;sesskey=" . sesskey() . "'>";
+	    echo "$post->comment_count Comentario";
+	    echo "</a> | ";
+	}
+echo "	    </span>";
+echo "	    <span class='meta-sep'>|</span>";
+echo "	    <span class='edit-link'>";
+	echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>".  get_string("comment_post", "modwordpress")."</a>";
+echo "	    </span>";
+echo "	</span>";
+echo "  </div>";
+echo "</div>";
+
+
+
+
+
+	/*
+	// Estilo Moodle
 	echo "<div id='$post->ID' style='margin-bottom: 50px;'>";
 	echo "<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 5px;'><h3 style='margin: 0;'><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;post=$post->ID&amp;sesskey=" . sesskey() . "'>$post->post_title</a></h3>";
 	echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $post_author</p>";
@@ -281,6 +392,7 @@ if (!$modwordpress->server_id) {
 	echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>".  get_string("comment_post", "modwordpress")."</a>";
 	echo "</div>";
 	echo "</div>";
+	*/
         }
         //echo htmlentities($response);
     }

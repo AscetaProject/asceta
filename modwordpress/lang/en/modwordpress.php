@@ -67,3 +67,5 @@ $string['comment_post'] = "Deja un comentario";
 $string['save'] = "Guardar";
 $string['back'] = "Volver";
 $string['title'] = "Título";
+$string['new_post'] = "Nuevo Post";
+$string['new_page'] = "Nueva Página";
