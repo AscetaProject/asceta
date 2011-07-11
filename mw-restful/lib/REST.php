@@ -161,7 +161,7 @@ class MWAPIREST {
                 $articleTitle = Title::newFromText($title);
                 if (!is_null($articleTitle)){
                     $article = new Article($articleTitle);
-                    $res = array('titulo'=>$title, 'texto'=>$article->getContent(), 'resumen'=>$article->getComment());
+                    $res = array('page_title'=>$title, 'page_content'=>$article->getOutputFromWikitext($article->getContent())->mText, 'page_resume'=>$article->getComment());
                 } else{
                     throw new Exception("Undefined index. The page that you try to access does not exist", "002");
             }
