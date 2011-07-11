@@ -90,7 +90,7 @@ if (!$modmediawiki->server_id) {
         $basefeed = rtrim($server->url, '/') . "/pages";
         $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
         $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+        $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
         add_to_log($course->id, 'modmediawiki', 'create page', "view.php?id=$cm->id", $modmediawiki->name, $cm->id);
         redirect("$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id");
         die;
