@@ -309,6 +309,20 @@ function modmediawiki_get_participants($modmediawikiid) {
 }
 
 /**
+ * @return array
+ */
+function modmediawiki_get_view_actions() {
+    return array('view', 'view pages', 'view page');
+}
+
+/**
+ * @return array
+ */
+function modmediawiki_get_post_actions() {
+    return array('add','create page');
+}
+
+/**
  * This function returns if a scale is being used by one modmediawiki
  * if it has support for grading and scales. Commented code should be
  * modified if necessary. See forum, glossary or journal modules
