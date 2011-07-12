@@ -161,7 +161,7 @@ class MWAPIREST {
                 $articleTitle = Title::newFromText($title);
                 if (!is_null($articleTitle)){
                     $article = new Article($articleTitle);
-                    $res = array('page_title'=>$title, 'page_content'=>$article->getOutputFromWikitext($article->getContent())->mText, 'page_resume'=>$article->getComment());
+                    $res = array('page_title'=>$title, 'page_content'=>$article->getOutputFromWikitext($article->getContent())->mText, 'page_content_wiki' => $article->getContent(),'page_resume'=>$article->getComment());
                 } else{
                     throw new Exception("Undefined index. The page that you try to access does not exist", "002");
             }
@@ -179,8 +179,9 @@ class MWAPIREST {
     * @param array $data parameters from the body header
     */
     public function managePostPage($data){
-        createPage($data['page_title'], $data['page_content'], $data['page_resume']);
-        return header("{$_SERVER['SERVER_PROTOCOL']} 201 Created");
+        $res = createPage($data['page_title'], $data['page_content'], $data['page_resume']);
+        $this->manageResponse($res);
+        //return header("{$_SERVER['SERVER_PROTOCOL']} 201 Created");
     }
 
     /**
@@ -190,7 +191,7 @@ class MWAPIREST {
     * @param array $data parameters from the body header
     */
     public function managePutPage($data){
-        updatePage($data->titulo, $data->texto, $data->resumen);
+        updatePage($data->page_title, $data->page_content, $data->page_resume);
         return header("{$_SERVER['SERVER_PROTOCOL']} 200 OK");
     }
 

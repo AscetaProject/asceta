@@ -116,7 +116,7 @@ function  getPages(){
     $result = array();
     while ( $row = $dbr->fetchObject( $res ) ) {
         $art = new Article(Title::newFromText($row->page_title));
-        array_push($result, array('ID' => $row->page_id, 'page_title' => $row->page_title, 'page_content' => $art->getOutputFromWikitext($art->getContent())->mText, 'page_resume' => $art->getComment()));
+        array_push($result, array('ID' => $row->page_id, 'page_title' => $row->page_title, 'page_content' => $art->getOutputFromWikitext($art->getContent())->mText, 'page_content_wiki' => $art->getContent(), 'page_resume' => $art->getComment()));
     }
     $dbr->freeResult( $res );
     return $result;
@@ -155,6 +155,7 @@ function createPage($name, $text, $summary){
 
     $art = new Article($title);
     $art->insertNewArticle($text, $summary);
+    return array("ID" => $art->getID());
 
 }
 
