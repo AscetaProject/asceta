@@ -38,6 +38,7 @@ $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
 $n  = optional_param('n', 0, PARAM_INT);  // modmediawiki instance ID - it should be named as the first character of the module
 $page = optional_param('page', 0, PARAM_INT);
 $new_page = optional_param('new_page', '', PARAM_TEXT); // New Page
+$edit_page = optional_param('edit_page', '', PARAM_TEXT); // New Page
 $page_title = optional_param('page_title', '', PARAM_TEXT); // Page title
 $page_content = optional_param('page_content', '', PARAM_TEXT); // Page content
 $page_resume = optional_param('page_resume', '', PARAM_TEXT); //Page resume
@@ -59,7 +60,7 @@ if ($modmediawiki->server_id) {
 }
 require_login($course, true, $cm);
 
-add_to_log($course->id, 'modmediawiki', 'view', "view.php?id=$cm->id", $modmediawiki->name, $cm->id);
+//add_to_log($course->id, 'modmediawiki', 'view', "view.php?id=$cm->id", $modmediawiki->name, $cm->id);
 
 /// Print the page header
 
@@ -78,8 +79,7 @@ echo $OUTPUT->header();
 if (!$modmediawiki->server_id) {
     echo $OUTPUT->heading(get_string("configure_server_url","modmediawiki"));
 } else {
-    if ($page_title != '' and $page_content != '' and confirm_sesskey()) {
-        // TODO: Poner como post_author el usuario de moodle mirando en mdl_modwordpress_users
+    if ($page_title != '' and $page_content != '' and !$edit_page and confirm_sesskey()) {
         $params = array('page_title' => $page_title, 'page_content' => $page_content, 'page_resume' => $page_resume);
         $consumer_key = $server->consumer_key;
         $consumer_secret = $server->consumer_secret;
@@ -91,12 +91,28 @@ if (!$modmediawiki->server_id) {
         $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
         $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
         $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-        add_to_log($course->id, 'modmediawiki', 'create page', "view.php?id=$cm->id", $modmediawiki->name, $cm->id);
+        $page_info = json_decode($response);
+        add_to_log($course->id, 'modmediawiki', 'create page', "view.php?id=$cm->id&page=$page_info->ID&sesskey=".  sesskey(), $modmediawiki->name, $cm->id);
+        redirect("$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id");
+        die;
+    } else if($page_title != '' and $page_content != '' and $edit_page and confirm_sesskey()){
+        $params = array('page_title' => $page_title, 'page_content' => $page_content, 'page_resume' => $page_resume);
+        $consumer_key = $server->consumer_key;
+        $consumer_secret = $server->consumer_secret;
+        $access_token = $server->access_token;
+        $access_secret = $server->access_secret;
+        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+        $token = new OAuthToken($access_token, $access_secret, NULL);
+        $basefeed = rtrim($server->url, '/') . "/pages/$edit_page?XDEBUG_SESSION_START=netbeans-xdebug";
+        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'PUT', $basefeed, json_encode($params));
+        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+        $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+        add_to_log($course->id, 'modmediawiki', 'edit page', "view.php?id=$cm->id&page=$edit_page&sesskey=".sesskey(), $modmediawiki->name, $cm->id);
         redirect("$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id");
         die;
     }
     if ( $new_page != '' and confirm_sesskey()) {
-        echo $OUTPUT->heading($modmediawiki->name." : Nueva Página");
+        echo $OUTPUT->heading($modmediawiki->name." : ".get_string("new_page","modmediawiki"));
         echo '<form name="new_page_form" method="post" action="view.php" id="new_page_form" onsubmit="return new_page_form_validation();">';
         echo '<table><thead></thead><tbody>';
         echo '<tr>';
@@ -127,6 +143,43 @@ if (!$modmediawiki->server_id) {
 	echo "}";
         echo "}";
         echo "</script>";
+    } elseif ($edit_page and confirm_sesskey()){
+        $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
+        $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
+        $basefeed = rtrim($server->url, '/') . "/pages/$edit_page";
+        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
+        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+        $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+        $page_info = json_decode($response);
+        echo $OUTPUT->heading($modmediawiki->name." : ".$page_info->page_title);
+        echo '<form name="edit_page_form" method="post" action="view.php?edit_page='.$edit_page.'" id="edit_page_form" onsubmit="return edit_page_form_validation();">';
+        echo '<table><thead></thead><tbody>';
+        echo '<tr>';
+        echo "<td colspan='2'><textarea cols=90 rows=10 name='page_content'>$page_info->page_content_wiki</textarea></td>";
+        echo "</tr><tr>";
+        echo "<td><label for='page_resume'>".get_string("resumen", "modmediawiki")."</label></td>";
+        echo "<td><input type='text'name='page_resume' value='' size='80px'/></td>";
+        echo "</tr></tbody></table>";
+        echo "<input type='submit' value='".get_string("save", "modmediawiki")."' />";
+        echo "<button onclick='javascript:history.back()'>".get_string("back","modmediawiki")."</button>  ";
+        echo "<input type='hidden' name='page_title' value='$page_info->page_title' size='80px' />";
+        echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
+        echo "<input type='hidden' name='id' value='$cm->id' />";
+        echo '</form>';
+        echo " <script type='text/javascript'>";
+        echo "function edit_page_form_validation() {";
+	echo "if (document.edit_page_form.page_title.value.length == 0) {";
+	    echo "alert('" . print_string('page_title_empty', 'modmediawiki') . "');";
+	    echo "document.edit_page_form.page_title.focus();";
+	    echo "return false; ";
+	echo "}";
+	echo "if (document.edit_page_form.page_content.value.length == 0) {";
+	    echo "alert('" . print_string('page_content_empty', 'modmediawiki') . "');";
+	    echo "document.edit_page_form.page_content.focus();";
+	    echo "return false; ";
+	echo "}";
+        echo "}";
+        echo "</script>";
     } elseif ($page and confirm_sesskey()) {
         $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
         $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
@@ -134,17 +187,22 @@ if (!$modmediawiki->server_id) {
         $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
         $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
         $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-        $page = json_decode($response);
-        if (count($page)) {
-	echo $OUTPUT->heading($modmediawiki->name." : ".$page->page_title);
-	echo $page->page_content;
-        echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'> $page->page_resume</div>";
+        $page_info = json_decode($response);
+        if (count($page_info)) {
+	echo $OUTPUT->heading($modmediawiki->name." : ".$page_info->page_title);
+	echo $page_info->page_content;
+        echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'> $page_info->page_resume</div>";
+        }
+        if($modmediawiki->permission_edit){
+            echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;edit_page=$page&amp;sesskey=" . sesskey() . "'>".get_string("edit_page","modmediawiki")."</a>";
         }
         echo "<br/><button style='margin-top: 20px;' onclick='javascript:history.back()'>".get_string("back","modmediawiki")."</button>  ";
-        add_to_log($course->id, 'modmediawiki', 'view page', "view.php?id=$cm->id", $modmediawiki->name, $cm->id);
+        add_to_log($course->id, 'modmediawiki', 'view page', "view.php?id=$cm->id&page=$page&sesskey=".sesskey(), $modmediawiki->name, $cm->id);
     } else {
         echo $OUTPUT->heading($modmediawiki->name);
-        echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;new_page=page&amp;sesskey=" . sesskey() . "'>Crear Página</a>";
+        if($modmediawiki->permission_create){
+            echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;new_page=page&amp;sesskey=" . sesskey() . "'>".get_string("create_page","modmediawiki")."</a>";
+        }
         $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
         $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
         $basefeed = rtrim($server->url,'/').'/pages';
@@ -162,7 +220,7 @@ if (!$modmediawiki->server_id) {
             echo "</div>";
             echo "</div>";
         }
-        add_to_log($course->id, 'modmediawiki', 'view pages', "view.php?id=$cm->id", $modmediawiki->name, $cm->id);
+        add_to_log($course->id, 'modmediawiki', 'view', "view.php?id=$cm->id", $modmediawiki->name, $cm->id);
         //echo htmlentities($response);
     }
 }

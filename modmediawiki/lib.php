@@ -700,7 +700,7 @@ function modmediawiki_send_request($http_method, $url, $auth_header=null, $postD
     case 'PUT':
       curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
       curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $http_method);
-      curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
+      curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($postData));
       break;
     case 'DELETE':
       curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));

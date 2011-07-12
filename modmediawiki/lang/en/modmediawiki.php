@@ -66,3 +66,7 @@ $string['save'] = "Guardar";
 $string['back'] = "Volver";
 $string['title'] = "Título";
 $string['resumen'] = "Resumen";
+$string['create_page'] = "Crear Página";
+$string['edit_page'] = "Editar Página";
+$string['new_page'] = "Nueva Página";
+$string['permission'] = "Permisos";

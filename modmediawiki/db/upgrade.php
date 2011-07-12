@@ -289,5 +289,29 @@ function xmldb_modmediawiki_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2011063002, 'modmediawiki');
     }
 
+    if ($oldversion < 2011071202) {
+
+        // Define field permission_create to be added to modmediawiki
+        $table = new xmldb_table('modmediawiki');
+        $field = new xmldb_field('permission_create', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'server_id');
+
+        // Conditionally launch add field permission_create
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field permission_edit to be added to modmediawiki
+        $table = new xmldb_table('modmediawiki');
+        $field = new xmldb_field('permission_edit', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_create');
+
+        // Conditionally launch add field permission_edit
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        
+        // modmediawiki savepoint reached
+        upgrade_mod_savepoint(true, 2011071202, 'modmediawiki');
+    }
+
     return true;
 }
