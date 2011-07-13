@@ -143,11 +143,26 @@ if (!$modwordpress->server_id) {
 
 // SAVE NEW/EDITED POST OR PAGE
     } elseif ($post_title != '' and $post_content != '' and confirm_sesskey()) {
-        if (($post_type != '' && $modwordpress->permission_create_page) || ($post_type == '' && $modwordpress->permission_create_post)) {
+        if (($post_type != '' && $modwordpress->permission_create_page) || ($post_type == '' && $modwordpress->permission_create_post) || ($post_ID && $modwordpress->permission_edit_post)) {
 	$user_id = 1;
 	if (isset($mdl_users[$USER->id]->wordpress_id))
 	    $user_id = $mdl_users[$USER->id]->wordpress_id;
 	$params = array('post_title' => $post_title, 'post_content' => $post_content, 'post_author' => $user_id);
+
+	// edit post
+	if ($post_ID) {
+	        $basefeed = rtrim($server->url, '/') . "/post/$post_ID.json";
+	        $method = "PUT";
+
+	// new comment
+	} else {
+	    $method = "POST";
+	    if ($post_type != '') {
+	        $basefeed = rtrim($server->url, '/') . "/page.json";
+	    } else {
+	        $basefeed = rtrim($server->url, '/') . "/post.json";
+	    }
+	}
 
 	if ($server->oauth) {
 	    $consumer_key = $server->consumer_key;
@@ -156,22 +171,14 @@ if (!$modwordpress->server_id) {
 	    $access_secret = $server->access_secret;
 	    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
 	    $token = new OAuthToken($access_token, $access_secret, NULL);
-	}
-	if ($post_type != '') {
-	    $basefeed = rtrim($server->url, '/') . "/page.json";
-	} else {
-	    $basefeed = rtrim($server->url, '/') . "/post.json";
-	}
-
-	if ($server->oauth) {
-	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
+	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, $method, $basefeed, $params);
 	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 	} else {
 	    $response = send_request($request->get_normalized_http_method(), $basefeed, null, $params);
 	}
 	$json = json_decode($response);
-	if ($post_type != '') {
+	if ($post_type != '' && isset($json->ID)) {
 	    add_to_log($course->id, 'modwordpress', 'create page', "view.php?id=$cm->id&page=$json->ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
 	} else {
 	    add_to_log($course->id, 'modwordpress', 'create post', "view.php?id=$cm->id&post=$json->ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
