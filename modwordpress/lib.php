@@ -312,6 +312,24 @@ function modwordpress_get_participants($modwordpressid) {
 }
 
 /**
+ * @return array
+ */
+function modwordpress_get_view_actions() {
+    return array('view', 'view posts', 'view posts', 'view page', 'view comments');
+}
+
+/**
+ * @return array
+ */
+function modwordpress_get_post_actions() {
+    return array('add','create comment', 'create post', 'create page');
+}
+
+
+
+
+
+/**
  * This function returns if a scale is being used by one modwordpress
  * if it has support for grading and scales. Commented code should be
  * modified if necessary. See forum, glossary or journal modules

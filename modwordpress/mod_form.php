@@ -76,6 +76,18 @@ class mod_modwordpress_mod_form extends moodleform_mod {
 	}
 	$mform->addElement('select', 'server_id', get_string('available_servers', 'modwordpress'), $options);
 
+	$mform->addElement('header', 'modwordpressfieldset', get_string('permissions', 'modwordpress'));
+	$mform->addElement('checkbox', 'permission_create_post', get_string('create_posts','modwordpress'));
+	$mform->addElement('checkbox', 'permission_edit_post', get_string('edit_posts','modwordpress'));
+	$mform->addElement('checkbox', 'permission_delete_post', get_string('delete_posts','modwordpress'));
+	$mform->addElement('checkbox', 'permission_create_comment', get_string('create_comments','modwordpress'));
+	$mform->addElement('checkbox', 'permission_edit_comment', get_string('edit_comments','modwordpress'));
+	$mform->addElement('checkbox', 'permission_delete_comment', get_string('delete_comments','modwordpress'));
+	$mform->addElement('checkbox', 'permission_create_page', get_string('create_pages','modwordpress'));
+	$mform->addElement('checkbox', 'permission_edit_page', get_string('edit_pages','modwordpress'));
+	$mform->addElement('checkbox', 'permission_delete_page', get_string('delete_pages','modwordpress'));
+
+
 
 //-------------------------------------------------------------------------------
 	// add standard elements, common to all modules

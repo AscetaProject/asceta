@@ -14,7 +14,16 @@
         <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the intro field (MOODLE, HTML, MARKDOWN...)" PREVIOUS="api" NEXT="timecreated"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="introformat" NEXT="timemodified"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="server_id"/>
-        <FIELD NAME="server_id" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timemodified"/>
+        <FIELD NAME="server_id" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timemodified" NEXT="permission_create_post"/>
+        <FIELD NAME="permission_create_post" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="server_id" NEXT="permission_edit_post"/>
+        <FIELD NAME="permission_edit_post" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_create_post" NEXT="permission_delete_post"/>
+        <FIELD NAME="permission_delete_post" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_edit_post" NEXT="permission_create_comment"/>
+        <FIELD NAME="permission_create_comment" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_delete_post" NEXT="permission_edit_comment"/>
+        <FIELD NAME="permission_edit_comment" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_create_comment" NEXT="permission_delete_comment"/>
+        <FIELD NAME="permission_delete_comment" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_edit_comment" NEXT="permission_create_page"/>
+        <FIELD NAME="permission_create_page" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_delete_comment" NEXT="permission_edit_page"/>
+        <FIELD NAME="permission_edit_page" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_create_page" NEXT="permission_delete_page"/>
+        <FIELD NAME="permission_delete_page" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_edit_page"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="url"/>
@@ -46,9 +55,9 @@
     <TABLE NAME="modwordpress_users" COMMENT="Users relation between moodle and wordpress" PREVIOUS="modwordpress_servers">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="moodle_id"/>
-        <FIELD NAME="moodle_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" PREVIOUS="id" NEXT="wordpress_id"/>
-        <FIELD NAME="wordpress_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" PREVIOUS="moodle_id" NEXT="server_id"/>
-        <FIELD NAME="server_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" PREVIOUS="wordpress_id"/>
+        <FIELD NAME="moodle_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="id" NEXT="wordpress_id"/>
+        <FIELD NAME="wordpress_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="moodle_id" NEXT="server_id"/>
+        <FIELD NAME="server_id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="wordpress_id"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="server"/>

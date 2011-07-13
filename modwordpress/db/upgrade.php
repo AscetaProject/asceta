@@ -291,10 +291,103 @@ function xmldb_modwordpress_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2011062403, 'modwordpress');
     }
 
+ if ($oldversion < 2011071301) {
+
+        // Define field permission_create to be added to modwordpress
+        $table = new xmldb_table('modwordpress');
+        $field = new xmldb_field('permission_create', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'server_id');
+
+        // Conditionally launch add field permission_create
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+       // Define field permission_edit to be added to modwordpress
+        $field = new xmldb_field('permission_edit', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_create');
+
+        // Conditionally launch add field permission_edit
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field permission_delete to be added to modwordpress
+        $field = new xmldb_field('permission_delete', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_edit');
+
+        // Conditionally launch add field permission_delete
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // modwordpress savepoint reached
+        upgrade_mod_savepoint(true, 2011071301, 'modwordpress');
+    }
+
+   if ($oldversion < 2011071302) {
+
+        // Rename field permission_create_post on table modwordpress to NEWNAMEGOESHERE
+        $table = new xmldb_table('modwordpress');
+        $field = new xmldb_field('permission_create', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'server_id');
+
+        // Launch rename field permission_create_post
+        $dbman->rename_field($table, $field, 'permission_create_post');
+
+        $field = new xmldb_field('permission_edit', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_create_post');
+
+        // Launch rename field permission_create_post
+        $dbman->rename_field($table, $field, 'permission_edit_post');
+
+        $field = new xmldb_field('permission_delete', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_edit_post');
+
+        // Launch rename field permission_create_post
+        $dbman->rename_field($table, $field, 'permission_delete_post');
 
 
+        $field = new xmldb_field('permission_create_comment', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_delete_post');
+
+        // Conditionally launch add field permission_create_post
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('permission_edit_comment', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_create_comment');
+
+        // Conditionally launch add field permission_create_post
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('permission_delete_comment', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_edit_comment');
+
+        // Conditionally launch add field permission_create_post
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('permission_create_page', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_delete_comment');
+
+        // Conditionally launch add field permission_create_post
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('permission_edit_page', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_create_page');
+
+        // Conditionally launch add field permission_create_post
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('permission_delete_page', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_edit_page');
+
+        // Conditionally launch add field permission_create_post
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
 
 
+        // modwordpress savepoint reached
+        upgrade_mod_savepoint(true, 2011071302, 'modwordpress');
+    }
 
 
 
