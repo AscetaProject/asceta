@@ -7,7 +7,7 @@ class PostRESTController extends WPAPIRESTController {
     protected function getPosts() {
         global $wpdb;
         // Get all posts
-        $posts = $wpdb->get_results("SELECT * FROM ".$wpdb->posts." WHERE ID > 0 AND post_type LIKE 'post' ORDER BY post_date DESC");
+        $posts = $wpdb->get_results("SELECT p.ID, post_title, post_content, guid, post_type, post_date, post_author, user_nicename, comment_count FROM ".$wpdb->posts." p, ".$wpdb->users." u WHERE p.ID > 0 AND p.post_type LIKE 'post' AND p.post_author = u.ID ORDER BY post_date DESC");
         return $this->_return($posts);
     }
 
@@ -17,7 +17,7 @@ class PostRESTController extends WPAPIRESTController {
         if(is_null($post_data)){
             throw new Exception("Post '$post' does not exists \n","404");
         }
-        $post_data->comments = get_approved_comments($post);
+        $post_data->comments = $this->get_approved_comments($post);
         return $this->_return($post_data);
     }
 
@@ -107,5 +107,11 @@ class PostRESTController extends WPAPIRESTController {
     private function _return($content) {
         return wpr_filter_content($content,wpr_get_filter("Posts"));
     }
+
+    private function get_approved_comments($post_id) {
+	global $wpdb;
+	return $wpdb->get_results($wpdb->prepare("SELECT c.*, user_nicename as comment_author_name FROM $wpdb->comments c, ".$wpdb->users." u WHERE comment_post_ID = %d AND comment_approved = '1' AND c.comment_author = u.ID ORDER BY comment_date", $post_id));
+    }
+
 }
 ?>

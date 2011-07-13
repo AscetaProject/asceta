@@ -12,11 +12,11 @@ class CommentRESTController extends WPAPIRESTController {
         wpr_set_defaults($_POST, array('post_id' => false, 'comment_id' => false));
         // Get all comments
         if ($_POST['post_id'])
-	$comments = $wpdb->get_results($wpdb->prepare("SELECT * FROM " . $wpdb->comments . " WHERE comment_post_ID = %d AND comment_approved = 1 ORDER BY comment_date ASC", $_POST['post_id']));
+	$comments = $wpdb->get_results($wpdb->prepare("SELECT c.*, user_nicename as comment_author_name FROM " . $wpdb->comments . " c, ".$wpdb->users." u  WHERE comment_post_ID = %d AND comment_approved = 1 AND c.comment_author = u.ID ORDER BY comment_date ASC", $_POST['post_id']));
         elseif ($_POST['comment_id'])
-	$comments = $wpdb->get_results($wpdb->prepare("SELECT * FROM " . $wpdb->comments . " WHERE comment_ID = %d AND comment_approved = 1 ORDER BY comment_date ASC", $_POST['comment_id']));
+	$comments = $wpdb->get_results($wpdb->prepare("SELECT c.*, user_nicename as comment_author_name FROM " . $wpdb->comments ." c, ".$wpdb->users." u WHERE comment_ID = %d AND comment_approved = 1 AND c.comment_author = u.ID ORDER BY comment_date ASC", $_POST['comment_id']));
         else
-	$comments = $wpdb->get_results("SELECT * FROM " . $wpdb->comments . " WHERE comment_ID > 0 AND comment_approved = 1 ORDER BY comment_date ASC");
+	$comments = $wpdb->get_results("SELECT c.*, user_nicename as comment_author_name FROM " . $wpdb->comments . " c, ".$wpdb->users." u WHERE comment_ID > 0 AND comment_approved = 1 AND c.comment_author = u.ID ORDER BY comment_date ASC");
 
         if (count($comments) == 1) {
 	return $this->_return($comments[0]);

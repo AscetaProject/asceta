@@ -42,13 +42,15 @@ $wpr['fields'] = array(
 		'post_type' => 'Post Type',
 		'post_date' => 'Post Date',
 		'post_author' => 'Post Author',
+		'user_nicename' => 'Post Author Name',
 		'comment_count' => 'Comment Count',
 		'comments' => 'Comments',
 		'comment_ID' => 'Comments ID',
 		'comment_author' => 'Comments Authors',
 		'comment_date' => 'Comments Date',
 		'comment_date_gmt' => 'Comments Date (GMT)',
-		'comment_content' => 'Commeents Content'
+		'comment_content' => 'Comments Content',
+		'comment_author_name' => 'Comment Author Name'
 	),
 	'Comments' => array(
 		'comment_post_ID' => 'Post ID',
@@ -57,7 +59,8 @@ $wpr['fields'] = array(
 		'comment_author_url' => 'Comment Author URL',
 		'comment_date' => 'Comment Date',
 		'comment_date_gmt' => 'Comment Date (GMT)',
-		'comment_content' => 'Comment Content'
+		'comment_content' => 'Comment Content',
+		'comment_author_name' => 'Comment Author Name'
 	),
 	'Pages' => array(
 		'ID' => 'Page ID',
