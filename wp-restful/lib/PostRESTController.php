@@ -7,7 +7,7 @@ class PostRESTController extends WPAPIRESTController {
     protected function getPosts() {
         global $wpdb;
         // Get all posts
-        $posts = $wpdb->get_results("SELECT p.ID, post_title, post_content, guid, post_type, post_date, post_author, user_nicename, comment_count FROM ".$wpdb->posts." p, ".$wpdb->users." u WHERE p.ID > 0 AND p.post_type LIKE 'post' AND p.post_author = u.ID ORDER BY post_date DESC");
+        $posts = $wpdb->get_results("SELECT p.ID, post_title, post_content, guid, post_type, post_date, post_author, user_nicename, comment_count FROM ".$wpdb->posts." p, ".$wpdb->users." u WHERE p.ID > 0 AND p.post_type LIKE 'post' AND p.post_author = u.ID AND p.post_status LIKE 'publish' ORDER BY post_date DESC");
         return $this->_return($posts);
     }
 
