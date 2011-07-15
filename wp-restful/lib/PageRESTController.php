@@ -7,7 +7,7 @@ class PageRESTController extends WPAPIRESTController {
     protected function getPages() {
         global $wpdb;
         // Get all posts
-        $posts = $wpdb->get_results("SELECT * FROM ".$wpdb->posts." WHERE ID > 0 AND post_type LIKE 'page' ORDER BY post_date DESC");
+        $posts = $wpdb->get_results("SELECT * FROM ".$wpdb->posts." WHERE ID > 0 AND post_type LIKE 'page' AND post_status LIKE 'publish' ORDER BY post_date DESC");
         return $this->_return($posts);
     }
 

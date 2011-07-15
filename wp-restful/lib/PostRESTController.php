@@ -76,7 +76,7 @@ class PostRESTController extends WPAPIRESTController {
 	}
 	$updated = wp_update_post( $update_post );
 
-	if ($updated == 1) {
+	if ($updated) {
 	    return $this->_return(get_post($data['id']));
 	} else {
 	    throw new Exception("Post '".$data['id']."' not modified \n","400");
