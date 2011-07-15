@@ -695,6 +695,7 @@ function modwordpress_remove_user($userid, $context) {
  */
 function send_request($http_method, $url, $auth_header=null, $postData=null) {
   $curl = curl_init($url);
+
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
   //curl_setopt($curl, CURLOPT_FAILONERROR, false);
   //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
@@ -713,7 +714,7 @@ function send_request($http_method, $url, $auth_header=null, $postData=null) {
     case 'PUT':
       curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
       curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $http_method);
-      curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
+      curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postData));
       break;
     case 'DELETE':
       curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));

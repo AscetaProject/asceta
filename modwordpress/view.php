@@ -38,12 +38,15 @@ $n = optional_param('n', 0, PARAM_INT);  // modwordpress instance ID - it should
 $comments = optional_param('comments', 0, PARAM_INT); // Post ID to get comments
 $new_comment = optional_param('new_comment', 0, PARAM_INT); // Post ID to get comments
 $edit_comment = optional_param('edit_comment', 0, PARAM_INT); // Post ID to get comments
+$delete_comment = optional_param('delete_comment', 0, PARAM_INT); // Post ID to get comments
 $comment_content = optional_param('comment_content', '', PARAM_TEXT); // Post ID to get comments
 $comment_post_ID = optional_param('comment_post_ID', 0, PARAM_INT); // Post ID to get comments
 $comment_ID = optional_param('comment_ID', 0, PARAM_INT); // Post ID to get comments
 $post = optional_param('post', 0, PARAM_INT);
 $page = optional_param('page', 0, PARAM_INT);
 $edit_post = optional_param('edit_post', 0, PARAM_INT);
+$delete_post = optional_param('delete_post', 0, PARAM_INT);
+$delete_page = optional_param('delete_page', 0, PARAM_INT);
 $new_post = optional_param('new_post', '', PARAM_TEXT); // Post ID to get comments
 $edit_post = optional_param('edit_post', '', PARAM_TEXT); // Post ID to get comments
 $new_page = optional_param('new_page', '', PARAM_TEXT); // Post ID to get comments
@@ -114,7 +117,7 @@ if (!$modwordpress->server_id) {
 	    $basefeed = rtrim($server->url, '/') . "/comment/$comment_ID.json";
 	    $method = 'PUT';
 
-	// new comment
+	    // new comment
 	} else {
 	    $basefeed = rtrim($server->url, '/') . "/comment/$comment_post_ID.json";
 	    $method = 'POST';
@@ -131,11 +134,11 @@ if (!$modwordpress->server_id) {
 	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 	} else {
-	    $response = send_request($request->get_normalized_http_method(), $basefeed, null, $params);
+	    $response = send_request($method, $basefeed, null, $params);
 	}
 	add_to_log($course->id, 'modwordpress', 'create comment', "view.php?id=$cm->id&comments=$comment_post_ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
         }
-        redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&comments=$comment_post_ID&sesskey=".sesskey());
+        redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&comments=$comment_post_ID&sesskey=" . sesskey());
         die;
 
 
@@ -143,7 +146,7 @@ if (!$modwordpress->server_id) {
 
 // SAVE NEW/EDITED POST OR PAGE
     } elseif ($post_title != '' and $post_content != '' and confirm_sesskey()) {
-        if (($post_type != '' && $modwordpress->permission_create_page) || ($post_type == '' && $modwordpress->permission_create_post) || ($post_ID && $modwordpress->permission_edit_post)) {
+        if (($post_type != '' && $modwordpress->permission_create_page) || ($post_type == '' && $modwordpress->permission_create_post) || ($post_ID && $modwordpress->permission_edit_post) || ($post_ID && $post_type != '' && $modwordpress->permission_edit_page)) {
 	$user_id = 1;
 	if (isset($mdl_users[$USER->id]->wordpress_id))
 	    $user_id = $mdl_users[$USER->id]->wordpress_id;
@@ -151,10 +154,14 @@ if (!$modwordpress->server_id) {
 
 	// edit post
 	if ($post_ID) {
+	    $method = "PUT";
+	    if ($post_type != '') {
+	        $basefeed = rtrim($server->url, '/') . "/page/$post_ID.json";
+	    } else {
 	        $basefeed = rtrim($server->url, '/') . "/post/$post_ID.json";
-	        $method = "PUT";
+	    }
 
-	// new comment
+	    // new comment
 	} else {
 	    $method = "POST";
 	    if ($post_type != '') {
@@ -171,22 +178,212 @@ if (!$modwordpress->server_id) {
 	    $access_secret = $server->access_secret;
 	    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
 	    $token = new OAuthToken($access_token, $access_secret, NULL);
-	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, $method, $basefeed, $params);
+	    if ($method == 'PUT') {
+	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, $method, $basefeed);
+	    } else {
+	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, $method, $basefeed, $params);
+	    }
 	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
 	} else {
-	    $response = send_request($request->get_normalized_http_method(), $basefeed, null, $params);
+	    $response = send_request($method, $basefeed, null, $params);
 	}
+
 	$json = json_decode($response);
 	if ($post_type != '' && isset($json->ID)) {
 	    add_to_log($course->id, 'modwordpress', 'create page', "view.php?id=$cm->id&page=$json->ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
-	} else {
+	} elseif (isset($json->ID)){
 	    add_to_log($course->id, 'modwordpress', 'create post', "view.php?id=$cm->id&post=$json->ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
+	} else {
+	    echo $OUTPUT->header();
+	    echo "<p>" . get_string("server_error", "modwordpress").": ";
+	    echo $response . "</p>";
+	    echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	    echo $OUTPUT->footer();
+	    die;
 	}
         }
-        redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id");
+        if ($post_ID) {
+	redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&post=$post_ID&sesskey=".sesskey());
+        } else {
+	redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id");
+        }
         die;
+
+
+
+
+// DELETE COMMENT
+    } elseif ($delete_comment and confirm_sesskey()) {
+        $params = array();
+        $basefeed = rtrim($server->url, '/') . "/comment/$delete_comment.json";
+        if ($server->oauth) {
+	$consumer_key = $server->consumer_key;
+	$consumer_secret = $server->consumer_secret;
+	$access_token = $server->access_token;
+	$access_secret = $server->access_secret;
+	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+	$token = new OAuthToken($access_token, $access_secret, NULL);
+	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, $params);
+	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+        } else {
+	$response = send_request('GET', $basefeed, null, $params);
+        }
+        $comment = json_decode($response);
+        if (isset($comment->comment_ID)) {
+	if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_delete_comment) {
+	    $params = array();
+	    $basefeed = rtrim($server->url, '/') . "/comment/$delete_comment.json";
+
+	    if ($server->oauth) {
+	        $consumer_key = $server->consumer_key;
+	        $consumer_secret = $server->consumer_secret;
+	        $access_token = $server->access_token;
+	        $access_secret = $server->access_secret;
+	        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+	        $token = new OAuthToken($access_token, $access_secret, NULL);
+	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed, $params);
+	        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+	    } else {
+	        $response = send_request('DELETE', $basefeed, null, $params);
+	    }
+	    add_to_log($course->id, 'modwordpress', 'delete comment', "view.php?id=$cm->id&comments=$comment_post_ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
+
+	    redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&comments=$comment_post_ID&sesskey=" . sesskey());
+	    die;
+	} else {
+	    echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
+	    echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	    die;
+	}
+        } else {
+	echo $OUTPUT->header();
+	echo "<p>" . get_string("server_error", "modwordpress").": ";
+	echo $response . "</p>";
+	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo $OUTPUT->footer();
+	die;
+        }
+
+
+
+// DELETE PAGE
+    }  elseif ($delete_page and confirm_sesskey()) {
+        $params = array();
+        $basefeed = rtrim($server->url, '/') . "/page/$delete_page.json";
+        if ($server->oauth) {
+	$consumer_key = $server->consumer_key;
+	$consumer_secret = $server->consumer_secret;
+	$access_token = $server->access_token;
+	$access_secret = $server->access_secret;
+	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+	$token = new OAuthToken($access_token, $access_secret, NULL);
+	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, $params);
+	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+        } else {
+	$response = send_request('GET', $basefeed, null, $params);
+        }
+        $post = json_decode($response);
+        if (isset($post->ID)) {
+	if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post) {
+	    $params = array();
+	    $basefeed = rtrim($server->url, '/') . "/page/$delete_page.json";
+
+	    if ($server->oauth) {
+	        $consumer_key = $server->consumer_key;
+	        $consumer_secret = $server->consumer_secret;
+	        $access_token = $server->access_token;
+	        $access_secret = $server->access_secret;
+	        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+	        $token = new OAuthToken($access_token, $access_secret, NULL);
+	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed, $params);
+	        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+	    } else {
+	        $response = send_request('DELETE', $basefeed, null, $params);
+	    }
+	    add_to_log($course->id, 'modwordpress', 'delete page', "view.php?id=$cm->id", $modwordpress->name, $cm->id);
+
+	    redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id");
+	    die;
+	} else {
+	    echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
+	    echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	    die;
+	}
+        } else {
+	echo $OUTPUT->header();
+	echo "<p>" . get_string("server_error", "modwordpress").": ";
+	echo $response . "</p>";
+	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo $OUTPUT->footer();
+	die;
+        }
+
+
+    }  elseif ($delete_post and confirm_sesskey()) {
+        $params = array();
+        $basefeed = rtrim($server->url, '/') . "/post/$delete_post.json";
+        if ($server->oauth) {
+	$consumer_key = $server->consumer_key;
+	$consumer_secret = $server->consumer_secret;
+	$access_token = $server->access_token;
+	$access_secret = $server->access_secret;
+	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+	$token = new OAuthToken($access_token, $access_secret, NULL);
+	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, $params);
+	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+        } else {
+	$response = send_request('GET', $basefeed, null, $params);
+        }
+        $post = json_decode($response);
+        if (isset($post->ID)) {
+	if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post) {
+	    $params = array();
+	    $basefeed = rtrim($server->url, '/') . "/post/$delete_post.json";
+
+	    if ($server->oauth) {
+	        $consumer_key = $server->consumer_key;
+	        $consumer_secret = $server->consumer_secret;
+	        $access_token = $server->access_token;
+	        $access_secret = $server->access_secret;
+	        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
+	        $token = new OAuthToken($access_token, $access_secret, NULL);
+	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed, $params);
+	        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+	    } else {
+	        $response = send_request('DELETE', $basefeed, null, $params);
+	    }
+	    add_to_log($course->id, 'modwordpress', 'delete post', "view.php?id=$cm->id", $modwordpress->name, $cm->id);
+
+	    redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id");
+	    die;
+	} else {
+	    echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
+	    echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	    die;
+	}
+        } else {
+	echo $OUTPUT->header();
+	echo "<p>" . get_string("server_error", "modwordpress").": ";
+	echo $response . "</p>";
+	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo $OUTPUT->footer();
+	die;
+        }
+
+
+
+
     }
+
+
+
 
 
     echo $OUTPUT->header();
@@ -206,7 +403,7 @@ if (!$modwordpress->server_id) {
 	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
         } else {
-	$response = send_request($request->get_normalized_http_method(), $basefeed, null);
+	$response = send_request('GET', $basefeed, null);
         }
         $json = json_decode($response);
 
@@ -228,15 +425,19 @@ if (!$modwordpress->server_id) {
 	    echo "</div>";
 	    if (isset($wp_users[$comment->comment_author])) {
 	        if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_edit_comment) {
-		echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a><br/><br/>";
+		echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a>";
 	        }
+	        if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_delete_comment) {
+		echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_comment=$comment->comment_ID&amp;comment_post_ID=$json->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_comment", "modwordpress") . "</a>";
+	        }
+	        echo "<br/><br/>";
 	    }
 	}
         }
         if ($modwordpress->permission_create_comment) {
 	echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$json->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a><br/><br/>";
         }
-        echo "<button style='margin: 5px 10px 20px 10px;' onclick='javascript:history.back()'>Volver</button>  ";
+        echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id'>" . get_string("back", "modwordpress") . "</a><br/><br/>";
         add_to_log($course->id, 'modwordpress', 'view comments', "view.php?id=$cm->id", $modwordpress->name, $cm->id);
 
 
@@ -252,15 +453,26 @@ if (!$modwordpress->server_id) {
 	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
         } else {
-	$response = send_request($request->get_normalized_http_method(), $basefeed, null);
+	$response = send_request('GET', $basefeed, null);
         }
         $post = json_decode($response);
         if (count($post)) {
+	$author = (isset($wp_users[$post->post_author]) ? $wp_users[$post->post_author]->firstname : $post->user_nicename);
 	echo $OUTPUT->heading($modwordpress->name . " : " . $post->post_title);
-	echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $post->post_author</p>";
+	echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $author</p>";
 	echo $post->post_content;
 	if ($modwordpress->permission_create_comment) {
 	    echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a>";
+	}
+	if (isset($wp_users[$post->post_author])) {
+	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_edit_post) {
+	        echo " | ";
+	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_post", "modwordpress") . "</a>";
+	    }
+	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post) {
+	        echo " | ";
+	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_post", "modwordpress") . "</a>";
+	    }
 	}
 	if (isset($post->comments)) {
 	    foreach ($post->comments as $comment) {
@@ -278,15 +490,21 @@ if (!$modwordpress->server_id) {
 		if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_edit_comment) {
 		    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a><br/><br/>";
 		}
+		if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_delete_comment) {
+		    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_comment", "modwordpress") . "</a><br/><br/>";
+		}
 	        }
-
 	    }
 	    if ($modwordpress->permission_create_comment) {
 	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a>";
 	    }
+
+
+
+
 	}
         }
-        echo "<br/><button style='margin-top: 20px;' onclick='javascript:history.back()'>Volver</button>  ";
+        echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id'>" . get_string("back", "modwordpress") . "</a><br/><br/>";
         add_to_log($course->id, 'modwordpress', 'view post', "view.php?id=$cm->id&post=$post->ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
 
 
@@ -302,7 +520,7 @@ if (!$modwordpress->server_id) {
 	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
         } else {
-	$response = send_request($request->get_normalized_http_method(), $basefeed, null);
+	$response = send_request('GET', $basefeed, null);
         }
         $post = json_decode($response);
         if (count($post)) {
@@ -310,8 +528,22 @@ if (!$modwordpress->server_id) {
 	echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $post->post_author</p>";
 	echo $post->post_content;
         }
+	if (isset($wp_users[$post->post_author])) {
+	    echo "<br/><br/>";
+	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_edit_post) {
+	        echo " <a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_page=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_page", "modwordpress") . "</a>";
+	    }
+	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post) {
+	        echo " | <a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_page=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_page", "modwordpress") . "</a>";
+	    }
+	}
+
+
         echo "<br/><button style='margin-top: 20px;' onclick='javascript:history.back()'>Volver</button>  ";
         add_to_log($course->id, 'modwordpress', 'view page', "view.php?id=$cm->id&page=$page&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
+
+
+
 
 
 
@@ -329,7 +561,7 @@ if (!$modwordpress->server_id) {
 	echo "<br><input type='submit' value='" . get_string("save", "modwordpress") . "' />";
 	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
 	echo '</form>';
-	echo " <script type='text/javascript'> function new_comment_form_validation() { if (document.new_comment_form.comment_content.value.length == 0) { alert('" . print_string('comment_empty', 'modwordpress') . "'); document.new_comment_form.comment_content.focus(); return false; } }</script>";
+	echo " <script type='text/javascript'> function new_comment_form_validation() { if (document.new_comment_form.comment_content.value.length == 0) { alert('" . get_string('comment_empty', 'modwordpress') . "'); document.new_comment_form.comment_content.focus(); return false; } }</script>";
         } else {
 	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
 	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
@@ -346,14 +578,14 @@ if (!$modwordpress->server_id) {
 	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
 	} else {
-	    $response = send_request($request->get_normalized_http_method(), $basefeed, null);
+	    $response = send_request('GET', $basefeed, null);
 	}
 	$json = json_decode($response);
 
 	echo $OUTPUT->heading($modwordpress->name);
 	echo '<form name="new_comment_form" method="post" action="view.php" id="new_comment_form" onsubmit="return new_comment_form_validation();">';
 	echo "<p>" . get_string("write_comment", "modwordpress") . "</p>";
-	echo '<textarea cols=90 rows=10 name="comment_content">'.$json->comment_content.'</textarea>';
+	echo '<textarea cols=90 rows=10 name="comment_content">' . $json->comment_content . '</textarea>';
 	echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
 	echo "<input type='hidden' name='id' value='$cm->id' />";
 	echo "<input type='hidden' name='comment_ID' value='$edit_comment' />";
@@ -361,7 +593,7 @@ if (!$modwordpress->server_id) {
 	echo "<br><input type='submit' value='" . get_string("save", "modwordpress") . "' />";
 	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
 	echo '</form>';
-	echo " <script type='text/javascript'> function new_comment_form_validation() { if (document.new_comment_form.comment_content.value.length == 0) { alert('" . print_string('comment_empty', 'modwordpress') . "'); document.new_comment_form.comment_content.focus(); return false; } }</script>";
+	echo " <script type='text/javascript'> function new_comment_form_validation() { if (document.new_comment_form.comment_content.value.length == 0) { alert('". get_string('comment_empty', 'modwordpress') . "'); document.new_comment_form.comment_content.focus(); return false; } }</script>";
         } else {
 	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
 	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
@@ -417,9 +649,13 @@ if (!$modwordpress->server_id) {
 
 
 // EDIT POST FORM
-    } elseif ( $edit_post and confirm_sesskey()) {
+    } elseif (($edit_post and confirm_sesskey()) or ($edit_page and confirm_sesskey()) ) {
         if ($modwordpress->permission_edit_post) {
-	$basefeed = rtrim($server->url, '/') . "/post/$edit_post.json";
+	if ($edit_post) {
+	    $basefeed = rtrim($server->url, '/') . "/post/$edit_post.json";
+	} else {
+	    $basefeed = rtrim($server->url, '/') . "/page/$edit_page.json";
+	}
 	if ($server->oauth) {
 	    $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
 	    $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
@@ -427,12 +663,12 @@ if (!$modwordpress->server_id) {
 	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
 	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
 	} else {
-	    $response = send_request($request->get_normalized_http_method(), $basefeed, null);
+	    $response = send_request('GET', $basefeed, null);
 	}
 	$json = json_decode($response);
 
 
-	echo $OUTPUT->heading($modwordpress->name . " : ".$json->post_title. " (" . get_string('edit_post', 'modwordpress').") ");
+	echo $OUTPUT->heading($modwordpress->name . " : " . $json->post_title . " (" . get_string('edit_post', 'modwordpress') . ") ");
 	echo '<form name="new_post_form" method="post" action="view.php" id="new_post_form" onsubmit="return new_post_form_validation();">';
 	echo '<table><thead></thead><tbody>';
 	echo '<tr>';
@@ -442,11 +678,14 @@ if (!$modwordpress->server_id) {
 	echo "<td colspan='2'><textarea cols=90 rows=10 name='post_content'>$json->post_content</textarea></td>";
 	echo "</tr></tbody></table>";
 	echo "<input type='submit' value='" . get_string("save", "modwordpress") . "' />";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
 	echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
 	echo "<input type='hidden' name='id' value='$cm->id' />";
 	echo "<input type='hidden' name='post_ID' value='$edit_post' />";
+	if ($edit_page) {
+	    echo "<input type='hidden' name='post_type' value='page' />";
+	}
 	echo '</form>';
+	echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;post=$json->ID&amp;sesskey=" . sesskey() . "'>".get_string('back','modwordpress')."</a>";
 	echo " <script type='text/javascript'>";
 	echo "function new_post_form_validation() {";
 	echo "if (document.new_post_form.post_title.value.length == 0) {";
@@ -474,18 +713,19 @@ if (!$modwordpress->server_id) {
 
 // LIST ALL POSTS
     } else {
-
-        $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
-        $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
+        // Get page list
         $basefeed = rtrim($server->url, '/') . '/pages.json';
-        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
-        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+        if ($server->oauth) {
+	$consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
+	$token = new OAuthToken($server->access_token, $server->access_secret, NULL);
+	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
+	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+        } else {
+	$response = send_request('GET', $basefeed, NULL);
+        }
         $json = json_decode($response);
-
         echo $OUTPUT->heading($modwordpress->name);
-
-
         /*
           // Estilo desde Wordpress
 
@@ -517,11 +757,6 @@ if (!$modwordpress->server_id) {
           echo "<link rel='stylesheet' href='$css' />";
           }
 
-
-
-
-
-
           echo "<div id='access' role='navigation' >";
           echo "<div class='menu'>";
           echo "<ul style='list-style: none;'>";
@@ -546,15 +781,17 @@ if (!$modwordpress->server_id) {
 
 
         // Estilo Moodle
-
+        // Page list menu
         if ($modwordpress->permission_create_post)
 	echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_post=post&amp;sesskey=" . sesskey() . "'>" . get_string('new_post', 'modwordpress') . "</a>";
         if ($modwordpress->permission_create_page) {
-	if ($modwordpress->permission_create_post) echo " | ";
+	if ($modwordpress->permission_create_post)
+	    echo " | ";
 	echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_page=page&amp;sesskey=" . sesskey() . "'>" . get_string('new_page', 'modwordpress') . "</a>";
         }
         $block = "";
-        if (count($json) && ($modwordpress->permission_create_page || $modwordpress->permission_create_post)) $block = " | ";
+        if (count($json) && ($modwordpress->permission_create_page || $modwordpress->permission_create_post))
+	$block = " | ";
         foreach ($json as $page) {
 	if ($page->post_title != 'api') {
 	    echo " $block <a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;page=$page->ID&amp;sesskey=" . sesskey() . "'>$page->post_title</a>";
@@ -564,10 +801,15 @@ if (!$modwordpress->server_id) {
 
 
 
+        // Get post list
         $basefeed = rtrim($server->url, '/') . '/posts.json';
-        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
-        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+        if ($server->oauth) {
+	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
+	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
+	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
+        } else {
+	$response = send_request('GET', $basefeed, NULL);
+        }
         $json = json_decode($response);
 
         foreach ($json as $post) {
@@ -611,7 +853,7 @@ if (!$modwordpress->server_id) {
 
 
 
-
+	 // Posts list
 	// Estilo Moodle
 	echo "<div id='$post->ID' style='margin-bottom: 50px;'>";
 	echo "<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 5px;'><h3 style='margin: 0;'><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;post=$post->ID&amp;sesskey=" . sesskey() . "'>$post->post_title</a></h3>";
@@ -626,15 +868,25 @@ if (!$modwordpress->server_id) {
 	    echo "<a title='' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;comments=$post->ID&amp;sesskey=" . sesskey() . "'>";
 	    echo "$post->comment_count Comentario";
 	}
+
 	if ($modwordpress->permission_create_comment) {
 	    if ($post->comment_count)
 	        echo "</a> | ";
 	    echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a>";
 	}
-	if ($modwordpress->permission_edit_post) {
+
+
+	if (isset($wp_users[$post->post_author])) {
+	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_edit_post) {
 	        echo " | ";
 	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_post", "modwordpress") . "</a>";
+	    }
+	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post) {
+	        echo " | ";
+	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_post", "modwordpress") . "</a>";
+	    }
 	}
+
 	echo "</div>";
 	echo "</div>";
         }
@@ -642,9 +894,6 @@ if (!$modwordpress->server_id) {
         //echo htmlentities($response);
     }
 }
-
-
-
 
 
 // Finish the page
