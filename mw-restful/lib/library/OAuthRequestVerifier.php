@@ -147,6 +147,7 @@ class OAuthRequestVerifier extends OAuthRequest
 	public function verifyExtended ( $token_type = 'access' )
 	{
 		$consumer_key = $this->getParam('oauth_consumer_key');
+                error_log("CONSUMER KEYYYYYYY".$consumer_key);
 		$token        = $this->getParam('oauth_token');
 		$user_id      = false;
 		$secrets      = array();

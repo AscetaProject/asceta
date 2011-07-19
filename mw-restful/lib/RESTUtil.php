@@ -145,12 +145,12 @@ function getPage($page){
 function createPage($name, $text, $summary){
     $title = Title::newFromText( $name );
     if ( is_null($title) ) {
-            throw new Exception("Invalid data title\n", "001");
+            throw new Exception("Invalid data title", "001");
     }
 
     $aid = $title->getArticleID( GAID_FOR_UPDATE );
     if ($aid != 0) {
-            throw new Exception("Duplicate article '$name'\n", "001" );
+            throw new Exception("Duplicate article '$name'", "001" );
     }
 
     $art = new Article($title);
@@ -169,16 +169,17 @@ function createPage($name, $text, $summary){
 function updatePage($name, $text, $summary){
     $title = Title::newFromText( $name );
     if ( is_null($title) ) {
-           throw new Exception("Invalid data title\n", "001");
+           throw new Exception("Invalid data title", "001");
     }
 
     $aid = $title->getArticleID( GAID_FOR_UPDATE );
     if ($aid == 0) {
-            throw new Exception("Not exists article '$name'\n", "001");
+            throw new Exception("Not exists article '$name'", "001");
     }
 
     $art = new Article($title);
-    $art->updateArticle( $text, $summary);
+    //$art->doEdit($text, $summary);
+    $art->updateArticle($text, $summary, 1, 1);
 }
 
 /**

@@ -35,7 +35,7 @@ class MWAPIREST {
 
             $req = new OAuthRequestVerifier();
             $GLOBALS['vars'] = $req->getBody();
-            //$user_id = $req->verify();
+            $user_id = $req->verify();
 
             switch ($mwpr['method'])
             {
@@ -66,16 +66,19 @@ class MWAPIREST {
             $code = $e->getCode();
             switch ($code){
                 case 1:
-                    header ( 'HTTP/1.1 400 Bad Request' );
+                    $this->manageResponse(array("Error" => true, "Code" => "400", "Message" => $e->getMessage()));
+                    //header ( 'HTTP/1.1 400 Bad Request' );
                     break;
                 case 2:
-                    header ( 'HTTP/1.1 404 Not Found' );
+                    $this->manageResponse(array("Error" => true, "Code" => "404", "Message" => $e->getMessage()));
+                    //header ( 'HTTP/1.1 404 Not Found' );
                     break;
                 default:
-                    header ( 'HTTP/1.1 406 Not Acceptable' );
+                    $this->manageResponse(array("Error" => true, "Code" => "406", "Message" => $e->getMessage()));
+                    //header ( 'HTTP/1.1 406 Not Acceptable' );
             }
 
-            echo $e->getMessage ();
+            //echo $e->getMessage ();
             exit ();
         }
     }
