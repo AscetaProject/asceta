@@ -79,6 +79,13 @@ echo $OUTPUT->header();
 if (!$modmediawiki->server_id) {
     echo $OUTPUT->heading(get_string("configure_server_url","modmediawiki"));
 } else {
+    if ($error_message){
+       echo '<script type="text/javascript">';
+       echo 'alert("'.$error_message.'");';
+       echo '</script>';
+       redirect("$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id");
+       die;
+    }
     if ($page_title != '' and $page_content != '' and !$edit_page and confirm_sesskey()) {
         $params = array('page_title' => $page_title, 'page_content' => $page_content, 'page_resume' => $page_resume);
         $consumer_key = $server->consumer_key;
@@ -92,6 +99,11 @@ if (!$modmediawiki->server_id) {
         $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
         $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
         $page_info = json_decode($response);
+        if($page_info->Error){
+            echo '<script>alert("'.$page_info->Message.'")</script>';
+            echo '<script>javascript:history.back()</script>';
+            die;
+        }
         add_to_log($course->id, 'modmediawiki', 'create page', "view.php?id=$cm->id&page=$page_info->ID&sesskey=".  sesskey(), $modmediawiki->name, $cm->id);
         redirect("$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id");
         die;
@@ -103,10 +115,15 @@ if (!$modmediawiki->server_id) {
         $access_secret = $server->access_secret;
         $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
         $token = new OAuthToken($access_token, $access_secret, NULL);
-        $basefeed = rtrim($server->url, '/') . "/pages/$edit_page?XDEBUG_SESSION_START=netbeans-xdebug";
-        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'PUT', $basefeed, json_encode($params));
+        $basefeed = rtrim($server->url, '/') . "/pages/$edit_page";
+        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'PUT', $basefeed);
         $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
         $response = modmediawiki_send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
+        if($page_info->Error){
+            echo '<script>alert("'.$page_info->Message.'")</script>';
+            echo '<script>javascript:history.back()</script>';
+            die;
+        }
         add_to_log($course->id, 'modmediawiki', 'edit page', "view.php?id=$cm->id&page=$edit_page&sesskey=".sesskey(), $modmediawiki->name, $cm->id);
         redirect("$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id");
         die;
@@ -125,24 +142,25 @@ if (!$modmediawiki->server_id) {
         echo "<td><input type='text'name='page_resume' value='' size='80px'/></td>";
         echo "</tr></tbody></table>";
         echo "<input type='submit' value='".get_string("save", "modmediawiki")."' />";
-        echo "<button onclick='javascript:history.back()'>".get_string("back","modmediawiki")."</button>  ";
         echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
         echo "<input type='hidden' name='id' value='$cm->id' />";
         echo '</form>';
-        echo " <script type='text/javascript'>";
-        echo "function new_page_form_validation() {";
-	echo "if (document.new_page_form.page_title.value.length == 0) {";
-	    echo "alert('" . print_string('page_title_empty', 'modmediawiki') . "');";
-	    echo "document.new_page_form.page_title.focus();";
-	    echo "return false; ";
-	echo "}";
-	echo "if (document.new_page_form.page_content.value.length == 0) {";
-	    echo "alert('" . print_string('page_content_empty', 'modmediawiki') . "');";
-	    echo "document.new_page_form.page_content.focus();";
-	    echo "return false; ";
-	echo "}";
-        echo "}";
-        echo "</script>";
+        //echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;page=$edit_page&amp;sesskey=" . sesskey() . "'>".get_string('back','modmediawiki')."</a>";
+        echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='javascript:history.back()'>".get_string('back','modmediawiki')."</a>";
+        echo '<script type="text/javascript">';
+        echo 'function new_page_form_validation() {';
+	echo 'if (document.new_page_form.page_title.value.length == 0) {';
+            echo 'alert("Page title can not be empty");';
+	    echo 'document.new_page_form.page_title.focus();';
+	    echo 'return false; ';
+	echo '}';
+	echo 'if (document.new_page_form.page_content.value.length == 0) {';
+	    echo 'alert("Page content can not be empty");';
+	    echo 'document.new_page_form.page_content.focus();';
+	    echo 'return false; ';
+	echo '}';
+        echo '}';
+        echo '</script>';
     } elseif ($edit_page and confirm_sesskey()){
         $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
         $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
@@ -161,20 +179,21 @@ if (!$modmediawiki->server_id) {
         echo "<td><input type='text'name='page_resume' value='' size='80px'/></td>";
         echo "</tr></tbody></table>";
         echo "<input type='submit' value='".get_string("save", "modmediawiki")."' />";
-        echo "<button onclick='javascript:history.back()'>".get_string("back","modmediawiki")."</button>  ";
         echo "<input type='hidden' name='page_title' value='$page_info->page_title' size='80px' />";
         echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
         echo "<input type='hidden' name='id' value='$cm->id' />";
         echo '</form>';
+        //echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;page=$edit_page&amp;sesskey=" . sesskey() . "'>".get_string('back','modmediawiki')."</a>";
+        echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='javascript:history.back()'>".get_string('back','modmediawiki')."</a>";
         echo " <script type='text/javascript'>";
         echo "function edit_page_form_validation() {";
 	echo "if (document.edit_page_form.page_title.value.length == 0) {";
-	    echo "alert('" . print_string('page_title_empty', 'modmediawiki') . "');";
+	    echo 'alert("Page title can not be empty");';
 	    echo "document.edit_page_form.page_title.focus();";
 	    echo "return false; ";
 	echo "}";
 	echo "if (document.edit_page_form.page_content.value.length == 0) {";
-	    echo "alert('" . print_string('page_content_empty', 'modmediawiki') . "');";
+	    echo 'alert("Page content can not be empty");';
 	    echo "document.edit_page_form.page_content.focus();";
 	    echo "return false; ";
 	echo "}";
@@ -194,14 +213,17 @@ if (!$modmediawiki->server_id) {
         echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'> $page_info->page_resume</div>";
         }
         if($modmediawiki->permission_edit){
-            echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;edit_page=$page&amp;sesskey=" . sesskey() . "'>".get_string("edit_page","modmediawiki")."</a>";
+            echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
+            echo "<a href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;edit_page=$page&amp;sesskey=" . sesskey() . "'>" . get_string("edit_page", "modmediawiki") . "</a>";
+            echo "</div>";
         }
-        echo "<br/><button style='margin-top: 20px;' onclick='javascript:history.back()'>".get_string("back","modmediawiki")."</button>  ";
+        //echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id'>" . get_string("back", "modmediawiki") . "</a><br/><br/>";
+        echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='javascript:history.back()'>".get_string('back','modmediawiki')."</a>";
         add_to_log($course->id, 'modmediawiki', 'view page', "view.php?id=$cm->id&page=$page&sesskey=".sesskey(), $modmediawiki->name, $cm->id);
     } else {
         echo $OUTPUT->heading($modmediawiki->name);
         if($modmediawiki->permission_create){
-            echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;new_page=page&amp;sesskey=" . sesskey() . "'>".get_string("create_page","modmediawiki")."</a>";
+            echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;new_page=page&amp;sesskey=" . sesskey() . "'>".get_string("new_page","modmediawiki")."</a>";
         }
         $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
         $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
@@ -216,7 +238,12 @@ if (!$modmediawiki->server_id) {
             echo "<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 5px;'><h3 style='margin: 0;'><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;page=$page->ID&amp;sesskey=" . sesskey() . "'>$page->page_title</a></h3>";
             echo "</div>";
             echo "<div class='clearfix' style='margin: 5px 10px;'>$page->page_content</div>";
-            echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'> $page->page_resume";
+            echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 100%;'>$page->page_resume";
+            if($modmediawiki->permission_edit){
+                echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
+                echo "<a href='$CFG->wwwroot/mod/modmediawiki/view.php?id=$cm->id&amp;edit_page=$page->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_page", "modmediawiki") . "</a>";
+                echo "</div>";
+            }
             echo "</div>";
             echo "</div>";
         }
