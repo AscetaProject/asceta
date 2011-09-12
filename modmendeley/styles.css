@@ -1,0 +1,2213 @@
+/** General styles (scope: all of modmendeley) **/
+
+.path-mod-modmendeley body {
+font-family: "Helvetica Neue",Arial,Helvetica,Verdana,sans-serif;
+font-size: 0.75em;
+color: #333;
+font-weight: normal;
+text-align: center;
+text-decoration: none;
+}
+
+.path-mod-modmendeley .wf-active h1, .wf-loading h1 {
+margin-top: -7px;
+}
+
+.path-mod-modmendeley .heading {
+position: relative;
+border-bottom: 1px solid #A4A4A4;
+background: white;
+-webkit-border-top-right-radius: 7px;
+-moz-border-radius-topright: 7px;
+}
+.path-mod-modmendeley .heading .padding {
+padding: 20px 20px 15px 20px;
+border-bottom: 3px solid #E7E7E7;
+overflow: hidden;
+}
+
+.path-mod-modmendeley .unfloat {
+overflow: auto;
+}
+
+
+.path-mod-modmendeley .heading h1 {
+margin-bottom: 10px;
+line-height: 27px;
+}
+
+.path-mod-modmendeley h1 {
+color: black;
+font-family: "ff-meta-serif-web-pro-1","ff-meta-serif-web-pro-2",Georgia,serif;
+font-weight: normal;
+font-size: 27px;
+}
+
+.path-mod-modmendeley h1, h2, h3, h4, h5, h6 {
+margin-top: 0;
+}
+
+.path-mod-modmendeley .tabtree .tabrow0 li a:hover {
+background-image: none;
+text-decoration: none;
+}
+.path-mod-modmendeley .wf-active .tabtree .tabrow0 li.selected a, .wf-loading .tabtree .tabrow0 li.selected a, .wf-active .tabtree .tabrow0 li.selected a:hover, .wf-loading .tabtree .tabrow0 li.selected a:hover {
+padding: 5px 10px 9px 10px;
+}
+
+.path-mod-modmendeley .tabtree .tabrow0 li.selected a, .tabtree li.selected a:hover {
+background: white;
+color: black;
+margin-bottom: 0;
+padding-bottom: 7px;
+border: 1px solid #A2A2A2;
+border-bottom: 1px solid white;
+margin-bottom: -1px;
+cursor: default;
+}
+
+.path-mod-modmendeley .wf-active .tabtree .tabrow0 li a, .wf-loading .tabtree .tabrow0 li a {
+padding: 5px 10px 8px 10px;
+font-size: 16px;
+line-height: 20px;
+}
+
+.path-mod-modmendeley .tabtree .tabrow0 li a {
+font-size: 15px;
+line-height: 20px;
+margin-bottom: 1px;
+padding: 7px 10px 6px 10px;
+display: block;
+float: left;
+border: 1px solid #D2D2D2;
+border-bottom: 0 none;
+background: #F8F8F8;
+color: black;
+-webkit-border-top-left-radius: 5px;
+-webkit-border-top-right-radius: 5px;
+-moz-border-radius-topleft: 5px;
+-moz-border-radius-topright: 5px;
+}
+
+.path-mod-modmendeley .tabtree .tabrow0 li a span,  .path-mod-modmendeley .tabtree .tabrow0 li a:hover span{
+    background-image: none;
+    background-position: 100% 0;
+    background-repeat: no-repeat;
+    padding-bottom: 3px;
+    padding-right: 14px;
+    padding-top: 10px;
+}
+
+.path-mod-modmendeley .tabtree .tabrow0 li.here .empty {
+    bottom: -4px;
+    display: none;
+    height: 1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 100%;
+}
+
+.path-mod-modmendeley .tabtree ul li.here .empty {
+    display: none;
+}
+
+.path-mod-modmendeley .tabtree .tabrow0 ul, .tabtree .tabrow0 div {
+    background-image: none;
+    background-position: 0 50%;
+    border-top: 1px solid #AAAAAA;
+    font-weight: normal;
+    margin: 0;
+    padding: 0.25em 0;
+}
+
+
+.path-mod-modmendeley #content-container {
+background: white;
+border: 1px solid #A2A2A2;
+-webkit-border-top-left-radius: 0;
+-moz-border-radius-topleft: 0;
+border-top-left-radius: 0;
+-webkit-border-top-right-radius: 5px;
+-moz-border-radius-topright: 5px;
+border-top-right-radius: 5px;
+}
+
+.path-mod-modmendeley .large-rounded, #content-container, #stats-counter, .download-box, #reviewers, #review, #reader {
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+-webkit-background-clip: padding-box;
+}
+
+.path-mod-modmendeley #search-container {
+color: white;
+padding: 20px;
+background-color: #007393;
+border-top: 1px solid #007393;
+border-bottom: 1px solid #007393;
+position: relative;
+}
+.path-mod-modmendeley #search-bar {
+color: white;
+padding: 20px;
+background-color: #007393;
+border-top: 1px solid #007393;
+border-bottom: 1px solid #007393;
+position: relative;
+width: 50%;
+}
+
+.path-mod-modmendeley .specific-search .search {
+padding-bottom: 7px;
+position: relative;
+margin: 0 auto 0 auto;
+padding-left: 30px;
+}
+
+.path-mod-modmendeley #search-bar .search-box:hover, #search-bar .search-btn:hover, #search-bar .search-btn:active {
+border-color: #3F5861;
+}
+
+.path-mod-modmendeley #search-bar .search-box, #search-bar .search-btn {
+border: 1px solid #447180;
+}
+
+.path-mod-modmendeley #search-bar .search-box, #search-bar .search-btn, #search-bar .search-btn:active {
+-moz-box-shadow: none;
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+
+.path-mod-modmendeley .specific-search .search .search-box {
+position: relative;
+height: 26px;
+width: auto;
+}
+
+.path-mod-modmendeley .search .search-box {
+height: 26px;
+width: 259px;
+text-align: left;
+position: absolute;
+right: 30px;
+border: 1px solid #CACACA;
+background: white;
+-webkit-border-top-left-radius: 5px;
+-webkit-border-bottom-left-radius: 5px;
+-moz-border-radius-topleft: 5px;
+-moz-border-radius-bottomleft: 5px;
+border-top-left-radius: 5px;
+border-bottom-left-radius: 5px;
+-webkit-box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+-moz-box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+.path-mod-modmendeley .search .search-box input {
+margin: 3px 0 0 5px;
+border: 1px solid white;
+outline: none;
+font-size: 14px;
+font-family: Arial,Helvetica,Sans-serif;
+font-style: italic;
+color: #999;
+-webkit-appearance: none;
+}
+
+.path-mod-modmendeley .advanced-search-example, #search-bar .advanced-search-link {
+text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.path-mod-modmendeley .specific-search .advanced-search-example {
+font-size: 11px;
+margin-left: 10px;
+}
+
+.path-mod-modmendeley .left {
+float: left;
+}
+
+
+.path-mod-modmendeley #search-bar .search-box:hover, #search-bar .search-btn:hover, #search-bar .search-btn:active {
+border-color: #3F5861;
+}
+
+.path-mod-modmendeley #search-bar .search-box:hover, #search-bar .search-btn:hover, #search-bar .search-btn:active {
+border-color: #3F5861;
+}
+
+.path-mod-modmendeley #search-bar .search-box, #search-bar .search-btn, #search-bar .search-btn:active {
+-moz-box-shadow: none;
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+
+.path-mod-modmendeley #search-bar .search-box, #search-bar .search-btn {
+border: 1px solid #447180;
+}
+
+.path-mod-modmendeley #search-bar .search-box, #search-bar .search-btn, #search-bar .search-btn:active {
+-moz-box-shadow: none;
+-webkit-box-shadow: none;
+box-shadow: none;
+}
+
+.path-mod-modmendeley .search .search-btn:active {
+-moz-outline-style: none;
+background: white url(http://www.mendeley.com/graphics/commonnew/search_btn.png) -86px 45% no-repeat;
+-moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+-webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+padding: 0.6em 0.8em 0.49em 0.8em;
+z-index: 11;
+}
+
+.path-mod-modmendeley .search .search-btn:hover {
+-moz-outline-style: none;
+background: #F2F2F2 url(http://www.mendeley.com/graphics/commonnew/search_btn.png) -46px 50% no-repeat;
+border: 1px solid #939393;
+text-decoration: none;
+z-index: 11;
+}
+
+.path-mod-modmendeley .search .search-btn {
+outline: 0;
+border: 1px solid #CACACA;
+position: absolute;
+cursor: pointer;
+right: 0;
+top: 0;
+width: 31px;
+height: 28px;
+text-indent: 40px;
+overflow: hidden;
+background: #E9E9E9 url(http://www.mendeley.com/graphics/commonnew/search_btn.png) -6px 50% no-repeat;
+-webkit-border-top-right-radius: 5px;
+-webkit-border-bottom-right-radius: 5px;
+-moz-border-radius-topright: 5px;
+-moz-border-radius-bottomright: 5px;
+border-top-right-radius: 5px;
+border-bottom-right-radius: 5px;
+-webkit-box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+-moz-box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+.path-mod-modmendeley .search .search-box input {
+margin: 3px 0 0 5px;
+border: 1px solid white;
+outline: none;
+font-size: 14px;
+font-family: Arial,Helvetica,Sans-serif;
+font-style: italic;
+color: #999;
+-webkit-appearance: none;
+}
+
+.path-mod-modmendeley .specific-search .search-box input {
+width: 98%;
+}
+
+.path-mod-modmendeley #search-bar .advanced-search-example, #search-bar .advanced-search-link {
+text-shadow: 0 1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.path-mod-modmendeley .right {
+float: right;
+}
+
+.path-mod-modmendeley .specific-search .advanced-search-link a {
+color: white;
+font-size: 11px;
+margin-right: 10px;
+}
+
+.path-mod-modmendeley .unfloat {
+overflow: auto;
+}
+
+.path-mod-modmendeley #wrapper {
+text-align: left;
+}
+
+.path-mod-modmendeley .heading-line span {
+background: white;
+padding-right: 5px;
+font-weight: normal;
+display: -moz-inline-box;
+display: inline-block;
+line-height: 25px;
+}
+
+.path-mod-modmendeley .heading-line {
+font-size: 17px;
+line-height: 30px;
+background: url(http://www.mendeley.com/graphics/commonnew/heading-line.png) repeat-x 0px 50%;
+}
+
+.path-mod-modmendeley h2 {
+font-family: "ff-meta-serif-web-pro-1","ff-meta-serif-web-pro-2",Georgia,serif;
+font-weight: normal;
+color: black;
+font-size: 24px;
+margin-bottom: 6px;
+}
+
+.path-mod-modmendeley ol.item-list li:first-child article.item {
+border-top: 0 none;
+padding-top: 0;
+}
+
+.path-mod-modmendeley article.item {
+padding-bottom: 12px;
+padding-top: 12px;
+width: 100%;
+font-size: 12px;
+border-top: 1px solid #E9E9E9;
+position: relative;
+overflow: hidden;
+}
+
+.path-mod-modmendeley article, aside, footer, header, hgroup, nav, section {
+display: block;
+}
+
+.path-mod-modmendeley article {
+display: block;
+}
+
+.path-mod-modmendeley ol.item-list {
+list-style-type: none;
+}
+
+.path-mod-modmendeley ol {
+list-style-type: none;
+}
+
+.path-mod-modmendeley ol li {
+list-style-type: none;
+}
+
+.path-mod-modmendeley article.item .title {
+font-family: Arial,sans-serif;
+font-size: 14px;
+line-height: 18px;
+margin: 0;
+}
+
+.path-mod-modmendeley article.item .title a {
+color: #A70805;
+text-decoration: none;
+}
+
+.path-mod-modmendeley article.item .title a:hover {
+color: #A70805;
+text-decoration: underline;
+}
+.path-mod-modmendeley article.item .metadata {
+margin-top: 3px;
+color: #216500;
+}
+
+.path-mod-modmendeley ol.item-list {
+list-style-type: none;
+}
+
+.path-mod-modmendeley article.item .metadata .sep {
+color: #666;
+}
+
+.path-mod-modmendeley article.item .publication {
+font-style: italic;
+color: #333;
+}
+
+.path-mod-modmendeley article.item .year {
+font-style: italic;
+color: #333;
+}
+
+.path-mod-modmendeley article.item .abstract {
+font-size: 11px;
+line-height: 14px;
+color: #444;
+border-left: 3px solid #E9E9E9;
+padding-left: 5px;
+margin-top: 7px;
+margin-bottom: 3px;
+margin-right: 80px;
+margin-left: 4px;
+}
+
+.path-mod-modmendeley .actions a:hover {
+color: #B11E25;
+}
+
+.path-mod-modmendeley .actions a {
+color: #666;
+line-height: 16px;
+}
+
+.path-mod-modmendeley .discipline a.item {
+padding-top: 4px;
+display: block;
+}
+
+.path-mod-modmendeley a {
+color: #A70805;
+text-decoration: none;
+}
+
+.path-mod-modmendeley #stats-top-outlets {
+width: 100%;
+font-size: 12px;
+line-height: 3em;
+border-collapse: collapse;
+}
+
+.path-mod-modmendeley table {
+font-size: inherit;
+}
+
+.path-mod-modmendeley table {
+display: table;
+border-collapse: separate;
+border-spacing: 2px;
+border-color: gray;
+}
+
+.path-mod-modmendeley tbody {
+display: table-row-group;
+vertical-align: middle;
+border-color: inherit;
+}
+
+.path-mod-modmendeley tr {
+display: table-row;
+vertical-align: inherit;
+border-color: inherit;
+}
+
+.path-mod-modmendeley #stats-top-outlets .stats-position {
+padding-right: 10px;
+width: 1.5em;
+}
+
+.path-mod-modmendeley #stats-top-outlets td {
+text-align: left;
+vertical-align: top;
+font-weight: bold;
+border-bottom: 1px solid #E9E9E9;
+}
+
+.path-mod-modmendeley #stats-top-outlets .stats-position span {
+font-size: 11px;
+color: #333;
+display: inline-block;
+height: 1.5em;
+width: 1.5em;
+border: 1px solid #E1E1E1;
+border-radius: 0.75em;
+background: #F0F0F0;
+text-align: center;
+line-height: 1.5em;
+}
+
+.path-mod-modmendeley #stats-top-outlets .stats-name {
+padding-right: 10px;
+}
+
+.path-mod-modmendeley #stats-top-outlets .stats-count {
+text-align: right;
+padding-right: 10px;
+white-space: nowrap;
+font-size: 11px;
+}
+
+.path-mod-modmendeley #stats-top-outlets td .plain {
+font-weight: normal;
+color: #666;
+}
+
+.path-mod-modmendeley .overview .column-a .padding {
+padding: 20px 0 20px 20px;
+}
+
+.path-mod-modmendeley .overview .column-b .padding {
+padding: 20px 20px 20px 0;
+}
+
+
+.path-mod-modmendeley .overview .column-a{
+display: block;
+width: 60%;
+float: left;
+}
+
+.path-mod-modmendeley .overview .column-b{
+display: block;
+width: 35%;
+float: right;
+}
+
+
+//Search
+
+.path-mod-modmendeley element.style {
+padding-top: 10px;
+}
+
+.path-mod-modmendeley .advanced-search {
+padding-top: 10px;
+}
+
+.path-mod-modmendeley .advanced-search ul li label {
+float: left;
+padding-top: 4px;
+text-align: left;
+width: 115px;
+}
+
+.path-mod-modmendeley label {
+vertical-align: middle;
+}
+
+.path-mod-modmendeley .advanced-search ul li input {
+width: 380px;
+}
+
+.path-mod-modmendeley input {
+font-family: Verdana,Arial,Helvetica,sans-serif;
+font-size: 11px;
+}
+
+.path-mod-modmendeley form {
+margin: 0;
+padding: 0;
+}
+
+.path-mod-modmendeley .advanced-search ul, .discipline-column ul {
+list-style: none;
+border: 0 none;
+list-style-position: outside;
+padding: 0;
+margin: 0;
+}
+
+.path-mod-modmendeley ul, menu, dir {
+display: block;
+list-style-type: none;
+-webkit-margin-before: 1em;
+-webkit-margin-after: 1em;
+-webkit-margin-start: 0px;
+-webkit-margin-end: 0px;
+-webkit-padding-start: 40px;
+}
+
+.path-mod-modmendeley .advanced-search ul li {
+margin-top: 2px;
+padding-left: 0px;
+}
+
+.path-mod-modmendeley ul li{
+    list-style: none;
+    list-style-type: none;
+}
+
+
+.path-mod-modmendeley #advanced-search-years input {
+width: 30px;
+margin: 0 4px;
+}
+
+.path-mod-modmendeley #advanced-search-years {
+padding: 10px 0 0 65px;
+}
+
+.path-mod-modmendeley #year-warning {
+color: red;
+padding: 5px 0 0 65px;
+}
+
+.path-mod-modmendeley .noshow {
+display: none;
+}
+
+.path-mod-modmendeley .items-options{
+margin-bottom: 5px;
+}
+
+.path-mod-modmendeley select {
+font-family: Verdana,Arial,Helvetica,sans-serif;
+font-size: 11px;
+}
+
+.path-mod-modmendeley a.primary:hover, input.primary:hover {
+background-color: #39A300;
+border: 1px solid #246A00;
+background-position: -250px 50%;
+font-weight: bold;
+color: white;
+text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.path-mod-modmendeley a.link-button:active, input.link-button:active, button.link-button:active, input.primary {
+background: white;
+-moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+-webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+padding: 7px 9px 5px 9px;
+}
+
+.path-mod-modmendeley a.primary, input.primary {
+background-color: #2E8800;
+border: 1px solid #2E8800;
+background-position: -250px 50%;
+font-weight: bold;
+color: white;
+text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.path-mod-modmendeley a.link-button, input.link-button, button.link-button, input.primary {
+display: -moz-inline-box;
+display: inline-block;
+position: relative;
+overflow: hidden;
+outline: none;
+margin: 0;
+padding: 6px 9px;
+line-height: 12px;
+border: 1px solid #C6C6C6;
+background: #E9E9E9 url(http://www.mendeley.com/graphics/commonnew/link-button_bg.png) 0 50% no-repeat;
+color: #333;
+font-size: 1em;
+font-family: Arial,Helvetica,Sans-serif;
+text-decoration: none;
+vertical-align: middle;
+cursor: pointer;
+-webkit-border-radius: 4px;
+-moz-border-radius: 4px;
+border-radius: 4px;
+text-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+-webkit-box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+-moz-box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+.path-mod-modmendeley .actions {
+font-size: 11px;
+margin-top: 7px;
+font-family: Arial,sans-serif;
+color: #666;
+}
+
+.path-mod-modmendeley .pagination-container {
+padding: 10px;
+margin-bottom: 15px;
+border: 1px solid #E0E0E0;
+}
+
+.path-mod-modmendeley .pagination-results {
+float: left;
+}
+
+.path-mod-modmendeley .pagination-pages {
+float: right;
+}
+
+.path-mod-modmendeley .arrow-disabled {
+float: left;
+font-size: 1.1em;
+font-weight: bold;
+color: grey;
+}
+
+.path-mod-modmendeley .arrow-enabled {
+float: left;
+font-size: 1.1em;
+font-weight: bold;
+color: #A70805;
+}
+
+
+.path-mod-modmendeley .pagemenu {
+white-space: nowrap;
+}
+
+.path-mod-modmendeley .pagemenu ul {
+margin: 0;
+padding: 0;
+border: 0 none;
+list-style-type: none;
+float: left;
+line-height: 16px;
+}
+
+.path-mod-modmendeley .pagemenu ul li.selected {
+color: black;
+font-weight: bold;
+padding: 0 5px;
+text-decoration: underline;
+}
+
+.path-mod-modmendeley .pagemenu ul li {
+display: block;
+float: left;
+text-align: center;
+vertical-align: middle;
+height: 16px;
+}
+
+.path-mod-modmendeley .pagemenu ul li a:hover {
+color: black;
+font-weight: bold;
+padding: 0 5px;
+text-decoration: underline;
+}
+
+ .path-mod-modmendeley .pagemenu ul li a {
+display: block;
+float: left;
+text-align: center;
+vertical-align: middle;
+padding: 0 5px;
+height: 16px;
+}
+
+.path-mod-modmendeley .pagemenu img.arrow-next-prev {
+width: 7px;
+height: 10px;
+padding-top: 3px;
+}
+
+.path-mod-modmendeley .pagemenu img {
+float: left;
+display: block;
+padding: 0 5px;
+}
+
+.path-mod-modmendeley .pagemenu img.arrow-next-prev {
+width: 7px;
+height: 10px;
+padding-top: 3px;
+}
+
+.path-mod-modmendeley .pagemenu img {
+float: left;
+display: block;
+padding: 0 5px;
+}
+
+.path-mod-modmendeley a img {
+border: 0;
+vertical-align: middle;
+}
+
+.path-mod-modmendeley h2.extra-padding {
+padding-bottom: 8px;
+}
+
+.path-mod-modmendeley article.item .description {
+font-size: 11px;
+line-height: 14px;
+color: #444;
+margin-top: 0px;
+margin-bottom: 3px;
+margin-right: 80px;
+}
+
+.path-mod-modmendeley article.item .one-line {
+height: 22px;
+overflow: hidden;
+}
+
+.path-mod-modmendeley .tags-list {
+overflow: hidden;
+margin-bottom: 15px;
+}
+
+.path-mod-modmendeley .tag {
+display: -moz-inline-box;
+display: inline-block;
+font-size: 11px;
+color: #4F686D;
+background: transparent url(http://www.mendeley.com/graphics/commonnew/tag_bg.png) 0 0 no-repeat;
+border: 0 none;
+padding: 0 5px 0 18px;
+line-height: 18px;
+height: 18px;
+border-radius: 3px;
+text-shadow: none;
+margin-right: 3px;
+margin-top: 3px;
+text-decoration: none;
+position: relative;
+vertical-align: middle;
+cursor: pointer;
+max-width: 140px;
+text-overflow: ellipsis;
+-o-text-overflow: ellipsis;
+-ms-text-overflow: ellipsis;
+overflow: hidden;
+white-space: nowrap;
+}
+
+.path-mod-modmendeley .group-footer {
+border-collapse: collapse;
+width: 100%;
+}
+
+.path-mod-modmendeley .group-footer .actions {
+margin-top: 0;
+}
+
+.path-mod-modmendeley .actions {
+font-size: 11px;
+margin-top: 7px;
+font-family: Arial,sans-serif;
+color: #666;
+}
+
+.path-mod-modmendeley article.item .reader-count, article.item .contact-count, article.item .member-count, article.item .paper-count, article.item .citation-count {
+float: right;
+}
+
+.path-mod-modmendeley article.item .reader-count, article.item .contact-count, article.item .member-count, article.item .paper-count, article.item .date-added, article.item .citation-count, article.item span.slug, article.item span.separator {
+font-size: 11px;
+line-height: 22px;
+color: #666;
+}
+
+.path-mod-modmendeley .tag:hover span, .tags-list a.tag:hover span, .tag-selected span {
+background-position: 100% -20px;
+}
+
+.path-mod-modmendeley .tag:hover span, .tags-list a.tag:hover span, .tag-selected span {
+background-position: 100% -20px;
+}
+
+.path-mod-modmendeley .tag span {
+position: absolute;
+top: 0;
+right: 0;
+display: -moz-inline-box;
+display: inline-block;
+line-height: 18px;
+height: 18px;
+vertical-align: middle;
+width: 3px;
+background: transparent url(http://www.mendeley.com/graphics/commonnew/tag_bg.png) 100% 0 no-repeat;
+}
+
+.path-mod-modmendeley .more {
+clear: both;
+padding: 5px;
+margin-bottom: 20px;
+border-top: 1px solid #E1E1E1;
+background: #F0F0F0;
+overflow: hidden;
+-moz-border-radius-bottomright: 4px;
+-moz-border-radius-bottomleft: 4px;
+border-bottom-right-radius: 4px;
+border-bottom-left-radius: 4px;
+}
+
+.path-mod-modmendeley a.link-button, input.link-button, button.link-button {
+display: -moz-inline-box;
+display: inline-block;
+position: relative;
+overflow: hidden;
+outline: none;
+margin: 0;
+padding: 6px 9px;
+line-height: 12px;
+border: 1px solid #C6C6C6;
+background: #E9E9E9 url(http://www.mendeley.com/graphics/commonnew/link-button_bg_v2.png) 0 50% no-repeat;
+color: #333;
+font-size: 1em;
+font-family: Arial,Helvetica,Sans-serif;
+text-decoration: none;
+vertical-align: middle;
+cursor: pointer;
+-webkit-border-radius: 4px;
+-moz-border-radius: 4px;
+border-radius: 4px;
+text-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+-webkit-box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+-moz-box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+box-shadow: 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+.path-mod-modmendeley .right {
+float: right;
+}
+
+.path-mod-modmendeley #main-content {
+padding: 20px;
+}
+
+.path-mod-modmendeley #sub-menu {
+margin: 0 0 25px -5px;
+padding: 0;
+font-family: Georgia,serif!important;
+list-style-type: none;
+overflow: hidden;
+height: 1%;
+}
+
+.path-mod-modmendeley ul, menu, dir {
+display: block;
+list-style-type: disc;
+-webkit-margin-before: 1em;
+-webkit-margin-after: 1em;
+-webkit-margin-start: 0px;
+-webkit-margin-end: 0px;
+-webkit-padding-start: 40px;
+}
+
+.path-mod-modmendeley #sub-menu li {
+padding: 0;
+margin: 0 30px 0 0;
+display: inline;
+float: left;
+line-height: 21px;
+background: white;
+height: 1%;
+}
+
+.path-mod-modmendeley #sub-menu li h1, #sub-menu li a.selected {
+margin: 0;
+font-size: 14px;
+color: white;
+background: #A70805;
+display: inline;
+padding: 1px 5px;
+font-weight: normal;
+white-space: nowrap;
+font-family: Georgia,serif!important;
+}
+
+.path-mod-modmendeley #sub-menu li a {
+text-decoration: none;
+font-size: 14px !important;
+color: #A70805;
+background: white;
+padding: 1px 5px;
+font-weight: normal;
+height: 1%;
+white-space: nowrap;
+}
+
+.path-mod-modmendeley .leftcontent-rightbox.left {
+float: left;
+width: 590px;
+margin-right: 30px;
+}
+
+.path-mod-modmendeley stats-left {
+width: 590px;
+margin-bottom: 40px;
+}
+
+.path-mod-modmendeley h1.underlined, h2.underlined, h3.underlined, h6.underlined {
+border-bottom: 1px solid #D4D4D4;
+margin-bottom: 9px;
+}
+
+.path-mod-modmendeley h3 {
+font-family: "ff-meta-serif-web-pro-1","ff-meta-serif-web-pro-2",Georgia,serif;
+font-weight: normal;
+color: black;
+font-size: 18px;
+line-height: 24px;
+margin-bottom: 18px;
+}
+
+.path-mod-modmendeley .stats-right {
+width: 270px;
+margin-bottom: 40px;
+}
+
+.path-mod-modmendeley .stats-subtitle {
+font-size: 14px;
+font-weight: bold;
+height: 30px;
+width: 270px;
+}
+
+.path-mod-modmendeley .stats-table {
+margin-bottom: 7px;
+table-layout: fixed;
+width: 270px;
+border-collapse: collapse;
+margin-left: 0px;
+}
+
+.path-mod-modmendeley tbody {
+display: table-row-group;
+vertical-align: middle;
+border-color: inherit;
+}
+
+.path-mod-modmendeley .stats_row {
+border-bottom: white 6px solid;
+line-height: 14px !important;
+min-height: 32px;
+}
+
+.path-mod-modmendeley tr {
+display: table-row;
+vertical-align: inherit;
+border-color: inherit;
+}
+
+.path-mod-modmendeley .row0 .border {
+background-color: #AA1500;
+}
+
+.path-mod-modmendeley .border {
+width: 5px;
+padding: 0;
+}
+
+.path-mod-modmendeley .row0 .number {
+background-color: #C1C1C1;
+}
+
+.path-mod-modmendeley .stats_number {
+vertical-align: top;
+margin-bottom: 20px;
+width: 65px;
+text-align: center;
+}
+
+.path-mod-modmendeley .stats-number {
+font-size: 1.3em;
+font-weight: bold;
+text-align: center;
+padding-top: 2px;
+}
+
+.path-mod-modmendeley .stats-number-description {
+font-family: Verdana,Arial,Helvetica,sans-serif;
+font-size: 0.7em;
+width: 64px;
+text-align: center;
+padding-bottom: 2px;
+padding-right: 20px;
+}
+
+.path-mod-modmendeley .stats_description {
+background-color: white;
+max-width: 200px;
+overflow: hidden;
+word-wrap: break-word;
+padding-left: 8px;
+}
+
+.path-mod-modmendeley .stats_description h2 {
+font-family: Arial,Helvetica,Verdana,sans-serif;
+margin: 0pt;
+padding: 0pt;
+font-size: 1em;
+font-weight: bold;
+}
+
+.path-mod-modmendeley i, cite, em, var, address {
+font-style: italic;
+}
+
+.path-mod-modmendeley .stats-right {
+width: 270px;
+margin-bottom: 40px;
+}
+
+.path-mod-modmendeley .stats-subtitle {
+font-size: 14px;
+font-weight: bold;
+height: 30px;
+width: 270px;
+}
+
+.path-mod-modmendeley .clear {
+visibility: hidden;
+clear: both !important;
+text-indent: -5000px !important;
+font-size: 0.1px !important;
+line-height: 0px !important;
+}
+
+.path-mod-modmendeley .most-used-tags-tbl .left-border, .number-articles-tbl .left-border {
+border-right: 1px solid #E1E1E1;
+}
+
+.path-mod-modmendeley .most-used-tags-tbl .border-top {
+border-top: 1px solid #E1E1E1;
+text-align: center;
+color: #333;
+width: 198px;
+padding-top: 1px;
+}
+
+.path-mod-modmendeley .most-used-tags-tbl .border-top img, .number-articles-tbl .border-top img {
+position: relative;
+float: right;
+margin-top: -6px;
+}
+
+.path-mod-modmendeley .most-used-tags-tbl .tags {
+text-align: center;
+vertical-align: bottom;
+padding: 30px 0 6px 0;
+}
+
+.path-mod-modmendeley .most-used-tags-tbl td p {
+margin-bottom: 0px;
+margin-top: 1px;
+}
+
+.path-mod-modmendeley p {
+margin: 0 0 1em 0;
+line-height: 18px;
+}
+
+.path-mod-modmendeley .line-10 a {
+font-size: 9px;
+color: #E5B6B5;
+line-height: 10px;
+}
+
+.path-mod-modmendeley .line-9 a {
+font-size: 9px;
+color: #DFA6A5;
+line-height: 10px;
+}
+
+.path-mod-modmendeley .line-8 a {
+font-size: 10px;
+color: #DC9C9B;
+line-height: 10px;
+}
+
+.path-mod-modmendeley .line-7 a {
+font-size: 12px;
+color: #D2807F;
+line-height: 12px;
+}
+
+.path-mod-modmendeley .line-6 a {
+font-size: 14px;
+color: #CA6B69;
+line-height: 12px;
+}
+
+.path-mod-modmendeley .line-5 a {
+font-size: 16px;
+color: #C65E5C;
+line-height: 16px;
+}
+
+.path-mod-modmendeley .line-4 a {
+font-size: 18px;
+color: #C15250;
+line-height: 18px;
+}
+
+.path-mod-modmendeley .line-3 a {
+font-size: 21px;
+color: #B93937;
+line-height: 20px;
+}
+
+.path-mod-modmendeley .line-2 a {
+font-size: 24px;
+color: #B0201E;
+line-height: 24px;
+}
+
+.path-mod-modmendeley .line-1 a {
+font-size: 27px;
+color: #A70805;
+line-height: 25px;
+}
+
+.path-mod-modmendeley .leftcontent-rightbox.right {
+float: right;
+width: 270px;
+}
+
+.path-mod-modmendeley .stats-right {
+width: 270px;
+margin-bottom: 40px;
+}
+
+.path-mod-modmendeley .stats-right-list {
+list-style-image: none;
+list-style-position: outside;
+list-style-type: none;
+margin: 0 0 0 -8px;
+}
+
+.path-mod-modmendeley .stats-big-number {
+font-size: 18px;
+}
+
+.path-mod-modmendeley .academ-discipl-tbl {
+color: #B3B3B3;
+border-collapse: collapse;
+border-left: 2px solid #D6D9DD;
+}
+
+.path-mod-modmendeley .rounded-indicat div span {
+color: #333;
+position: absolute;
+top: 1px;
+left: 3px;
+width: 270px;
+height: 18px;
+overflow: hidden;
+}
+
+.path-mod-modmendeley .row0 .border {
+background-color: #AA1500;
+}
+
+.path-mod-modmendeley .row0 .number {
+background-color: #C1C1C1;
+}
+
+.path-mod-modmendeley .row1 .border {
+background-color: #AA1500;
+}
+
+.path-mod-modmendeley .row1 .number {
+background-color: #C1C1C1;
+}
+
+.path-mod-modmendeley .row2 .border {
+background-color: #DF4C00;
+}
+
+.path-mod-modmendeley .row2 .number {
+background-color: #CACACA;
+}
+
+.path-mod-modmendeley .row3 .border {
+background-color: #F49700;
+}
+
+.path-mod-modmendeley .row3 .number {
+background-color: lightGrey;
+}
+
+.path-mod-modmendeley .row4 .border {
+background-color: #F49700;
+}
+
+.path-mod-modmendeley .row4 .number {
+background-color: #DDD;
+}
+
+.path-mod-modmendeley .stats-underlined {
+border-bottom: 1px solid #D4D4D4;
+margin-bottom: 20px;
+}
+
+.path-mod-modmendeley .general-info {
+font-weight: bold;
+}
+
+.path-mod-modmendeley p {
+margin: 0 0 1em 0;
+line-height: 18px;
+}
+
+.path-mod-modmendeley .general-info .number {
+font-size: 1.6em;
+padding-right: 1px;
+}
+
+.path-mod-modmendeley .general-info .sub-number .number {
+font-size: 1.5em;
+}
+
+.path-mod-modmendeley .general-info .sub-number {
+padding-left: 20px;
+}
+
+.path-mod-modmendeley .library-toolbar-icon, .library-toolbar-icon:hover {
+cursor: pointer;
+color: #A70805;
+float: left;
+width: 84px;
+display: none;
+}
+
+.path-mod-modmendeley .library-toolbar-icon, .library-toolbar-icon:hover {
+cursor: pointer;
+color: #A70805;
+float: left;
+width: 84px;
+display: none;
+}
+
+.path-mod-modmendeley .library-toolbar-icon:active {
+background-color: #A70805;
+font-weight: bold;
+color: white;
+}
+
+.path-mod-modmendeley .library-search {
+float: left;
+padding-top: 32px;
+padding-left: 115px;
+}
+
+.path-mod-modmendeley .library-search input#librarySearchQuery {
+width: 150px;
+}
+
+.path-mod-modmendeley #library-action-notification {
+position: relative;
+height: 20px;
+}
+
+.path-mod-modmendeley #documents-added {
+position: absolute;
+left: 330px;
+top: 0px;
+border: 1px #CBCBCB solid;
+padding: 2px 5px 2px 5px;
+background: url('http://www.mendeley.com//graphics/library/notification_bg.png') repeat-x;
+}
+
+.path-mod-modmendeley h4.top {
+margin-top: 0;
+}
+
+.path-mod-modmendeley h4 {
+font-size: 16px;
+font-family: "ff-meta-serif-web-pro-1","ff-meta-serif-web-pro-2",Georgia,serif;
+font-weight: normal;
+margin-top: 5px;
+margin-bottom: 6px;
+}
+
+.path-mod-modmendeley h4 a:link, h4 a:visited, h4 a:active, h4 a:hover {
+font-weight: normal;
+}
+
+.path-mod-modmendeley .library-group, .library-preview {
+cursor: pointer;
+padding: 2px;
+color: #A70805;
+min-height: 16px;
+background-position: center left;
+background-repeat: no-repeat;
+width: 211px;
+position: relative;
+}
+
+.path-mod-modmendeley .library-group-selected, .library-group-selected:hover {
+background-color: #A70805;
+color: white;
+font-weight: bold;
+}
+
+
+.path-mod-modmendeley .library-group .folder-icon, .library-preview .folder-icon {
+margin-left: 15px;
+vertical-align: middle;
+padding-right: 4px;
+}
+
+.path-mod-modmendeley .text-minor {
+font-size: 12px;
+color: gray;
+}
+
+.path-mod-modmendeley #library-title-bar {
+width: 660px;
+border-bottom: 1px solid #D4D4D4;
+margin-bottom: 5px;
+}
+
+.path-mod-modmendeley #library-title-bar .folder-icon {
+margin-left: 2px;
+margin-right: 4px;
+margin-top: 5px;
+float: left;
+}
+
+.path-mod-modmendeley #library-title-bar h3 {
+margin-bottom: 0;
+float: left;
+}
+
+.path-mod-modmendeley #library-collection-settings {
+display: none;
+margin-top: 10px;
+}
+
+.path-mod-modmendeley #library-search-results {
+width: 646px;
+padding: 4px 6px 4px 6px;
+border: 1px solid #D7D7D7;
+margin-bottom: 9px;
+margin-top: 7px;
+background: #E4E4E4 url('http://www.mendeley.com//graphics/library/filter_bg.png') repeat-x;
+}
+
+.path-mod-modmendeley #library-search-results #remove-filter {
+float: right;
+}
+
+.path-mod-modmendeley .library-toolbar {
+vertical-align: middle;
+width: 660px;
+margin-bottom: 5px;
+}
+
+.path-mod-modmendeley .library-toolbar .library-auto-select {
+width: 90px;
+float: left;
+}
+
+.path-mod-modmendeley .library-toolbar #auto-select {
+margin-right: 10px;
+width: 80px;
+}
+
+.path-mod-modmendeley select.library-group-select option {
+margin-left: 5px;
+background-position: center left;
+background-repeat: no-repeat;
+}
+
+.path-mod-modmendeley option {
+font-weight: normal;
+font: inherit;
+}
+
+.path-mod-modmendeley optgroup {
+font-weight: bolder;
+}
+
+.path-mod-modmendeley .library-toolbar .library-add-to-group {
+width: 240px;
+float: left;
+}
+
+.path-mod-modmendeley .library-toolbar #add-to-group-select {
+width: 230px;
+margin-right: 10px;
+}
+
+.path-mod-modmendeley select.library-group-select {
+width: auto;
+}
+
+.path-mod-modmendeley .library-toolbar .library-pagemenu {
+float: right;
+}
+
+.path-mod-modmendeley .library-document-odd-row {
+background-color: #F3F3F3;
+}
+
+.path-mod-modmendeley .library-document {
+clear: both;
+padding-top: 6px;
+padding-bottom: 6px;
+}
+
+.path-mod-modmendeley .document-checkbox {
+float: left;
+margin: 0;
+padding-right: 10px;
+}
+
+.path-mod-modmendeley .document-checkbox input[type="checkbox"] {
+margin: 0;
+margin-left: 4px;
+}
+
+.path-mod-modmendeley .document-icons {
+text-align: center;
+float: left;
+min-width: 16px;
+max-width: 16px;
+}
+
+.path-mod-modmendeley .document-icons img {
+margin-left: auto;
+margin-right: auto;
+padding-bottom: 2px;
+border: none;
+}
+
+.path-mod-modmendeley .document-share-options {
+float: right;
+width: 23px;
+}
+
+.path-mod-modmendeley .document-share-options a {
+display: block;
+padding-top: 15px;
+width: 16px;
+height: 0;
+overflow: hidden;
+background: transparent url(http://www.mendeley.com//graphics/library/send_doc_sprite.png) 0 0 no-repeat;
+}
+
+.path-mod-modmendeley .document-description {
+float: right;
+padding-right: 16px;
+width: 560px;
+}
+
+.path-mod-modmendeley a.black {
+color: black;
+}
+
+.path-mod-modmendeley .document-extra, .document-extra .extra {
+display: none;
+}
+
+.path-mod-modmendeley .document-links {
+padding: 5px 0 5px 0;
+}
+
+.path-mod-modmendeley .arrowlink span, .arrowlink img {
+vertical-align: middle;
+}
+
+.path-mod-modmendeley .arrowlink {
+cursor: pointer;
+}
+
+.path-mod-modmendeley .library-document .edit_table {
+width: 480px;
+}
+
+.path-mod-modmendeley table.edit_table {
+width: 524px;
+margin-top: 10px;
+border: 1px solid #D6D6D6;
+border-bottom: none;
+}
+
+.path-mod-modmendeley .edit_table {
+background-color: #F1F1F1;
+}
+
+.path-mod-modmendeley table.edit_table td {
+vertical-align: top;
+}
+
+.path-mod-modmendeley td.edit_title {
+font-weight: bold;
+background-color: #A70805;
+border-bottom: 1px solid #D6D6D6;
+color: white;
+padding: 4px 0 0 6px;
+text-align: left;
+}
+
+.path-mod-modmendeley .library-document .buttons {
+width: 466px;
+}
+
+.path-mod-modmendeley .pointer, .save_button, .cancel_button {
+cursor: pointer;
+}
+
+.path-mod-modmendeley .cancel_button {
+margin-left: 5px;
+}
+
+.path-mod-modmendeley img.icon {
+width: 16px;
+height: 16px;
+margin: 0 4px;
+}
+
+.path-mod-modmendeley .icon {
+border: 0;
+vertical-align: -4px;
+}
+
+.path-mod-modmendeley .library-document-even-row {
+}
+
+.path-mod-modmendeley .library-document {
+clear: both;
+padding-top: 6px;
+padding-bottom: 6px;
+}
+
+.path-mod-modmendeley .document-checkbox {
+float: left;
+margin: 0;
+padding-right: 10px;
+}
+
+.path-mod-modmendeley .document-checkbox input[type="checkbox"] {
+margin: 0;
+margin-left: 4px;
+}
+
+.path-mod-modmendeley .document-icons {
+text-align: center;
+float: left;
+min-width: 16px;
+max-width: 16px;
+}
+
+.path-mod-modmendeley .document-share-options {
+float: right;
+width: 23px;
+}
+
+.path-mod-modmendeley .document-share-options a {
+display: block;
+padding-top: 15px;
+width: 16px;
+height: 0;
+overflow: hidden;
+background: transparent url(http://www.mendeley.com//graphics/library/send_doc_sprite.png) 0 0 no-repeat;
+}
+
+.path-mod-modmendeley .document-description {
+float: right;
+padding-right: 16px;
+width: 560px;
+}
+
+.path-mod-modmendeley #filter-type-list {
+width: 215px;
+}
+
+.path-mod-modmendeley #filter-item-list {
+width: 215px;
+height: 150px;
+}
+
+.path-mod-modmendeley h4.underlined {
+border-bottom: 1px solid #D4D4D4;
+}
+
+.path-mod-modmendeley .tag-cloud-item.tag-cloud-item-0 {
+font-size: 8pt;
+color: #666;
+}
+
+.path-mod-modmendeley .tag-cloud-item:hover {
+background-color: #F1F1F1;
+}
+
+.path-mod-modmendeley .tag-cloud-item {
+cursor: pointer;
+}
+
+.path-mod-modmendeley .publication_edit .hidden {
+display: none;
+border-top: 2px solid #AAA;
+border-bottom: 2px solid #AAA;
+margin: 0 0 10px 0;
+}
+
+.path-mod-modmendeley .hidden {
+display: none;
+}
+
+.path-mod-modmendeley .scrollpane {
+padding: 10px 0;
+overflow: auto;
+height: 300px;
+}
+
+.path-mod-modmendeley .hidden, .ie6 {
+display: none;
+}
+
+.path-mod-modmendeley .form-prompt-text {
+color: #A0A0A0;
+}
+
+.path-mod-modmendeley .arrowlink:hover span {
+text-decoration: underline;
+}
+
+.path-mod-modmendeley .arrowlink span, .arrowlink img {
+vertical-align: middle;
+}
+
+.path-mod-modmendeley .disabled-icon, .disabled-icon:hover, .disabled-icon:active {
+cursor: default;
+color: #666;
+font-weight: normal;
+background-color: transparent;
+}
+
+.path-mod-modmendeley .overlay-header {
+background-color: #EEE;
+border-bottom: 1px solid #CCC;
+padding: 8px;
+font-size: 12pt;
+font-weight: bold;
+color: #333;
+}
+
+.path-mod-modmendeley .overlay_spacer {
+height: 6px;
+}
+
+.path-mod-modmendeley .overlay-content {
+text-align: left;
+background-color: white;
+}
+
+.path-mod-modmendeley .overlay-footer {
+background-color: #EEE;
+border-top: 1px solid #CCC;
+padding: 8px;
+}
+
+.path-mod-modmendeley .action-buttons {
+position: absolute;
+z-index: 100;
+bottom: 0;
+right: 0;
+padding: 7px;
+padding-left: 3px;
+background: #E7E7E7;
+-webkit-border-top-left-radius: 7px;
+-moz-border-radius-topleft: 7px;
+border-top-left-radius: 7px;
+}
+
+.path-mod-modmendeley a.primary:hover, input.primary:hover {
+background-color: #39A300;
+border: 1px solid #246A00;
+background-position: -250px 50%;
+font-weight: bold;
+color: white;
+text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.path-mod-modmendeley a.primary, input.primary {
+background-color: #2E8800;
+border: 1px solid #2E8800;
+background-position: -250px 50%;
+font-weight: bold;
+color: white;
+text-shadow: 0 -1px 1px rgba(0, 0, 0, 0.3);
+}
+
+.path-mod-modmendeley .link-button:active {
+background: white;
+-moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+-webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
+padding: 7px 9px 5px 9px;
+}
+
+.path-mod-modmendeley .wf-active h1, .wf-loading h1 {
+margin-top: -7px;
+}
+
+.path-mod-modmendeley hr {
+display: block;
+color: gray;
+height: 0;
+margin: 20px 0;
+padding: 0;
+border: 1px solid #E0E0E0;
+}
+
+
+.path-mod-modmendeley label {
+vertical-align: middle;
+}
+
+.path-mod-modmendeley #group-name-input {
+width: 465px;
+margin-top: 3px;
+}
+
+.path-mod-modmendeley #group-create #group-tags, #group-create #group-description textarea, #group-create hr, #group-create #create-buttons {
+width: 465px;
+margin: 2px;
+}
+
+.path-mod-modmendeley #group-description textarea {
+height: 155px;
+width: 375px;
+margin-top: 3px;
+}
+
+.path-mod-modmendeley #group-breadcrumbs {
+height: 25px;
+}
+
+.path-mod-modmendeley #cc-wrapper {
+min-width: 469px;
+text-align: left;
+}
+
+.path-mod-modmendeley #group-create {
+padding: 12px;
+}
+
+.path-mod-modmendeley ul.unstyled-list {
+border: 0 none;
+list-style-type: none;
+margin: 0;
+padding: 0;
+}
+
+.path-mod-modmendeley #group-create > form > ul > li {
+padding-bottom: 15px;
+}
+
+.path-mod-modmendeley #group-create .create-label {
+float: left;
+width: 105px;
+text-align: right;
+padding: 6px 6px 0 0;
+}
+
+.path-mod-modmendeley #group-create .create-field {
+float: left;
+}
+
+.path-mod-modmendeley #group-create #group-tags, #group-create #group-description textarea, #group-create hr, #group-create #create-buttons {
+width: 465px;
+margin: 2px;
+}
+
+.path-mod-modmendeley #group-description textarea {
+height: 155px;
+width: 375px;
+margin-top: 3px;
+}
+
+.path-mod-modmendeley #group-create .create-field .fieldset {
+border: 1px solid #DEDEDE;
+margin-bottom: 20px;
+padding: 10px;
+position: relative;
+width: 445px;
+}
+
+.path-mod-modmendeley #group-create .create-field .fieldset .legend {
+float: left;
+font-style: italic;
+background: white;
+padding: 0 5px;
+margin: -18px 0 0 -5px;
+}
+
+.path-mod-modmendeley .privacy-references-info {
+position: absolute;
+top: 0;
+right: 0;
+background: transparent url('http://www.mendeley.com/graphics/clientcontent/privacy-info_bg.png') no-repeat;
+font-size: 11px;
+height: 23px;
+line-height: 23px;
+padding: 0 10px;
+}
+
+.path-mod-modmendeley #group-create #group-privacy-settings ul li {
+padding-bottom: 0;
+margin-top: 2px;
+}
+
+.path-mod-modmendeley #group-privacy-settings ul li {
+margin-top: 7px;
+}
+
+.path-mod-modmendeley #group-privacy-settings input[name="privacy-state"] {
+margin-top: 8px !important;
+}
+
+.path-mod-modmendeley #group-create #group-privacy-settings .glabel {
+width: 425px;
+}
+
+.path-mod-modmendeley #group-privacy-settings .glabel {
+width: 265px !important;
+}
+
+.path-mod-modmendeley #group-privacy-settings .glabel {
+padding: 3px;
+width: 265px;
+}
+
+.path-mod-modmendeley #cc-wrapper h2, .cc-dialog h2, #group-create label {
+font-size: 13px;
+}
+
+.path-mod-modmendeley #group-privacy-settings .glabel .minor, #group-image .minor, #group-create .minor {
+font-size: 11px;
+color: #666;
+padding: 1px;
+}
+
+.path-mod-modmendeley .privacy-references-info {
+position: absolute;
+top: 0;
+right: 0;
+background: transparent url('http://www.mendeley.com/graphics/clientcontent/privacy-info_bg.png') no-repeat;
+font-size: 11px;
+height: 23px;
+line-height: 23px;
+padding: 0 10px;
+}
+
+.path-mod-modmendeley .text-minor {
+font-size: 12px;
+color: gray;
+}
+
+.path-mod-modmendeley #group-tags #tags-top > input {
+border: none;
+padding: 3px;
+width: 100%;
+}
+
+.path-mod-modmendeley #group-tags #tags-top > input {
+width: 98%;
+}
+
+.path-mod-modmendeley #no-tags {
+padding: 5px;
+}
+
+.path-mod-modmendeley #tags-list {
+padding: 0 5px 5px 5px;
+}
+
+.path-mod-modmendeley #group-tags {
+border: 1px solid #DEDEDE;
+}
+
+.path-mod-modmendeley #group-tags #tags-top {
+border-bottom: 1px dashed #DEDEDE;
+}
+
+.path-mod-modmendeley #tags-list ul li .left-edge {
+background-image: url('http://www.mendeley.com/graphics/clientcontent/tag_left_edge_sprite.png');
+background-position: inherit;
+border: 0 none !important;
+width: 9px;
+height: 16px;
+}
+
+.path-mod-modmendeley a.sprite, div.sprite {
+text-decoration: none;
+background-repeat: no-repeat;
+display: block;
+}
+
+.path-mod-modmendeley #tags-list ul li div.tag-entry {
+height: 14px;
+font-size: 10px;
+margin: 0;
+padding: 0;
+border-top: 1px solid #B5B5B5;
+border-bottom: 1px solid #B5B5B5;
+background-color: #E7E7E7;
+}
+
+.path-mod-modmendeley #tags-list ul li .right-edge {
+background-image: url('http://www.mendeley.com/graphics/clientcontent/tag_right_edge_sprite.png');
+background-position: inherit;
+border: 0 none !important;
+width: 9px;
+height: 16px;
+}
+
+.path-mod-modmendeley a.sprite, div.sprite {
+text-decoration: none;
+background-repeat: no-repeat;
+display: block;
+}
+
+.path-mod-modmendeley #tags-list ul li {
+color: #323233;
+cursor: pointer;
+margin: 5px 4px 0 0;
+float: left;
+}
+
+.path-mod-modmendeley #tags-list ul li {
+border: 0 none !important;
+}
+
+.path-mod-modmendeley #tags-list ul li.selected .left-edge, #tags-list ul li.selected .right-edge {
+background-position: 0 -32px;
+}
+
+.path-mod-modmendeley #tags-list ul li.selected div.tag-entry {
+background-color: #D1D1D1;
+border-top: 1px solid #A1A1A1;
+border-bottom: 1px solid #A1A1A1;
+}
+
+.path-mod-modmendeley #tags-list ul li.selected .left-edge, #tags-list ul li.selected .right-edge {
+background-position: 0 -32px;
+}
+
+.path-mod-modmendeley .overview-layout .groups-content h2:first-child {
+margin-top: 0;
+}
+
+.path-mod-modmendeley .groups-content h2 {
+font-family: 'Helvetica Neue',Arial,Helvetica,Verdana,sans-serif;
+color: #666;
+font-size: 12px;
+font-weight: bold;
+padding: 0;
+margin-bottom: 17px;
+margin-top: 33px;
+}
+
+.path-mod-modmendeley .group-footer {
+border-collapse: collapse;
+width: 100%;
+}
+
+.path-mod-modmendeley .group-footer .actions {
+margin-top: 0;
+}
+
+.path-mod-modmendeley .actions {
+font-size: 11px;
+margin-top: 7px;
+font-family: Arial,sans-serif;
+color: #666;
+}
+
+.path-mod-modmendeley .group.member .group-action.ask-to-join-group, .group.member .group-action.join-group, .group.member .group-action.follow-group, .group.member .group-action.unfollow-group, .group.member .group-action.accept-group, .group.member .group-action.decline-group, .group.not-member .group-action.leave-group, .group.follower .group-action.follow-group, .group.not-follower .group-action.unfollow-group, .group.invited .group-action.join-group, .group.invited .group-action.follow-group, .group.not-invited .group-action.accept-group, .group.not-invited .group-action.decline-group, .group.private .group-action.follow-group, .group.private .group-action.join-group, .group.private .group-action.ask-to-join-group, .group.member.owner .group-action.leave-group, .group.not-owner .group-settings {
+display: none;
+}
+
+.path-mod-modmendeley .group-link.group-settings {
+padding-left: 0;
+}
+
+.path-mod-modmendeley .actions a {
+color: #666;
+display: inline-block;
+line-height: 16px;
+}
+
+.path-mod-modmendeley .group-action, .group-link {
+background-color: transparent;
+background-repeat: no-repeat;
+background-position: 0 0;
+display: inline-block;
+height: 16px;
+line-height: 16px;
+padding: 0;
+padding-left: 20px;
+margin-right: 10px;
+}
+
+.path-mod-modmendeley .thumb {
+border: 1px solid #CACACA;
+padding: 2px;
+float: left;
+margin-right: 10px;
+display: block;
+-webkit-transition: 0.2s;
+-moz-transition: 0.2s;
+-o-transition: 0.2s;
+width: 48px;
+height: 48px;
+}
+
+.path-mod-modmendeley .thumb img {
+display: block;
+height: 48px;
+width: 48px;
+}
+
+.path-mod-modmendeley a img {
+border: 0;
+vertical-align: middle;
+}
+
+.path-mod-modmendeley ol.item-list {
+margin: 0;
+padding: 0;
+list-style-type: none;
+}
+
+.path-mod-modmendeley ol.groups .item-info, ol.members .item-info {
+margin-left: 64px;
+}
+
+.path-mod-modmendeley .user_message {
+font-size: 14px;
+font-style: italic;
+margin: 10px auto 10px auto;
+text-align: center;
+padding: 5px 10px 5px 10px;
+width: 450px;
+}
+
+.path-mod-modmendeley .grey, .message {
+color: #999;
+}
+
+.path-mod-modmendeley #view-group-page {
+margin-top: 6px;
+margin-bottom: 6px;
+}
+.path-mod-modmendeley #view-group-page a:hover {
+background: url('http://www.mendeley.com/graphics/library/public_link_rollover.png') no-repeat;
+}
+
+.path-mod-modmendeley #view-group-page a {
+font-weight: normal;
+background: url('http://www.mendeley.com/graphics/library/public_link.png') no-repeat;
+padding-left: 23px;
+padding-top: 1px;
+font-size: 11px;
+}
+
+.path-mod-modmendeley .library-group-selected, .library-group-selected:hover {
+background-color: #A70805;
+color: white;
+font-weight: bold;
+}
+
+.path-mod-modmendeley .library-group, .library-preview {
+cursor: pointer;
+padding: 2px;
+color: #A70805;
+min-height: 16px;
+background-position: center left;
+background-repeat: no-repeat;
+width: 211px;
+position: relative;
+}
+
+.path-mod-modmendeley .library-group .lock-icon, .library-preview .lock-icon {
+position: absolute;
+width: 11px;
+height: 13px;
+top: 1px;
+left: 2px;
+background: url('http://www.mendeley.com/graphics/commonnew/closed_lock.png') no-repeat;
+}
+
+.path-mod-modmendeley .library-group-selected, .library-group-selected:hover {
+color: white;
+font-weight: bold;
+}

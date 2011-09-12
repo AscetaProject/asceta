@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="mod/modmendeley/db" VERSION="20101203" COMMENT="XMLDB file for Moodle mod/modmendeley"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="modmendeley" COMMENT="Default comment for modmendeley, please edit me" NEXT="modmendeley_users">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="course"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" COMMENT="Course modmendeley activity belongs to" PREVIOUS="id" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="name field for moodle instances" PREVIOUS="course" NEXT="intro"/>
+        <FIELD NAME="intro" TYPE="text" LENGTH="medium" NOTNULL="false" SEQUENCE="false" COMMENT="General introduction of the modmendeley activity" PREVIOUS="name" NEXT="introformat"/>
+        <FIELD NAME="introformat" TYPE="int" LENGTH="4" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" COMMENT="Format of the intro field (MOODLE, HTML, MARKDOWN...)" PREVIOUS="intro" NEXT="timecreated"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false" PREVIOUS="introformat" NEXT="timemodified"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="user_id"/>
+        <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timemodified" NEXT="private"/>
+        <FIELD NAME="private" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" COMMENT="Access Public or Private" PREVIOUS="user_id" NEXT="permission_create_document"/>
+        <FIELD NAME="permission_create_document" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="private" NEXT="permission_upload_document"/>
+        <FIELD NAME="permission_upload_document" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_create_document" NEXT="permission_delete_document"/>
+        <FIELD NAME="permission_delete_document" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_upload_document" NEXT="permission_new_folder"/>
+        <FIELD NAME="permission_new_folder" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_delete_document" NEXT="permission_delete_folder"/>
+        <FIELD NAME="permission_delete_folder" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_new_folder" NEXT="permission_new_group"/>
+        <FIELD NAME="permission_new_group" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_delete_folder" NEXT="permission_delete_group"/>
+        <FIELD NAME="permission_delete_group" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_new_group"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="url"/>
+        <KEY NAME="url" TYPE="foreign" FIELDS="user_id" REFTABLE="modmendeley_users" REFFIELDS="id" PREVIOUS="primary"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="modmendeley_users" COMMENT="REST API users for modmendeley" PREVIOUS="modmendeley">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="true" NEXT="name"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="REST API's User Name" PREVIOUS="id" NEXT="url"/>
+        <FIELD NAME="url" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false" COMMENT="REST API's URL" PREVIOUS="name" NEXT="consumer_key"/>
+        <FIELD NAME="consumer_key" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Consumer Key" PREVIOUS="url" NEXT="consumer_secret"/>
+        <FIELD NAME="consumer_secret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Consumer Secret" PREVIOUS="consumer_key" NEXT="request_token"/>
+        <FIELD NAME="request_token" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Request Token" PREVIOUS="consumer_secret" NEXT="request_secret"/>
+        <FIELD NAME="request_secret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Request Secret" PREVIOUS="request_token" NEXT="verifier"/>
+        <FIELD NAME="verifier" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Verifier" PREVIOUS="request_secret" NEXT="access_token"/>
+        <FIELD NAME="access_token" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Access Token" PREVIOUS="verifier" NEXT="access_secret"/>
+        <FIELD NAME="access_secret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="OAuth Access Secret" PREVIOUS="access_token" NEXT="oauth" />
+        <FIELD NAME="oauth" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" COMMENT="Requires OAuth authentication" PREVIOUS="access_secret"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="url" UNIQUE="false" FIELDS="url"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
