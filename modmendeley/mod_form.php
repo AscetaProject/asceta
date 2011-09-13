@@ -39,8 +39,6 @@ class mod_modmendeley_mod_form extends moodleform_mod {
         global $COURSE, $DB, $PAGE;
         $mform =& $this->_form;
 
-        $PAGE->requires->js('/mod/modmendeley/form.js');
-
         if ($users = $DB->get_records('modmendeley_users', array())) {
 //-------------------------------------------------------------------------------
     /// Adding the "general" fieldset, where all the common settings are showed

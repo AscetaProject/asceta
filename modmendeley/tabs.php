@@ -52,7 +52,7 @@ if($modmendeley->private){
 $row[] = new tabobject('paper', "view.php?id=$cm->id&amp;option=paper&amp;sesskey=" . sesskey(), get_string('papertb', modmendeley, format_string($modmendeley->name)));
 $row[] = new tabobject('group', "view.php?id=$cm->id&amp;option=group&amp;sesskey=" . sesskey(), get_string('grouptb', modmendeley, format_string($modmendeley->name)));
 if($modmendeley->private){
-    $row[] = new tabobject('people', "view.php?id=$cm->id&amp;option=people&amp;sesskey=" . sesskey(), get_string('peopletb', modmendeley, format_string($modmendeley->name)));
+    $row[] = new tabobject('people', "view.php?id=$cm->id&amp;option=people&amp;action=contacts&amp;sesskey=" . sesskey(), get_string('peopletb', modmendeley, format_string($modmendeley->name)));
 }
 $tabs[] = $row;
 

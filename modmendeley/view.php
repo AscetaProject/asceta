@@ -39,7 +39,7 @@ $action = optional_param('action', '', PARAM_ALPHA); //indicates action selected
 $type = optional_param('type', '', PARAM_ALPHA); // indicates type of action selected
 $search_data = optional_param('search_data', '', PARAM_ALPHA); //contain search terms
 $page = optional_param('page', 0, PARAM_INT); // pagination number
-$element_id = optional_param('element_id', 0, PARAM_INT); //element id
+$element_id = optional_param('element_id', '', PARAM_ALPHA); //element id
 $element_name = optional_param('element_name', '', PARAM_ALPHA); // folder_name or group_name
 $element_selected = optional_param('element_selected', '', PARAM_ALPHANUMEXT); // folder or group value selected
 
@@ -208,6 +208,18 @@ if (!$modmendeley->user_id) {
             break;
         case 'people':
             if($modmendeley->private){
+            }
+            switch ($action){
+                case 'contacts':
+                    $contacts= getLibraryValue('GET', $user, '/profiles/contacts/');
+                    include($CFG->dirroot.'/mod/modmendeley/people.php');
+                    break;
+                case 'profile':
+                    $profile = getLibraryValue('GET', $user, 'profiles/info/'.$element_id);
+                    include($CFG->dirroot.'/mod/modmendeley/profile.php');
+                    break;
+                default:
+                    break;
             }
             break;
         case 'stats':
