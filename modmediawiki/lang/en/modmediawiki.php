@@ -69,3 +69,4 @@ $string['resumen'] = "Resume";
 $string['edit_page'] = "Edit Page";
 $string['new_page'] = "New Page";
 $string['permission'] = "Permisos";
+$string['configure_server_url'] = "There are no configured server. Please configure before use the activity";

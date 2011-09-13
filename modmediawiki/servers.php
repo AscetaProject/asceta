@@ -241,7 +241,7 @@ if ($mode == 'register') {
     </tr>
         <tr>
         <td>
-	<label for="oauth"><?php echo print_string('requires_oauth','modwordpress'); ?></label>
+	<label for="oauth"><?php echo print_string('requires_oauth','modmediawiki'); ?></label>
         </td>
         <td>
 	<input type="checkbox" name="oauth" id="oauth" size="60" value="1" checked="checked" />
@@ -324,12 +324,12 @@ if ($mode == 'register') {
 <script type="text/javascript">
     function serverform_validation() {
         if (document.serverform.server_name.value.length == 0) {
-	alert("<?php echo print_string('server_name_empty', 'modwordpress'); ?>");
+	alert("<?php echo print_string('server_name_empty', 'modmediawiki'); ?>");
 	document.serverform.server_name.focus();
 	return false;
         }
         if (document.serverform.server_url.value.length == 0) {
-	alert("<?php echo print_string('server_url_empty', 'modwordpress'); ?>");
+	alert("<?php echo print_string('server_url_empty', 'modmediawiki'); ?>");
 	document.serverform.server_url.focus();
 	return false;
         }

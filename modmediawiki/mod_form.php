@@ -77,7 +77,7 @@ class mod_modmediawiki_mod_form extends moodleform_mod {
         $mform->addElement('select', 'server_id', get_string('available_servers', 'modmediawiki'), $options);
 
         $mform->addElement('header', 'modmediawikifieldset', get_string('permission', 'modmediawiki'));
-        $mform->addElement('checkbox', 'permission_create', get_string('create_page','modmediawiki'));
+        $mform->addElement('checkbox', 'permission_create', get_string('new_page','modmediawiki'));
         $mform->addElement('checkbox', 'permission_edit', get_string('edit_page','modmediawiki'));
 
 //-------------------------------------------------------------------------------
