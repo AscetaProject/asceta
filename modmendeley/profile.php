@@ -8,192 +8,131 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
+$main = $profile_info->main;
+$cv = $profile_info->cv;
+$contact = $profile_info->contact;
+$location = split(',', $main->location);
+echo "<div id='content-container'>";
+echo "    <div id='main-content'>";
+echo "        <div id='profile_tabs'>";
+echo "            <div class='tabs-general' id=''>";
+echo "                <ul>";
+echo "                    <li class='selected'><a href='$main->url' target='_blank'>View Profile</a></li>";
+echo "                </ul>";
+echo "            </div>";
+echo "        </div>";
+echo "        <div class='submenu-bottom-spacer'></div>";
+echo "        <div class='leftcontent-rightbox left'>";
+echo "            <div class='info_section_main'>";
+echo "                <div id='main_info_photo'>";
+echo "                    <div class='profile_main_info_left'>";
+echo "                        <div id='profile_photo'>";
+echo "                            <a rel='nofollow' href='$main->url' target='_blank' title='$main->name'>";
+echo "                                <img class='profile_image photo-full' src='$main->photo' alt='$main->name profile photo'>";
+echo "                            </a>";
+echo "                        </div>";
+echo "                    </div>";
+echo "                </div>";
+echo "                <div id='main_info_show' style='display:block'>";
+echo "                    <div class='data'>";
+echo "                        <div class='profile_main_info_right'>";
+echo "                            <h1 class='underlined'>$main->name</h1>";
+echo "                            <span class='location_name'>$main->location</span><br>";
+echo "                            <br>";
+echo "                            <span class='bold'>Research field: <a href='http://www.mendeley.com/$main->discipline_name/'>$main->discipline_name</a></span>";
+echo "                            <br>";
+echo "                            <a name='research_interests'></a>";
+echo "                            <span class='text-minor'>No research interests added yet.</span>";
+echo "                        </div>";
+echo "                        <div class='clear'></div>";
+echo "                    </div>";
+echo "                </div>";
+echo "                <div class='clear'></div>";
+echo "            </div>";
+echo "            <div class='info_section'>";
+echo "                <h3 class='underlined' id='cv_info'>CV</h3>";
+if (true){
+    echo "                 <div class='empty text-minor'>No CV information added yet.</div>";
+} else {
+    echo "                <div id='experiences'>";
+    echo "                    <span class='bold' style='float: left;'>Professional Experience</span>";
+    echo "                    <div id='experiences_info_show'>";
+    echo "                        <br><br>";
+    echo "                        <div id='experiences_info_add_edit' style='display:none'></div>";
+    echo "                        <div id='experiences_info_container'>";
+    $index = 0;
+    foreach ($cv->employment as $employment){
+        $date_employment = createDate(split('-',$employment->start_date), split('-',$employment->end_date));
+        echo "                            <div id='experiences_info_$index_show' class='experiences_info_item'>";
+        echo "                                <div class='experience'>";
+        echo "                                    <div class='data'>";
+        echo "                                        <div class='prof_bio_left text-minor'> $date_employment </div>";
+        echo "                                        <div class='prof_bio_right'>$employment->position at <a rel='nofollow' class='red' href='$employment->website'>$employment->institution</a>";
+        echo "                                            <br><span class='location_name'>$employment->location</span><br>";
+        echo "                                            <span class='bold'>Classes taught:</span><br>";
+        foreach($employment->classes_taught as $classes){
+            echo "        $classes<br>";
+        }
+        echo "                                        </div>";
+        echo "                                    </div>";
+        echo "                                </div>";
+        echo "                                <div style='clear: both;'></div>";
+        echo "                            </div>";
+        $index ++;
+    }
+    echo "                      </div>";
+    echo "                    </div>";
+    echo "                </div>";
+    echo "                <a name='education_info'></a>";
+    echo "                <div id='educations'>";
+    echo "                    <span class='bold' style='float: left;'>Education</span>";
+    echo "                    <div id='educations_info_show'><br><br>";
+    echo "                        <div id='educations_info_add_edit' style='display: none;'></div>";
+    echo "                        <div id='educations_info_container'>";
+    $index = 0;
+    foreach ($cv->education as $education){
+        $date_education = createDate(split('-',$education->start_date), split('-',$education->end_date));
+        echo "                            <div id='educations_info_$index_show' style='display:block' class='education educations_info_item'>";
+        echo "                                <div class='eduction'>";
+        echo "                                    <div class='data'>";
+        echo "                                        <div class='prof_bio_left text-minor'>$date_education</div>";
+        echo "                                        <div class='prof_bio_right'><a rel='nofollow' class='red' href='$education->website'>$education->institution</a>";
+        echo "                                            <span class='location_name'>in $education->location</span><br>$education->degree<br>";
+        echo "                                        </div>";
+        echo "                                    </div>";
+        echo "                                </div>";
+        echo "                                <div style='clear: both;'></div>";
+        echo "                            </div>";
+        $index ++;
+    }
+    echo "                        </div>";
+    echo "                    </div>";
+    echo "                </div>";
+    echo "            </div>";
+    echo "            <div class='info_section_bottom'>";
+    echo "                <h3 class='underlined' id='contact_details'>Contact Information</h3>";
+    echo "                <div id='contact_info_show' style='display:block'>";
+    echo "                    <div class='data'>";
+    echo "                        <table cellpadding='0' cellspacing='0' class='ci_table'>";
+    echo "                            <tbody>";
+    echo "                                <tr>";
+    echo "                                    <td class='ci_title'>Address:</td>";
+    echo "                                    <td class='ci_value'>$location[0], $contact->zipcode, $location[1]</td>";
+    echo "                                </tr>";
+    echo "                            </tbody>";
+    echo "                        </table>";
+    echo "                    </div>";
+    echo "                </div>";
+}
+echo "            </div>";
+echo "            <script>$(function(){";
+echo "                var offsets = $('#highlighted').offset();";
+echo "                if(offsets) $('html,body').animate({ scrollTop: offsets.top - 100 }, 1000);";
+echo "            });";
+echo "            </script>";
+echo "        </div>";
+echo "        <div class='clear'></div>";
+echo "    </div>";
+echo "</div>";
+
 ?>
-<div id='content-container'>
-    <div id='main-content'>
-        <div id='profile_tabs'>
-            <div class='tabs-general' id=''>
-                <ul>
-                    <li class='selected'><a href='http://www.mendeley.com/profiles/juan-manuel-dodero/'>View Profile</a></li>
-                    <li class=''><a href='http://www.mendeley.com/profiles/juan-manuel-dodero/updates/' rel='nofollow'>Updates</a></li>
-                </ul>
-            </div>
-        </div>
-        <div class='submenu-bottom-spacer'></div>
-        <div class='leftcontent-rightbox left'>
-            <div class='info_section_main'>
-                <div id='main_info_photo'>
-                    <div class='profile_main_info_left'>
-                        <div id='profile_photo'>
-                            <a rel='nofollow' href='http://www.mendeley.com/profiles/juan-manuel-dodero/' title='Juan Manuel Dodero'>
-                                <img class='profile_image photo-full' src='http://s3.amazonaws.com/mendeley-photos/3a/e2/3ae2902a7fb2dc3c70187a0bec92e7d99c500dcd-standard.jpg?1315830733.73' alt='Juan Manuel Dodero profile photo'>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div id='main_info_show' style='display:block'>
-                    <div class='data'>
-                        <div class='profile_main_info_right'>
-                            <h1 class='underlined'>Juan Manuel Dodero				</h1>
-                            <span class='location_name'>Cádiz, Spain</span><br>
-                            <br>
-                            <span class='bold'>Research field: <a href='/computer-and-information-science/'>Computer and Information Science</a> - Miscellaneous</span>
-                            <br>
-                            <a name='research_interests'></a>
-                            <span class='text-minor'>No research interests added yet.</span>
-                        </div>
-                        <div class='clear'></div>
-                    </div>
-                </div>
-                <div class='clear'></div>
-            </div>
-            <div class='info_section'>
-                <h3 class='underlined' id='cv_info'>CV</h3>
-                <div id='experiences'>
-                    <span class='bold' style='float: left;'>Professional Experience</span>
-                    <div id='experiences_info_show'>
-                        <br><br>
-                        <div id='experiences_info_add_edit' style='display:none'></div>
-                        <div id='experiences_info_container'>
-                            <div id='experiences_info_240111_show' class='experiences_info_item'>
-                                <div class='experience'>
-                                    <div class='data'>
-                                        <div class='prof_bio_left text-minor'> 2008 - Present </div>
-                                        <div class='prof_bio_right'>Associate Professor at <a rel='nofollow' class='red' href='http://www.uca.es'>Universidad de Cadiz - University of Cadiz</a>
-                                            <br><span class='location_name'>Cádiz, Spain</span><br>
-                                            <span class='bold'>Classes taught:</span><br>Web Engineering<br>Electronic Commerce<br>Object-oriented programming<br>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style='clear: both;'></div>
-                            </div>
-                            <div id='experiences_info_240101_show' class='experiences_info_item'>
-                                <div class='experience'>
-                                    <div class='data'>
-                                        <div class='prof_bio_left text-minor'>Oct 2004 - Feb 2008</div>
-                                        <div class='prof_bio_right'>Associate Professor at	<a rel='nofollow' class='red' href='http://www.uc3m.es'>UC3M Universidad Carlos III de Madrid</a><br>
-                                            <span class='location_name'>Leganés, Spain</span><br>
-                                            <span class='bold'>Classes taught:</span><br>
-                                            Data Structures<br>Program Development Techniques<br>Computer-Aided Education<br>Advanced Programming<br>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style='clear: both;'></div>
-                            </div>
-                            <div id='experiences_info_619881_show' class='experiences_info_item'>
-                                <div class='experience'>
-                                    <div class='data'>
-                                        <div class='prof_bio_left text-minor'>Sep 2000 - Jul 2002</div>
-                                        <div class='prof_bio_right'>R&amp;D Engineer at	<a rel='nofollow' class='red' href='http://www.isoco.es'>Intelligent Software Components S.A.</a><br>
-                                            <span class='location_name'>Madrid, Spain</span><br>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style='clear: both;'></div>
-                            </div>
-                            <div id='experiences_info_240091_show' class='experiences_info_item'>
-                                <div class='experience'>
-                                    <div class='data'>
-                                        <div class='prof_bio_left text-minor'>Oct 1999 - Sep 2004</div>
-                                        <div class='prof_bio_right'>Lecturer at	<a rel='nofollow' class='red' href='http://www.uc3m.es'>Universidad Carlos III de Madrid</a><br>
-                                            <span class='location_name'>Madrid, Spain</span><br>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style='clear: both;'></div>
-                            </div>
-                            <div id='experiences_info_619891_show' class='experiences_info_item'>
-                                <div class='experience'>
-                                    <div class='data'>
-                                        <div class='prof_bio_left text-minor'>Sep 1999 - Aug 2000</div>
-                                        <div class='prof_bio_right'>Software Engineer at <span class='bold'>Ideal Objects, S.A.</span><br>
-                                            <span class='location_name'>Madrid, Spain</span><br>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style='clear: both;'></div>
-                            </div>
-                            <div id='experiences_info_619901_show' class='experiences_info_item'>
-                                <div class='experience'>
-                                    <div class='data'>
-                                        <div class='prof_bio_left text-minor'>Oct 1994 - Sep 1999</div>
-                                        <div class='prof_bio_right'>Lecturer at	<a rel='nofollow' class='red' href='http://www.upsam.es'>Universidad Pontificia de Salamanca</a><br>
-                                            <span class='location_name'>Madrid, Spain</span><br>
-                                            <span class='bold'>Classes taught:</span><br>Operating Systems Design<br>Algorithmics<br>Operating Systems<br>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style='clear: both;'></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <a name='education_info'></a>
-                <div id='educations'>
-                    <span class='bold' style='float: left;'>Education</span>
-                    <div id='educations_info_show'><br><br>
-                        <div id='educations_info_add_edit' style='display: none;'></div>
-                        <div id='educations_info_container'>
-                            <div id='educations_info_251871_show' style='display:block' class='education educations_info_item'>
-                                <div class='eduction'>
-                                    <div class='data'>
-                                        <div class='prof_bio_left text-minor'>Oct 1999 - Dec 2002</div>
-                                        <div class='prof_bio_right'><a rel='nofollow' class='red' href='http://www.uc3m.es'>UC3M Universidad Carlos III de Madrid</a>
-                                            <span class='location_name'>in Leganés, Spain</span><br>Computer Science PhD<br>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style='clear: both;'></div>
-                            </div>
-                            <div id='educations_info_251881_show' style='display:block' class='education educations_info_item'>
-                                <div class='eduction'>
-                                    <div class='data'>
-                                        <div class='prof_bio_left text-minor'>Oct 1993 - Oct 1995</div>
-                                        <div class='prof_bio_right'><a rel='nofollow' class='red' href='http://www.fi.upm.es'>Universidad Politécnica de Madrid</a>
-                                            <span class='location_name'>in Madrid, Spain</span><br>Knowledge Engineering MsC<br>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style='clear: both;'></div>
-                            </div>
-                            <div id='educations_info_251861_show' style='display:block' class='education educations_info_item'>
-                                <div class='eduction'>
-                                    <div class='data'>
-                                        <div class='prof_bio_left text-minor'>Sep 1987 - Sep 1993</div>
-                                        <div class='prof_bio_right'><a rel='nofollow' class='red' href='http://www.fi.upm.es'>Universidad Politécnica de Madrid</a>
-                                            <span class='location_name'>in Madrid, Spain</span><br>Computer Science Degree<br>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style='clear: both;'></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class='info_section_bottom'>
-                <h3 class='underlined' id='contact_details'>Contact Information</h3>
-                <div id='contact_info_show' style='display:block'>
-                    <div class='data'>
-                        <table cellpadding='0' cellspacing='0' class='ci_table'>
-                            <tbody>
-                                <tr>
-                                    <td class='ci_title'>Address:</td>
-                                    <td class='ci_value'>Cádiz, 11002, Spain</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <script>$(function(){
-                var offsets = $('#highlighted').offset();
-                if(offsets) $('html,body').animate({ scrollTop: offsets.top - 100 }, 1000);
-            });
-            </script>
-        </div>
-        <div class='clear'></div>
-    </div>
-</div>
-
-

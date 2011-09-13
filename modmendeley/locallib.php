@@ -305,3 +305,12 @@ function getDocumentsInFolder($user){
     }
     return explode(",", $new_data);
 }
+
+function createDate($start_date, $end_date){
+    $months = array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+    if ($end_date[0] == '0000' ){
+        return $start_date[0]." - Present";
+    }
+    return $months[intval($start_date[1])-1]." ".$start_date[0]." - ".$months[intval($end_date[1])-1]." ".$end_date[0];
+   
+}
