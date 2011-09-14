@@ -73,7 +73,7 @@ foreach (getDocumentsType() as $type){
     }
     echo "                                  </tbody>\n";
     echo "                              </table>\n";
-    echo "                              <div class='hidden scrollpane'>\n";
+    echo "                              <div class='hiddens scrollpane'>\n";
     echo "                                  <table cellpadding='0' cellspacing='0'>\n";
     echo "                                      <tbody>\n";
     foreach($document_type[strtolower($type)]['Additional'] as $additional_field){

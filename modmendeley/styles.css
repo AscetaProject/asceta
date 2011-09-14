@@ -1711,14 +1711,14 @@ background-color: #F1F1F1;
 cursor: pointer;
 }
 
-.path-mod-modmendeley .publication_edit .hidden {
+.path-mod-modmendeley .publication_edit .hiddens {
 display: none;
 border-top: 2px solid #AAA;
 border-bottom: 2px solid #AAA;
 margin: 0 0 10px 0;
 }
 
-.path-mod-modmendeley .hidden {
+.path-mod-modmendeley .hiddens {
 display: none;
 }
 
@@ -1728,7 +1728,7 @@ overflow: auto;
 height: 300px;
 }
 
-.path-mod-modmendeley .hidden, .ie6 {
+.path-mod-modmendeley .hiddens, .ie6 {
 display: none;
 }
 

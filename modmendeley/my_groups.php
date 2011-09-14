@@ -16,6 +16,7 @@ echo "        <h2 class='group-type-heading'> Groups I own or can administrate</
 echo "            <ol class='item-list groups'>";
 foreach($user_groups as $group){
     $group_people = getLibraryValue('GET', $user, '/library/groups/'.$group->id.'/people');
+    $group_documents = getLibraryValue('GET', $user, '/library/groups/'.$group->id);
     echo "                <li>";
     echo "                    <article class='item group private	member	not-follower	not-invited	owner	not-admin' data-group-id='".$group->id."'>";
     echo "                        <a href='http://www.mendeley.com/groups/".$group->id."/".$group->name."/' target='_blank' class='thumb ' rel='tipsy' data-dm-log-click='{&quot;event&quot;:&quot;click&quot;,&quot;page&quot;:&quot;groups&quot;,&quot;data[]&quot;:[&quot;Image&quot;]}' original-title='asfasf'><img src='http://www.mendeley.com/graphics/disciplines/small/computer-and-information-science_1443803365765644.png' alt='".$group->name."' class=''></a>";
@@ -37,6 +38,10 @@ foreach($user_groups as $group){
     echo "                                        </td>";
     echo "                                        <td class='counts'>";
     echo "                                            <a class='member-count' title='".count($group_people->members)." members on Mendeley' href='http://www.mendeley.com/groups/".$group->id."/".$group->name."/members/' target='_blank' rel='nofollow'><strong>".count($group_people->members)."</strong> member</a>";
+    if(count($group_documents->document_ids) > 0){
+        echo "                                            <span class='separator right' style='padding:0 5px'>·</span>";
+        echo "                                            <a class='paper-count' title='".count($group_documents->document_ids)." readers on Mendeley' href='http://www.mendeley.com/groups/$group->id/name/papers/' target='_blanck' rel='nofollow'><strong>".count($group_documents->document_ids)."</strong> papers</a>";
+    }
     echo "                                        </td>";
     echo "                                    </tr>";
     echo "                                </tbody>";

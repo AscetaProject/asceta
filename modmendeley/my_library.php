@@ -112,7 +112,6 @@ echo "                  <span class='text-minor'>No groups yet. <br>Find new <a 
         echo "  <img src='https://www.mendeley.com/graphics/common/group.png' alt='Group' height='16' width='16' class='folder-icon'>";
         echo "  <span class='folder-name'>".$group->name."</span>";
         echo "</div>";
-        echo "<div class='hidden' id='folder-group-1393283-non-frozen-icon-src'>https://www.mendeley.com/graphics/common/group.png</div>";
     }
 }
 echo "              </div>\n";

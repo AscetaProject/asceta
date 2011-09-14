@@ -215,7 +215,11 @@ if (!$modmendeley->user_id) {
                     include($CFG->dirroot.'/mod/modmendeley/people.php');
                     break;
                 case 'profile':
-                    $profile_info = getLibraryValue('GET', $user, '/profiles/info/'.$element_id);
+                    if($element_id == 0){
+                        $profile_info = getLibraryValue('GET', $user, '/profiles/info/me');
+                    }else {
+                        $profile_info = getLibraryValue('GET', $user, '/profiles/info/'.$element_id);
+                    }
                     include($CFG->dirroot.'/mod/modmendeley/profile.php');
                     break;
                 default:
