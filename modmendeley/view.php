@@ -39,8 +39,9 @@ $action = optional_param('action', '', PARAM_ALPHA); //indicates action selected
 $type = optional_param('type', '', PARAM_ALPHA); // indicates type of action selected
 $search_data = optional_param('search_data', '', PARAM_ALPHA); //contain search terms
 $page = optional_param('page', 0, PARAM_INT); // pagination number
+$document_id = optional_param('document_id', 0, PARAM_INT); //element id
 $element_id = optional_param('element_id', 0, PARAM_INT); //element id
-$element_name = optional_param('element_name', '', PARAM_ALPHA); // folder_name or group_name
+$element_name = optional_param('element_name', '', PARAM_ALPHANUM); // folder_name or group_name
 $element_selected = optional_param('element_selected', '', PARAM_ALPHANUMEXT); // folder or group value selected
 
 if ($id) {
@@ -82,6 +83,15 @@ if (!$modmendeley->user_id) {
             if($modmendeley->private){
             }
             switch ($action){
+                case 'addselecteddocument':
+                    $documents_id = explode(",", $_GET['documents_id']);
+                    foreach($documents_id as $doc_id){
+                        if ($element_name == 'profile' && $element_name != 'all'){
+                            $document_id = postLibraryValue('POST', $user, '/library/folders/'.$element_id.'/'.$doc_id, array());
+                        }
+                    }
+                    redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
+                    break;
                 case 'savedocument':
                     $add_to = explode("-",$_POST['add_to']);
                     if($add_to[1] == 'group'){
@@ -130,6 +140,7 @@ if (!$modmendeley->user_id) {
                     //$docs_in_folder = getDocumentsInFolder($user);
                     $folders = getLibraryValue('GET', $user, '/library/folders/');
                     $groups = getLibraryValue('GET', $user, '/library/groups/');
+                    $profile_info = getLibraryValue('GET', $user, '/profiles/info/me');
                     if ($page)$params['page'] = intval($page) -1;
                     $data_documents = array();
                     if ($action == 'documents') {

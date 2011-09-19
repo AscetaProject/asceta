@@ -122,7 +122,7 @@ foreach ($publications as $publication){
     echo "      <tr>";
     echo "          <td class='stats-position'><span>$count</span></td>";
     echo "          <td class='stats-name'><a href='http://www.mendeley.com/research-papers/search?query=published_in:%22$publication->name%22' rel='nofollow'>$publication->name</a></td>";
-    echo "          <td class='stats-count'>$publication->value<span class='plain'> readers</span></td>";
+    echo "          <td class='stats-count'>".number_format($publication->value)."<span class='plain'> readers</span></td>";
     echo "      </tr>";
     $count += 1;
 }

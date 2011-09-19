@@ -32,7 +32,7 @@ if (empty($documents->document_ids)){
     }
     echo "          <div class='library-toolbar'>";
     echo "              <div class='library-auto-select'>";
-    echo "                  <select id='auto-select' onchange='Mendeley.Publication.changeSelection($(this).val());'>";
+    echo "                  <select id='auto-select' onchange='changeSelection(this.value);'>";
     echo "                      <option value=''>Select...</option>";
     echo "                      <optgroup>";
     echo "                          <option value='all'>All</option>";
@@ -41,28 +41,28 @@ if (empty($documents->document_ids)){
     echo "                      </optgroup>";
     echo "                      <optgroup label='&nbsp;'>";
     echo "                          <option value='star-filled'>Favorites</option>";
-    echo "                          <option value='unread'>Unread</option>";
+    echo "                          <option value='unread-document'>Unread</option>";
     echo "                          <option value='read'>Read</option>";
     echo "                      </optgroup>";
     echo "                  </select>";
     echo "              </div>";
     echo "              <div class='library-add-to-group'>";
-    echo "                  <select class='library-group-select' id='add-to-group-select' onchange='Mendeley.Publication.addSelectedTo($(this).val());' disabled='disabled' tabindex='1'>";
+    echo "                  <select class='library-group-select' id='add-to-group-select' onchange='addSelectedTo(this.value);' disabled='disabled' tabindex='1'>";
     echo "                      <option value='none'>Add selected documents to...</option>";
     echo "                      <optgroup label='My Library' id='add-to-group-select-optgroup-my-lib'>";
-    echo "                          <option class='select-profile-starred' value='folder-profile-starred'>Favorites</option>";
-    echo "                          <option class='select-profile-authored' value='folder-profile-authored'>My Publications</option>";
+//    echo "                          <option class='select-profile-starred' value='folder-profile-starred'>Favorites</option>";
+//    echo "                          <option class='select-profile-authored' value='folder-profile-authored'>My Publications</option>";
     foreach($folders as $folder){
         echo "                          <option class='select-profile-private' value='folder-profile-".$folder->id."'>".$folder->name."</option>";
     }
     echo "                      </optgroup>";
-    if (!empty($groups)){
+/*    if (!empty($groups)){
         echo "                      <optgroup label='Groups' id='add-to-group-select-optgroup-shared'>";
         foreach($groups as $group){
             echo "                          <option class='select-group-all' value='folder-group-".$group->id."'>".$group->name."</option>";
         }
     echo "                      </optgroup>";
-    }
+    }*/
     echo "                  </select>";
     echo "              </div>";
     echo "              <div class='library-pagemenu'>";
@@ -82,30 +82,32 @@ if (empty($documents->document_ids)){
         echo "              <a href='#' name='document-".$document."'></a>";
         echo "              <div class='left'>";
         echo "                  <div class='document-checkbox'>";
-        echo "                      <input type='checkbox' value='".$document."' id='document-checkbox-".$document."' onclick='checkboxClicked(this);'>";
+        echo "                      <input type='checkbox' value='".$document."' id='document-checkbox-".$document."' onclick='checkboxClicked();'>";
         echo "                      <input type='hidden' value='folder-profile-all' id='document-folder-".$document."'>";
         echo "                  </div>";
         echo "                  <div class='document-icons'>";
-        echo "                      <a title='Mark as Favorite' class='star-empty' href='#' onclick='Mendeley.Publication.changeDocumentValue(this, '".$document."', 'isStarred', 'toggle'); return false;'>";
+        echo "                      <a title='Mark as Favorite' class='star-empty' href='#' onclick=''>";
         echo "                          <img src='https://www.mendeley.com/graphics/common/star-empty_7298568672004598.png' alt='star_empty' width='16' height='16'>";
         echo "                      </a>";
-        echo "                      <a title='Mark as Read' class='unread-document' href='#' onclick='Mendeley.Publication.changeDocumentValue(this, '".$document."', 'isRead', 'toggle'); return false;'>";
+        echo "                      <a title='Mark as Read' class='unread-document' href='#' onclick=''>";
         echo "                          <img src='http://www.mendeley.com/graphics/common/unread_1738973333671741.png' alt='unread' width='16' height='16'>";
         echo "                      </a>";
         if($action == 'documents'){
-            echo "                      <a title='Click here to show the document's files' class='pdf' href='#' onclick='Mendeley.Publication.dispatchExtra('files', '".$document."'); return false;'>";
-            echo "                          <img src='https://www.mendeley.com/graphics/common/pdf_3275105525101106.gif' alt='pdf' width='16' height='16'>";
-            echo "                      </a>";
-            echo "                      <a title='Click here to edit tags and notes' class='tags-or-notes' href='#' onclick='Mendeley.Publication.dispatchExtra('tags-notes', '".$document."'); return false;'>";
-            echo "                          <img src='https://www.mendeley.com/graphics/common/has-tags-or-notes_1282490988286945.gif' alt='tags/notes' width='16' height='16'>";
-            echo "                      </a>";
+            if(!empty($document_detail->files)){
+                echo "                      <a title='Click here to show the document's files' class='pdf' href='#' onclick='showDownloadFile($document)'>";
+                echo "                          <img src='https://www.mendeley.com/graphics/common/pdf_3275105525101106.gif' alt='pdf' width='16' height='16'>";
+                echo "                      </a>";
+            }
+            //echo "                      <a title='Click here to edit tags and notes' class='tags-or-notes' href='#' onclick='Mendeley.Publication.dispatchExtra('tags-notes', '".$document."'); return false;'>";
+            //echo "                          <img src='https://www.mendeley.com/graphics/common/has-tags-or-notes_1282490988286945.gif' alt='tags/notes' width='16' height='16'>";
+            //echo "                      </a>";
         }
         echo "                  </div>";
         echo "              </div>";
-        echo "              <div class='document-share-options'>";
+        /**echo "              <div class='document-share-options'>";
         echo "              <!-- need to sort out double encoding issue below -->";
         echo "                  <a class='send-document-via-email' title='Send document via e-mail' href='#' data-title='0 - Prefacio' onclick='Mendeley.Publication.sendDocument($(this).data('title'), '".$document.":');return false;'>Send document via e-mail</a>";
-        echo "              </div>";
+        echo "              </div>";**/
         echo "              <div class='document-description'>";
         echo "                  <a class='black' href='#' onclick='Mendeley.Publication.dispatchExtra('menu', '".$document."'); return false;'>".$document_detail->title."</a><br>";
         $document_authors = array();
@@ -114,6 +116,9 @@ if (empty($documents->document_ids)){
         }
         echo "                  <div> ".implode(',',$document_authors)." ". ((!empty($document_detail->year))? ' ('.$document_detail->year.')': '')." </div>";
         echo "                  <div> <em>".((!empty($document_detail->published_in))?$document_detail->published_in: '')."</em> ".((!empty($document_detail->pages))?' p. '.$document_detail->pages:'')." </div>";
+        if(!empty($document_detail->url)){
+            echo "                  <div><a rel='nofollow' class='light' href='$document_detail->url'>$document_detail->url</a><br></div>";
+        }
         echo "                  <div id='tag-list-".$document."'>";
         echo "                      <div id='document-tags-".$document."'>";
         foreach($document_detail->tags as $tag){
@@ -125,17 +130,18 @@ if (empty($documents->document_ids)){
         echo "                      <div id='download-document-".$document."'>";
         echo "                          <a name='download-document-".$document."' href='#'></a> Download: &nbsp;";
         foreach($document_detail->files as $file){
-            echo "                          <a href='http://www.mendeley.com/download/personal/5056951/".$document."/".$file->file_hash."/dl.".$file->file_extension."' class='red'>".$file->file_extension."</a> (".$file->file_size." MB) &nbsp;";
+            $profile_main = $profile_info->main;
+            echo "                          <a href='http://www.mendeley.com/download/personal/".$profile_main->profile_id."/".$document."/".$file->file_hash."/dl.".$file->file_extension."' target='_blank' class='red'>".$file->file_extension."</a> (".$file->file_size." MB) &nbsp;";
         }
         echo "                      </div>";
-        echo "      		<div class='document-links'>";
+        /*echo "      		<div class='document-links'>";
         echo "                          <span id='tags-notes-".$document."-link' class='arrowlink' onclick='Mendeley.Publication.dispatchExtra('tags-notes', '".$document."');'>";
         echo "                              <img src='https://www.mendeley.com/graphics/commonnew/list-arrow-right_3884326895063066.gif' alt='&gt;' width='12' height='15'><span>Edit tags and notes</span>";
         echo "                          </span> &nbsp; &nbsp;";
         echo "                          <span id='document-details-".$document."-link' class='arrowlink' onclick='Mendeley.Publication.dispatchExtra('document-details', '".$document."');'>";
         echo "      				<img src='https://www.mendeley.com/graphics/commonnew/list-arrow-right_3884326895063066.gif' alt='&gt;' width='12' height='15'><span>Edit document details</span>";
         echo "                          </span>";
-        echo "      		</div>";
+        echo "      		</div>";*/
         echo "      		<div id='tags-notes-".$document."-extra' class='extra'>";
         echo "                          <a name='tag-edit-".$document."'></a>";
         echo "                          <div class='edit-tags-and-notes' id='edit-tags-and-notes-".$document."'>";
@@ -170,7 +176,8 @@ if (empty($documents->document_ids)){
 echo "</div>";
 ?>
 <script>
-  function checkboxClicked(element){
+  checkboxClicked();
+  function checkboxClicked(){
       if(isAnyDocumentChecked()){
           document.getElementById('toolbar-delete-document').classList.remove('disabled-icon');
           document.getElementById('add-to-group-select').disabled = false;
@@ -196,6 +203,189 @@ echo "</div>";
           index++;
       }
       return false;
+  }
+  function showDownloadFile(element){
+      document.getElementById('document-extra-'+element).style.display = "block";
+  }
+  function changeSelection(type){
+      switch(type){
+          case"all":
+              index = 0;
+              while(index < document.getElementsByClassName('document-checkbox').length){
+                  document.getElementsByClassName('document-checkbox')[index].firstChild.nextSibling.checked = true;
+                  index ++;
+              }
+              break;
+          case"none":
+              index = 0;
+              while(index < document.getElementsByClassName('document-checkbox').length){
+                  document.getElementsByClassName('document-checkbox')[index].firstChild.nextSibling.checked = false;
+                  index ++;
+              }
+              break;
+          case"invert":
+              index = 0;
+              while(index < document.getElementsByClassName('document-checkbox').length){
+                  if(document.getElementsByClassName('document-checkbox')[index].firstChild.nextSibling.checked){
+                    document.getElementsByClassName('document-checkbox')[index].firstChild.nextSibling.checked = false;
+                  }else{
+                      document.getElementsByClassName('document-checkbox')[index].firstChild.nextSibling.checked = true;
+                  }
+                  index ++;
+              }
+              break;
+          case"star-filled":
+          case"unread-document":
+          case"read":
+              index = 0;
+              while(index < document.getElementsByClassName('library-document').length){
+                  index2 = 0;
+                  while(index2 < document.getElementsByClassName('library-document')[index].getElementsByClassName('document-icons')[0].getElementsByClassName(type).length){
+                      if(document.getElementsByClassName('library-document')[index].getElementsByClassName('document-checkbox')[0].firstChild.nextSibling.checked){
+                          document.getElementsByClassName('library-document')[index].getElementsByClassName('document-checkbox')[0].firstChild.nextSibling.checked = false;
+                      }else{
+                          document.getElementsByClassName('library-document')[index].getElementsByClassName('document-checkbox')[0].firstChild.nextSibling.checked = true;
+                      }
+                      index2 ++;
+                  }
+                  index ++;
+              }
+              break;
+      }
+      document.getElementById('auto-select').value = '';
+      checkboxClicked();
+  }
+  function convertStringToFolder(id){
+      if(typeof(id)=="string"){
+          var dashPosition1=id.indexOf('-');
+          if(id.substring(0,dashPosition1)=='folder'){
+              var dashPosition2=id.indexOf('-',dashPosition1+1);
+              if(dashPosition1>-1&&dashPosition2>-1){
+                  return {type:id.substring(dashPosition1+1,dashPosition2),id:id.substring(dashPosition2+1),element:$('#'+id),string:id};
+              }
+          }
+      }
+      return undefined;
+  }
+  function getSelectedFolderInfo(){
+      var selected=document.getElementsByClassName('library-group-selected')[0].id;
+      if(selected){
+          return convertStringToFolderInfo(selected);
+      }
+      return undefined;
+  }
+  function getSelectedDocuments(selectAll){
+      if(selectAll){
+          var currentDocuments = new Array();
+          index = 0;
+          while(index < document.getElementsByClassName('library-document').length){
+              currentDocuments[index] = document.getElementsByClassName('library-document')[0].id;
+              index++;
+          }
+          return currentDocuments;
+      }
+      var selectedDocs= new Array();
+      index = 0;
+      while (index < document.getElementsByClassName('document-checkbox').length){
+          if (document.getElementsByClassName('document-checkbox')[index].firstChild.nextSibling.checked){
+            selectedDocs[index] = document.getElementsByClassName('document-checkbox')[index].firstChild.nextSibling.value;
+          }
+          index++;
+      }
+      return selectedDocs;
+  }
+  function getDocumentFolderInfo(documentId){
+      //if(this.visibleDocuments[documentId]){
+      //    return convertStringToFolderInfo(this.visibleDocuments[documentId]);
+      //}
+      return getSelectedFolderInfo();
+  }
+  function getDefaultOverlayOptions(){
+      return{showOKButton:true,showCancelButton:true,showButtonsInFooterClass:true,contentStyle:'text-align:left;padding-left:6px;padding-right:6px;'};
+  }
+  function submitAddDocumentsAJAXRequest(folderInfo,selectedDocs,fromGroupId){
+      alert("Llamar a la API");
+  }
+  function convertStringToFolderInfo(id){
+      if(typeof(id)=="string"){
+          var dashPosition1=id.indexOf('-');
+          if(id.substring(0,dashPosition1)=='folder'){
+              var dashPosition2=id.indexOf('-',dashPosition1+1);
+              if(dashPosition1>-1&&dashPosition2>-1){
+                  return{type:id.substring(dashPosition1+1,dashPosition2),id:id.substring(dashPosition2+1),element:document.getElementById(id),string:id};
+              }
+          }
+      }
+      return undefined;
+  }
+  function addSelectedTo(folderId){
+      var folderInfo=convertStringToFolderInfo(folderId);
+      var selectedDocs=getSelectedDocuments();
+      var fromGroupId=(getSelectedFolderInfo().type=='group'||getSelectedFolderInfo().type=='followedgroup')?getSelectedFolderInfo().id:0;
+      if(selectedDocs.length==0||folderInfo.type===undefined){
+          document.getElementById('add-to-group-select').value = 'none';
+          return;
+      }
+      //var sharedGroup=folderInfo.type=="group";
+      var folderName=document.getElementById('add-to-group-select')[document.getElementById('add-to-group-select').selectedIndex].text;
+      var folderValue=document.getElementById('add-to-group-select')[document.getElementById('add-to-group-select').selectedIndex].value.split('-');
+      var sds=(selectedDocs.length>1);
+      var question="the "+((sds)?selectedDocs.length+' ':'')+"selected document"+((sds)?'s':'');
+      switch(folderInfo.type){
+          case"group":
+              question="Add "+question+" to the group '"+folderName+"'?";
+              break;
+          case"profile":
+              var defaultQuestion="Add "+question+" to your library collection '"+folderName+"'?";
+              switch(folderInfo.id){
+                  case"all":
+                      if(this.getSelectedFolderInfo().type=="profile"){
+                          alert("The document"+((sds)?'s are':' is')+" already in your library.");
+                          return;
+                      }else{
+                          defaultQuestion="Add "+question+" to your library?";
+                      }
+                    break;
+              }
+              question=defaultQuestion;
+              break;
+          case"trash":
+              question="Move "+question+" to the Trash? (Documents will remain in the Trash until you delete them permanently)";
+              break;
+          default:
+              return;
+      }
+      var lastFolderId=null;
+      var allInSame=true;
+      for(i in selectedDocs){
+          var docFolderInfo=getDocumentFolderInfo(selectedDocs[i]);
+          if(docFolderInfo){
+              if(lastFolderId==null)lastFolderId=docFolderInfo.string;
+              if(lastFolderId!=docFolderInfo.string){
+                  allInSame=false;
+                  break;
+              }else{
+                  allInSame=true;
+              }
+          }else{
+              document.getElementById('add-to-group-select').value = 'none';
+              return;
+          }
+      }
+      if(allInSame&&lastFolderId==folderId){
+          alert('Nothing to do.');
+      }else{
+          var overlayOpts=getDefaultOverlayOptions();
+          var commandText='Add Document'+(sds?'s':'');
+          overlayOpts.okButtonValue=commandText;
+          overlayOpts.okButtonCallback=function(){
+              submitAddDocumentsAJAXRequest(folderInfo,selectedDocs,fromGroupId);
+          };
+          var documents = getDocumentsChecked();
+          window.location="view.php?id="+"<?php echo $cm->id?>"+"&option=library&action=add_dialog&search_data="+folderValue[1]+"&element_id="+folderValue[2]+"&element_name="+folderName+"&page="+documents.length+"&documents_id="+documents+"&element_selected="+"<?php echo $element_selected?>"+"&sesskey="+"<?php echo sesskey()?>"+"";
+          //Mendeley.UI.Overlay.create(commandText,question,300,null,overlayOpts);
+      }
+      document.getElementById('add-to-group-select').value = 'none';
   }
 </script>
 

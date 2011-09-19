@@ -200,6 +200,9 @@ switch ($action){
         }
         include($CFG->dirroot.'/mod/modmendeley/delete_dialog.php');
         break;
+    case 'adddialog':
+        include($CFG->dirroot.'/mod/modmendeley/add_dialog.php');
+        break;
     case 'createfolder':
         include($CFG->dirroot.'/mod/modmendeley/create_folder.php');
         break;
