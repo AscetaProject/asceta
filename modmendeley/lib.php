@@ -62,6 +62,16 @@ function modmendeley_add_instance($modmendeley) {
 
     # You may have to add extra stuff in here #
 
+    if($modmendeley->permission_create_document == null) $modmendeley->permission_create_document = 0;
+    if($modmendeley->permission_delete_document == null) $modmendeley->permission_delete_document = 0;
+    if($modmendeley->permission_new_folder == null) $modmendeley->permission_new_folder = 0;
+    if($modmendeley->permission_delete_folder == null) $modmendeley->permission_delete_folder = 0;
+    if($modmendeley->permission_add_doc_folder == null) $modmendeley->permission_add_doc_folder = 0;
+    if($modmendeley->permission_delete_doc_folder == null) $modmendeley->permission_delete_doc_folder = 0;
+    if($modmendeley->permission_new_group == null) $modmendeley->permission_new_group = 0;
+    if($modmendeley->permission_delete_group == null) $modmendeley->permission_delete_group = 0;
+
+
     return $DB->insert_record('modmendeley', $modmendeley);
 }
 
@@ -80,6 +90,15 @@ function modmendeley_update_instance($modmendeley) {
     $modmendeley->id = $modmendeley->instance;
 
     # You may have to add extra stuff in here #
+
+    if($modmendeley->permission_create_document == null) $modmendeley->permission_create_document = 0;
+    if($modmendeley->permission_delete_document == null) $modmendeley->permission_delete_document = 0;
+    if($modmendeley->permission_new_folder == null) $modmendeley->permission_new_folder = 0;
+    if($modmendeley->permission_delete_folder == null) $modmendeley->permission_delete_folder = 0;
+    if($modmendeley->permission_add_doc_folder == null) $modmendeley->permission_add_doc_folder = 0;
+    if($modmendeley->permission_delete_doc_folder == null) $modmendeley->permission_delete_doc_folder = 0;
+    if($modmendeley->permission_new_group == null) $modmendeley->permission_new_group = 0;
+    if($modmendeley->permission_delete_group == null) $modmendeley->permission_delete_group = 0;
 
     return $DB->update_record('modmendeley', $modmendeley);
 }

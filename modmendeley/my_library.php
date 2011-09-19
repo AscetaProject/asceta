@@ -8,6 +8,37 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 */
 
+?>
+<script>
+function checkActivityPermission(){
+    var create_document = '<?php echo $modmendeley->permission_create_document ?>';
+    var delete_document= '<?php echo $modmendeley->permission_delete_document ?>';
+    var new_folder = '<?php echo $modmendeley->permission_new_folder ?>';
+    var delete_folder = '<?php echo $modmendeley->permission_delete_folder ?>';
+    var add_doc_folder = '<?php echo $modmendeley->permission_add_doc_folder ?>';
+    var delete_doc_folder = '<?php echo $modmendeley->permission_delete_doc_folder ?>';
+    var new_group = '<?php echo $modmendeley->permission_new_group ?>';
+    var delete_group = '<?php echo $modmendeley->permission_delete_group ?>';
+    var element_selected = '<?php echo $element_selected ?>';
+
+    if(create_document == '0') document.getElementById('toolbar-add-document').classList.add('disabled-icon');
+    if(delete_document == '0') document.getElementById('toolbar-delete-document').classList.add('disabled-icon');
+    if(new_folder == '0') document.getElementById('toolbar-create-collection').classList.add('disabled-icon');
+    if(delete_folder == '0') document.getElementById('toolbar-remove-folder').classList.add('disabled-icon');
+    if(add_doc_folder == '0'){
+        if (element_selected != 'folder_profile_all'){
+            document.getElementById('toolbar-add-document').classList.add('disabled-icon');
+        }
+        if (document.getElementById('add-to-group-select') != null)
+            document.getElementById('add-to-group-select').disabled = true;
+    }
+    if(delete_doc_folder == '0') document.getElementById('toolbar-remove-document').classList.add('disabled-icon');
+    if(new_group == '0') document.getElementById('toolbar-create-group').classList.add('disabled-icon');
+    if(delete_group == '0') document.getElementById('toolbar-remove-group').classList.add('disabled-icon');
+
+}
+</script>
+<?php
 echo "<div id='content-container'>\n";
 echo "  <div id='main-content'>\n";
 echo "      <div id='publications'>\n";
@@ -172,6 +203,7 @@ switch ($action){
         include($CFG->dirroot.'/mod/modmendeley/add_document.php');
         break;
     case 'dialog':
+        $show = false;
         switch ($type){
             case 'document':
                 $data_documents['title'] = 'Delete Document';
@@ -198,7 +230,7 @@ switch ($action){
                 $data_documents['button_text'] = 'Delete forever';
                 break;
         }
-        include($CFG->dirroot.'/mod/modmendeley/delete_dialog.php');
+        if($show) include($CFG->dirroot.'/mod/modmendeley/delete_dialog.php');
         break;
     case 'adddialog':
         include($CFG->dirroot.'/mod/modmendeley/add_dialog.php');
@@ -225,6 +257,7 @@ if('<?php echo $action ?>' == 'groups'){
 if('<?php echo $action ?>' == 'folders' && ('<?php echo $data_documents['menu'] ?>' != 'folder-profile-all' || '<?php echo $data_documents['menu'] ?>' != 'folder-profile-authored')){
         document.getElementById('toolbar-remove-folder').classList.remove('disabled-icon');
 }
+checkActivityPermission();
 function showDialog(){
     document.getElementById('interVeil').style.position="absolute"
     document.getElementById('interVeil').style.width=document.getElementById('main-content').getBoundingClientRect().width+"px" //set up veil over page

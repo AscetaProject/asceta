@@ -315,5 +315,44 @@ if ($oldversion < 2011072502) {
         upgrade_mod_savepoint(true, 2011072505, 'modmendeley');
     }
 
+    if ($oldversion < 2011091902) {
+
+        // Define field permission_add_doc_folder to be added to modmendeley
+        $table = new xmldb_table('modmendeley');
+        $field = new xmldb_field('permission_add_doc_folder', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_create_document');
+
+        // Conditionally launch add field permission_add_doc_folder
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field permission_delete_doc_folder to be added to modmendeley
+        $table = new xmldb_table('modmendeley');
+        $field = new xmldb_field('permission_delete_doc_folder', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_add_doc_folder');
+
+        // Conditionally launch add field permission_delete_doc_folder
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // modmendeley savepoint reached
+        upgrade_mod_savepoint(true, 2011091902, 'modmendeley');
+    }
+
+    if ($oldversion < 2011091903) {
+
+        // Define field permission_create_document to be dropped from modmendeley
+        $table = new xmldb_table('modmendeley');
+        $field = new xmldb_field('permission_upload_document');
+
+        // Conditionally launch drop field permission_create_document
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+        // modmendeley savepoint reached
+        upgrade_mod_savepoint(true, 2011091903, 'modmendeley');
+    }
+
+
     return true;
 }

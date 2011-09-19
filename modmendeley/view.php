@@ -74,30 +74,30 @@ $modmendeleyoutput = $PAGE->get_renderer('mod_modmendeley');
 $option = ($option) ? $option : 'paper';
 $extraeditbuttons = true;
 
+
 if (!$modmendeley->user_id) {
    echo $OUTPUT->heading(get_string("configure_user_url","modmendeley"));
 } else {
     echo $modmendeleyoutput->header($modmendeley, $cm, $option, $extraeditbuttons);
-    switch ($option){
-        case 'library':
-            if($modmendeley->private){
-            }
-            switch ($action){
-                case 'addselecteddocument':
-                    $documents_id = explode(",", $_GET['documents_id']);
-                    foreach($documents_id as $doc_id){
-                        if ($element_name == 'profile' && $element_name != 'all'){
-                            $document_id = postLibraryValue('POST', $user, '/library/folders/'.$element_id.'/'.$doc_id, array());
+    if(checkActivityPermission ($modmendeley, $option, $action, $type) || true){
+        switch ($option){
+            case 'library':
+                switch ($action){
+                    case 'addselecteddocument':
+                        $documents_id = explode(",", $_GET['documents_id']);
+                        foreach($documents_id as $doc_id){
+                            if ($element_name == 'profile' && $element_name != 'all'){
+                                $document_id = postLibraryValue('POST', $user, '/library/folders/'.$element_id.'/'.$doc_id, array());
+                            }
                         }
-                    }
-                    redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
-                    break;
-                case 'savedocument':
-                    $add_to = explode("-",$_POST['add_to']);
-                    if($add_to[1] == 'group'){
-                        $data = $_POST[$_POST['pub_type']];
-                        $data['group_id'] = $add_to[2];
-                    }
+                        redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
+                        break;
+                    case 'savedocument':
+                        $add_to = explode("-",$_POST['add_to']);
+                        if($add_to[1] == 'group'){
+                            $data = $_POST[$_POST['pub_type']];
+                            $data['group_id'] = $add_to[2];
+                        }
                     //$document_id = postLibraryValue('POST', $user, '/library/documents', array('document' => json_encode(toArray($_POST[$_POST['pub_type']]))));
                     $document_id = postLibraryValue('POST', $user, '/library/documents', array('document' => json_encode(toArray($data))));
                     if($document_id != null){
@@ -218,8 +218,6 @@ if (!$modmendeley->user_id) {
             }
             break;
         case 'people':
-            if($modmendeley->private){
-            }
             switch ($action){
                 case 'contacts':
                     $contacts= getLibraryValue('GET', $user, '/profiles/contacts/');
@@ -259,6 +257,13 @@ if (!$modmendeley->user_id) {
             break;
         default :
             break;
+        }
+    }else{
+        ?>
+        <script>
+            window.history.go(-1);
+        </script>
+        <?php
     }
 }
 // Finish the page

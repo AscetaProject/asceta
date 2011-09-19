@@ -15,9 +15,10 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false" PREVIOUS="timecreated" NEXT="user_id"/>
         <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="timemodified" NEXT="private"/>
         <FIELD NAME="private" TYPE="int" LENGTH="1" NOTNULL="true" UNSIGNED="true" DEFAULT="1" SEQUENCE="false" COMMENT="Access Public or Private" PREVIOUS="user_id" NEXT="permission_create_document"/>
-        <FIELD NAME="permission_create_document" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="private" NEXT="permission_upload_document"/>
-        <FIELD NAME="permission_upload_document" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_create_document" NEXT="permission_delete_document"/>
-        <FIELD NAME="permission_delete_document" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_upload_document" NEXT="permission_new_folder"/>
+        <FIELD NAME="permission_create_document" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="private" NEXT="permission_add_doc_folder"/>
+        <FIELD NAME="permission_add_doc_folder" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_create_document" NEXT="permission_delete_doc_folder"/>
+        <FIELD NAME="permission_delete_doc_folder" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_add_doc_folder" NEXT="permission_delete_document"/>
+        <FIELD NAME="permission_delete_document" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_delete_doc_folder" NEXT="permission_new_folder"/>
         <FIELD NAME="permission_new_folder" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_delete_document" NEXT="permission_delete_folder"/>
         <FIELD NAME="permission_delete_folder" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_new_folder" NEXT="permission_new_group"/>
         <FIELD NAME="permission_new_group" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_delete_folder" NEXT="permission_delete_group"/>

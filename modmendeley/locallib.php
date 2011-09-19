@@ -314,3 +314,59 @@ function createDate($start_date, $end_date){
     return $months[intval($start_date[1])-1]." ".$start_date[0]." - ".$months[intval($end_date[1])-1]." ".$end_date[0];
    
 }
+
+function checkActivityPermission($modmendeley, $option, $action, $type){
+    $show = true;
+    if($option == 'library'){
+        switch ($action){
+            case 'addselecteddocument':
+            case 'adddialog':
+                if($modmendeley->permission_add_doc_folder == 0) $show = false;
+                break;
+            case 'savedocument':
+            case 'add':
+                if($modmendeley->permission_create_document == 0) $show = false;
+                break;
+            case 'deletedocument':
+                if($modmendeley->permission_delete_document == 0) $show = false;
+                break;
+            case 'savefolder':
+            case 'createfolder':
+                if($modmendeley->permission_new_folder == 0) $show = false;
+                break;
+            case 'deletefolder':
+                if($modmendeley->permission_delete_folder == 0) $show = false;
+                break;
+            case 'deletegroup':
+                if($modmendeley->permission_delete_group == 0) $show = false;
+                break;
+            case 'deletedocumentfolder':
+                if($modmendeley->permission_delete_doc_folder == 0) $show = false;
+                break;
+            case 'dialog':
+                switch($type){
+                   case 'document':
+                        if($modmendeley->permission_delete_document == 0) $show = false;
+                        break;
+                    case 'folder':
+                        if($modmendeley->permission_delete_folder == 0) $show = false;
+                        break;
+                    case 'folderdocument':
+                        if($modmendeley->permission_delete_doc_folder == 0) $show = false;
+                        break;
+                    case 'group':
+                        if($modmendeley->permission_delete_group == 0) $show = false;
+                        break;
+                }
+                break;
+            case 'creategroup':
+                if($modmendeley->permission_new_group == 0) $show = false;
+                break;
+        }
+    }else if($option == 'group'){
+        if ($action == 'add' || $action == 'savegroup'){
+            if($modmendeley->permission_new_group == 0) $show = false;
+        }
+    }
+    return $show;
+}

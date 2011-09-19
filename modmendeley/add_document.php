@@ -140,16 +140,16 @@ function hideAlls(){
       }
   }
   document.getElementById('additional-fields-add-link').style.display = 'none';
-  document.getElementsByClassName('hidden scrollpane')[document.getElementById('pub_type').selectedIndex-1].style.display = 'none';
+  document.getElementsByClassName('hiddens scrollpane')[document.getElementById('pub_type').selectedIndex-1].style.display = 'none';
   document.getElementById('additional-fields-add-link').innerHTML = document.getElementById('additional-fields-add-link').innerHTML.replace('down','right');
 
 }
 function showAdditionalFields(index){
-  if(document.getElementsByClassName('hidden scrollpane')[index].style.display == 'none'){
-      document.getElementsByClassName('hidden scrollpane')[index].style.display = 'block';
+  if(document.getElementsByClassName('hiddens scrollpane')[index].style.display == 'none'){
+      document.getElementsByClassName('hiddens scrollpane')[index].style.display = 'block';
       document.getElementById('additional-fields-add-link').innerHTML = document.getElementById('additional-fields-add-link').innerHTML.replace('right','down');
   } else {
-      document.getElementsByClassName('hidden scrollpane')[index].style.display = 'none';
+      document.getElementsByClassName('hiddens scrollpane')[index].style.display = 'none';
       document.getElementById('additional-fields-add-link').innerHTML = document.getElementById('additional-fields-add-link').innerHTML.replace('down','right');
   }
 }

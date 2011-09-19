@@ -180,11 +180,13 @@ echo "</div>";
   function checkboxClicked(){
       if(isAnyDocumentChecked()){
           document.getElementById('toolbar-delete-document').classList.remove('disabled-icon');
-          document.getElementById('add-to-group-select').disabled = false;
+          if(document.getElementById('add-to-group-select') != null)
+            document.getElementById('add-to-group-select').disabled = false;
       }else{
           document.getElementById('toolbar-delete-document').classList.add('disabled-icon');
           document.getElementById('toolbar-remove-document').classList.add('disabled-icon');
-          document.getElementById('add-to-group-select').disabled = true;
+          if(document.getElementById('add-to-group-select') != null)
+            document.getElementById('add-to-group-select').disabled = true;
 
       }
       if ('<?php echo $action ?>' == 'folders' && isAnyDocumentChecked()){
@@ -192,6 +194,7 @@ echo "</div>";
       } else {
           document.getElementById('toolbar-remove-document').classList.add('disabled-icon');
       }
+      this.checkActivityPermission();
 
   }
   function isAnyDocumentChecked(){
@@ -387,5 +390,6 @@ echo "</div>";
       }
       document.getElementById('add-to-group-select').value = 'none';
   }
+  
 </script>
 

@@ -17,7 +17,7 @@ echo "      </div>";
 if($modmendeley->private){
     echo "      <div class='column-b'>";
     echo "          <div class='action-buttons'>";
-    echo "              <a href='$CFG->wwwroot/mod/modmendeley/view.php?id=$cm->id&amp;option=group&amp;action=add&amp;sesskey=" . sesskey()."' class='link-button primary'>Create a new group</a>";
+    echo "              <a href='$CFG->wwwroot/mod/modmendeley/view.php?id=$cm->id&amp;option=group&amp;action=add&amp;sesskey=" . sesskey()."'  id='create_group' class='link-button primary'>Create a new group</a>";
     echo "          </div>";
     echo "      </div>";
 }
@@ -70,3 +70,8 @@ echo "</td></tr></table>"; //TABLE
 echo "</div>";
 
 ?>
+
+<script>
+var new_group = '<?php echo $modmendeley->permission_new_group ?>';
+if(new_group == '0') document.getElementById('create_group').style.display = 'none';
+</script>

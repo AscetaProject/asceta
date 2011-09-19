@@ -84,10 +84,11 @@ class mod_modmendeley_mod_form extends moodleform_mod {
 
         $mform->addElement('header', 'modmendeleyfieldset', get_string('permission', 'modmendeley'));
         $mform->addElement('checkbox', 'permission_create_document', get_string('new_document','modmendeley'));
-        $mform->addElement('checkbox', 'permission_upload_document', get_string('upload_document','modmendeley'));
         $mform->addElement('checkbox', 'permission_delete_document', get_string('delete_document','modmendeley'));
         $mform->addElement('checkbox', 'permission_new_folder', get_string('new_folder','modmendeley'));
         $mform->addElement('checkbox', 'permission_delete_folder', get_string('delete_folder','modmendeley'));
+        $mform->addElement('checkbox', 'permission_add_doc_folder', get_string('add_document_folder','modmendeley'));
+        $mform->addElement('checkbox', 'permission_delete_doc_folder', get_string('delete_document_folder','modmendeley'));
         $mform->addElement('checkbox', 'permission_new_group', get_string('new_group','modmendeley'));
         $mform->addElement('checkbox', 'permission_delete_group', get_string('delete_group','modmendeley'));
 
