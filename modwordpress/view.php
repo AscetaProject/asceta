@@ -611,6 +611,25 @@ if (!$modwordpress->server_id) {
 	} else {
 	    echo $OUTPUT->heading($modwordpress->name . " : " . get_string('new_post', 'modwordpress'));
 	}
+
+	// Validación -------------------------------
+	echo " <script type='text/javascript'> \n";
+	echo "function new_post_form_validation() { ";
+	echo "if (document.new_post_form.post_title.value.length == 0) {";
+	echo "alert('" . get_string('post_title_empty', 'modwordpress') . "');";
+	echo "document.new_post_form.post_title.focus();";
+	echo "return false; ";
+	echo "}";
+	echo "if (document.new_post_form.post_content.value.length == 0) {";
+	echo "alert('" . get_string('post_content_empty', 'modwordpress') . "');";
+	echo "document.new_post_form.post_content.focus();";
+	echo "return false; ";
+	echo "}";
+	echo "}\n";
+	echo "</script>";
+
+
+	// Formulario -----------------------------------
 	echo '<form name="new_post_form" method="post" action="view.php" id="new_post_form" onsubmit="return new_post_form_validation();">';
 	echo '<table><thead></thead><tbody>';
 	echo '<tr>';
@@ -627,20 +646,6 @@ if (!$modwordpress->server_id) {
 	    echo "<input type='hidden' name='post_type' value='page' />";
 	}
 	echo '</form>';
-	echo " <script type='text/javascript'>";
-	echo "function new_post_form_validation() {";
-	echo "if (document.new_post_form.post_title.value.length == 0) {";
-	echo "alert('" . print_string('post_title_empty', 'modwordpress') . "');";
-	echo "document.new_post_form.post_title.focus();";
-	echo "return false; ";
-	echo "}";
-	echo "if (document.new_post_form.post_content.value.length == 0) {";
-	echo "alert('" . print_string('post_content_empty', 'modwordpress') . "');";
-	echo "document.new_post_form.post_content.focus();";
-	echo "return false; ";
-	echo "}";
-	echo "}";
-	echo "</script>";
         } else {
 	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
 	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
@@ -669,6 +674,25 @@ if (!$modwordpress->server_id) {
 
 
 	echo $OUTPUT->heading($modwordpress->name . " : " . $json->post_title . " (" . get_string('edit_post', 'modwordpress') . ") ");
+
+	// Validacion -----------------------------------------------------
+	echo " <script type='text/javascript'>";
+	echo "function new_post_form_validation() { ";
+	echo "if (document.new_post_form.post_title.value.length == 0) {";
+	echo "alert('" . print_string('post_title_empty', 'modwordpress') . "');";
+	echo "document.new_post_form.post_title.focus();";
+	echo "return false; ";
+	echo "}";
+	echo "if (document.new_post_form.post_content.value.length == 0) {";
+	echo "alert('" . print_string('post_content_empty', 'modwordpress') . "');";
+	echo "document.new_post_form.post_content.focus();";
+	echo "return false; ";
+	echo "}";
+	echo "}";
+	echo "</script>";
+
+
+	// Formulario ------------------------------------------------------
 	echo '<form name="new_post_form" method="post" action="view.php" id="new_post_form" onsubmit="return new_post_form_validation();">';
 	echo '<table><thead></thead><tbody>';
 	echo '<tr>';
@@ -686,20 +710,6 @@ if (!$modwordpress->server_id) {
 	}
 	echo '</form>';
 	echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;post=$json->ID&amp;sesskey=" . sesskey() . "'>".get_string('back','modwordpress')."</a>";
-	echo " <script type='text/javascript'>";
-	echo "function new_post_form_validation() {";
-	echo "if (document.new_post_form.post_title.value.length == 0) {";
-	echo "alert('" . print_string('post_title_empty', 'modwordpress') . "');";
-	echo "document.new_post_form.post_title.focus();";
-	echo "return false; ";
-	echo "}";
-	echo "if (document.new_post_form.post_content.value.length == 0) {";
-	echo "alert('" . print_string('post_content_empty', 'modwordpress') . "');";
-	echo "document.new_post_form.post_content.focus();";
-	echo "return false; ";
-	echo "}";
-	echo "}";
-	echo "</script>";
         } else {
 	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
 	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
