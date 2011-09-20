@@ -12,13 +12,15 @@ class PostRESTController extends WPAPIRESTController {
     }
 
     protected function getPost($post) {
+        global $wpdb;
         // Get requested posts
-        $post_data = get_post($post);
+        //$post_data = get_post($post);
+        $post_data = $wpdb->get_results("SELECT p.ID, post_title, post_content, guid, post_type, post_date, post_author, user_nicename, comment_count FROM ".$wpdb->posts." p, ".$wpdb->users." u WHERE p.ID > 0 AND p.ID = ".$post." AND p.post_type LIKE 'post' AND p.post_author = u.ID AND p.post_status LIKE 'publish' ORDER BY post_date DESC");
         if(is_null($post_data)){
             throw new Exception("Post '$post' does not exists \n","404");
         }
-        $post_data->comments = $this->get_approved_comments($post);
-        return $this->_return($post_data);
+        $post_data[0]->comments = $this->get_approved_comments($post);
+        return $this->_return($post_data[0]);
     }
 
     protected function postPost($data) {

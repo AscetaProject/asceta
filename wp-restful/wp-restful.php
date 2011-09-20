@@ -43,6 +43,7 @@ $wpr['fields'] = array(
 		'post_date' => 'Post Date',
 		'post_author' => 'Post Author',
 		'user_nicename' => 'Post Author Name',
+		'username' => 'Post Author User Name',
 		'comment_count' => 'Comment Count',
 		'comments' => 'Comments',
 		'comment_ID' => 'Comments ID',
