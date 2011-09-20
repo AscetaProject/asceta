@@ -69,7 +69,7 @@ function modwordpress_add_instance($modwordpress) {
         $course_id = $modwordpress_instance->course;
         $server_id = $modwordpress_instance->server_id;
         $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
-
+        var_dump($server);
 
         if ($server->oauth) {
 	$consumer_key = $server->consumer_key;

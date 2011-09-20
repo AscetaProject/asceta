@@ -198,7 +198,7 @@ if (!$modwordpress->server_id) {
 	    echo $OUTPUT->header();
 	    echo "<p>" . get_string("server_error", "modwordpress").": ";
 	    echo $response . "</p>";
-	    echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	    echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
 	    echo $OUTPUT->footer();
 	    die;
 	}
@@ -255,14 +255,14 @@ if (!$modwordpress->server_id) {
 	    die;
 	} else {
 	    echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	    echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	    echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
 	    die;
 	}
         } else {
 	echo $OUTPUT->header();
 	echo "<p>" . get_string("server_error", "modwordpress").": ";
 	echo $response . "</p>";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
 	echo $OUTPUT->footer();
 	die;
         }
@@ -311,14 +311,14 @@ if (!$modwordpress->server_id) {
 	    die;
 	} else {
 	    echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	    echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	    echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
 	    die;
 	}
         } else {
 	echo $OUTPUT->header();
 	echo "<p>" . get_string("server_error", "modwordpress").": ";
 	echo $response . "</p>";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
 	echo $OUTPUT->footer();
 	die;
         }
@@ -365,14 +365,14 @@ if (!$modwordpress->server_id) {
 	    die;
 	} else {
 	    echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	    echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	    echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
 	    die;
 	}
         } else {
 	echo $OUTPUT->header();
 	echo "<p>" . get_string("server_error", "modwordpress").": ";
 	echo $response . "</p>";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
 	echo $OUTPUT->footer();
 	die;
         }
@@ -539,7 +539,7 @@ if (!$modwordpress->server_id) {
 	}
 
 
-        echo "<br/><button style='margin-top: 20px;' onclick='javascript:history.back()'>Volver</button>  ";
+        echo "<br/><button style='margin-top: 20px;' onclick='javascript:history.back(); return false;'>Volver</button>  ";
         add_to_log($course->id, 'modwordpress', 'view page', "view.php?id=$cm->id&page=$page&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
 
 
@@ -559,12 +559,12 @@ if (!$modwordpress->server_id) {
 	echo "<input type='hidden' name='comment_post_ID' value='$new_comment' />";
 	echo "<input type='hidden' name='id' value='$cm->id' />";
 	echo "<br><input type='submit' value='" . get_string("save", "modwordpress") . "' />";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
 	echo '</form>';
 	echo " <script type='text/javascript'> function new_comment_form_validation() { if (document.new_comment_form.comment_content.value.length == 0) { alert('" . get_string('comment_empty', 'modwordpress') . "'); document.new_comment_form.comment_content.focus(); return false; } }</script>";
         } else {
 	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
         }
 
 // EDIT COMMENT FORM
@@ -591,12 +591,12 @@ if (!$modwordpress->server_id) {
 	echo "<input type='hidden' name='comment_ID' value='$edit_comment' />";
 	echo "<input type='hidden' name='comment_post_ID' value='$json->comment_post_ID' />";
 	echo "<br><input type='submit' value='" . get_string("save", "modwordpress") . "' />";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
 	echo '</form>';
 	echo " <script type='text/javascript'> function new_comment_form_validation() { if (document.new_comment_form.comment_content.value.length == 0) { alert('". get_string('comment_empty', 'modwordpress') . "'); document.new_comment_form.comment_content.focus(); return false; } }</script>";
         } else {
 	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
         }
 
 
@@ -620,7 +620,7 @@ if (!$modwordpress->server_id) {
 	echo "<td colspan='2'><textarea cols=90 rows=10 name='post_content'></textarea></td>";
 	echo "</tr></tbody></table>";
 	echo "<input type='submit' value='" . get_string("save", "modwordpress") . "' />";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
 	echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
 	echo "<input type='hidden' name='id' value='$cm->id' />";
 	if ($new_page != '') {
@@ -643,7 +643,7 @@ if (!$modwordpress->server_id) {
 	echo "</script>";
         } else {
 	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
         }
 
 
@@ -702,7 +702,7 @@ if (!$modwordpress->server_id) {
 	echo "</script>";
         } else {
 	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	echo "<button onclick='javascript:history.back()'>" . get_string("back", "modwordpress") . "</button>  ";
+	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
         }
 
 

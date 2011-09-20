@@ -64,7 +64,6 @@ class mod_modwordpress_mod_form extends moodleform_mod {
 	$mform->addElement('header', 'modwordpressfieldset', get_string("new_server", "modwordpress"));
 	//$mform->addElement('static', 'label2', 'modwordpresssetting2', 'Your modwordpress fields go here. Replace me!');
 	$options = array();
-	$options[0] = get_string('none');
 	foreach ($servers as $server) {
 	    if ($server->oauth) {
 	        if ($server->consumer_key != '' && $server->consumer_secret != '' && $server->access_token != '' && $server->access_secret != '') {
@@ -75,6 +74,7 @@ class mod_modwordpress_mod_form extends moodleform_mod {
 	    }
 	}
 	$mform->addElement('select', 'server_id', get_string('available_servers', 'modwordpress'), $options);
+	$mform->addRule('server_id', null, 'required', null, 'client');
 
 	$mform->addElement('header', 'modwordpressfieldset', get_string('permissions', 'modwordpress'));
 	$mform->addElement('checkbox', 'permission_create_post', get_string('create_posts','modwordpress'));
