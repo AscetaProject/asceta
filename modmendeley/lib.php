@@ -192,6 +192,20 @@ function modmendeley_get_participants($modmendeleyid) {
 }
 
 /**
+ * @return array
+ */
+function modmendeley_get_view_actions() {
+    return array('view', 'view paper', 'view library', 'view group', 'view people');
+}
+
+/**
+ * @return array
+ */
+function modmendeley_get_post_actions() {
+    return array('add document','delete document', 'add document to folder', 'delete document from folder', 'add folder', 'delete folder', 'add group', 'delete group');
+}
+
+/**
  * This function returns if a scale is being used by one modmendeley
  * if it has support for grading and scales. Commented code should be
  * modified if necessary. See forum, glossary or journal modules

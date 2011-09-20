@@ -40,7 +40,7 @@ if (! $course = $DB->get_record('course', array('id' => $id))) {
 
 require_course_login($course);
 
-add_to_log($course->id, 'modmendeley', 'view all', "index.php?id=$course->id", '');
+//add_to_log($course->id, 'modmendeley', 'view all', "index.php?id=$course->id", '');
 
 /// Print the header
 

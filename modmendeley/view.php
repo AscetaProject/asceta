@@ -90,6 +90,7 @@ if (!$modmendeley->user_id) {
                                 $document_id = postLibraryValue('POST', $user, '/library/folders/'.$element_id.'/'.$doc_id, array());
                             }
                         }
+                        add_to_log($course->id, 'modmendeley', 'add document to folder', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
                         redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
                         break;
                     case 'savedocument':
@@ -98,35 +99,40 @@ if (!$modmendeley->user_id) {
                             $data = $_POST[$_POST['pub_type']];
                             $data['group_id'] = $add_to[2];
                         }
-                    //$document_id = postLibraryValue('POST', $user, '/library/documents', array('document' => json_encode(toArray($_POST[$_POST['pub_type']]))));
-                    $document_id = postLibraryValue('POST', $user, '/library/documents', array('document' => json_encode(toArray($data))));
-                    if($document_id != null){
-                        if ($add_to[1] == 'profile' && $add_to[2] != 'all'){
-                            $document_id = postLibraryValue('POST', $user, '/library/folders/'.$add_to[2].'/'.$document_id, array());
+                        //$document_id = postLibraryValue('POST', $user, '/library/documents', array('document' => json_encode(toArray($_POST[$_POST['pub_type']]))));
+                        $document_id = postLibraryValue('POST', $user, '/library/documents', array('document' => json_encode(toArray($data))));
+                        if($document_id != null){
+                            if ($add_to[1] == 'profile' && $add_to[2] != 'all'){
+                                $document_id = postLibraryValue('POST', $user, '/library/folders/'.$add_to[2].'/'.$document_id, array());
+                            }
+                            add_to_log($course->id, 'modmendeley', 'add document', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
+                            redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
                         }
-                        redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
-                    }
-                    break;
+                        break;
                 case 'deletedocument':
                     $documents_id = explode(",", $_GET['documents_id']);
                     foreach($documents_id as $doc_id){
                         deleteLibraryValue('DELETE', $user, '/library/documents/'.$doc_id, array());
                     }
+                    add_to_log($course->id, 'modmendeley', 'delete document', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
                     redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
                     break;
                 case 'savefolder':
                     $fields = array('name'=>$_POST['collection_name'], 'description'=>$_POST['collection_description']);
                     $folder_id = postLibraryValue('POST', $user, '/library/folders', array('folder' => json_encode($fields)));
                     if($folder_id != null){
+                        add_to_log($course->id, 'modmendeley', 'add folder', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
                         redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
                     }
                     break;
                 case 'deletefolder':
                     deleteLibraryValue('DELETE', $user, '/library/folders/'.$element_id, array());
+                    add_to_log($course->id, 'modmendeley', 'delete folder', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
                     redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
                     break;
                 case 'deletegroup':
                     deleteLibraryValue('DELETE', $user, '/library/groups/'.$element_id, array());
+                    add_to_log($course->id, 'modmendeley', 'delete group', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
                     redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
                     break;
                 case 'deletedocumentfolder':
@@ -134,6 +140,7 @@ if (!$modmendeley->user_id) {
                     foreach($documents_id as $doc_id){
                         deleteLibraryValue('DELETE', $user, '/library/folders/'.$element_id.'/'.$doc_id, array());
                     }
+                    add_to_log($course->id, 'modmendeley', 'delete document from folder', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
                     redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
                     break;
                 default:
@@ -170,6 +177,7 @@ if (!$modmendeley->user_id) {
                     }
                     $documents = getLibraryValue('GET', $user, $data_documents['uri'], $params);
                     $redirect_data = "id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey();
+                    add_to_log($course->id, 'modmendeley', 'view library', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
                     include($CFG->dirroot.'/mod/modmendeley/my_library.php');
                     break;
             }
@@ -190,6 +198,7 @@ if (!$modmendeley->user_id) {
                 $show_stats = true;
                 include($CFG->dirroot.'/mod/modmendeley/paper.php');
             }
+            add_to_log($course->id, 'modmendeley', 'view paper', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
             break;
         case 'group':
             if ($action == 'add'){
@@ -198,6 +207,7 @@ if (!$modmendeley->user_id) {
                 $fields = array('name'=>$_POST['name'], 'type'=>$_POST['privacy-state']);
                 $group_id = postLibraryValue('POST', $user, '/library/groups', array('group' => json_encode($fields)));
                 if($group_id != null){
+                    add_to_log($course->id, 'modmendeley', 'add group', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
                     redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=group&amp;sesskey=" . sesskey());
                 }
             }else {
@@ -215,6 +225,7 @@ if (!$modmendeley->user_id) {
                 $show_stats = true;
                 $categories = getPublicMethods('GET', $user, rtrim($user->url,'/').'/documents/categories', $params);
                 include($CFG->dirroot.'/mod/modmendeley/group.php');
+                add_to_log($course->id, 'modmendeley', 'view group', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
             }
             break;
         case 'people':
@@ -234,6 +245,7 @@ if (!$modmendeley->user_id) {
                 default:
                     break;
             }
+            add_to_log($course->id, 'modmendeley', 'view people', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
             break;
         case 'stats':
             if($action == 'library'){
@@ -254,10 +266,12 @@ if (!$modmendeley->user_id) {
                 $publications_discipline = getPublicMethods('GET', $user, rtrim($user->url,'/').'/stats/publications', $params);
                 include($CFG->dirroot.'/mod/modmendeley/stats.php');
             }
+            add_to_log($course->id, 'modmendeley', 'view stats', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
             break;
         default :
             break;
         }
+        //add_to_log($course->id, 'modmendeley', 'view', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
     }else{
         ?>
         <script>
