@@ -56,6 +56,8 @@ $post_content = optional_param('post_content', '', PARAM_TEXT); // Post ID to ge
 $post_type = optional_param('post_type', '', PARAM_TEXT); // Post ID to get comments
 $post_ID = optional_param('post_ID', 0, PARAM_INT);
 
+$context = get_context_instance(CONTEXT_MODULE, $id);
+var_dump(has_capability('mod/modwordpress:moderate', $context));
 if ($id) {
     $cm = get_coursemodule_from_id('modwordpress', $id, 0, false, MUST_EXIST);
     $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
@@ -423,7 +425,11 @@ if (!$modwordpress->server_id) {
 	    echo "	<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
 	    echo "	</div>";
 	    echo "</div>";
-	    if (isset($wp_users[$comment->comment_author])) {
+	    if (has_capability('mod/modwordpress:moderate', $context)) {
+		echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a>";
+		echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_comment=$comment->comment_ID&amp;comment_post_ID=$json->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_comment", "modwordpress") . "</a>";
+		echo "<br/><br/>";
+	    } else if (isset($wp_users[$comment->comment_author])) {
 	        if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_edit_comment) {
 		echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a>";
 	        }
@@ -486,7 +492,10 @@ if (!$modwordpress->server_id) {
 	        echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
 	        echo "</div>";
 	        echo "</div>";
-	        if (isset($wp_users[$comment->comment_author])) {
+	        if (has_capability('mod/modwordpress:moderate', $context)) {
+		    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a><br/><br/>";
+		    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_comment", "modwordpress") . "</a><br/><br/>";
+	        } else if (isset($wp_users[$comment->comment_author])) {
 		if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_edit_comment) {
 		    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a><br/><br/>";
 		}
@@ -528,7 +537,11 @@ if (!$modwordpress->server_id) {
 	echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $post->post_author</p>";
 	echo $post->post_content;
         }
-	if (isset($wp_users[$post->post_author])) {
+	if (has_capability('mod/modwordpress:moderate', $context)) {
+	    echo "<br/><br/>";
+	    echo " <a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_page=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_page", "modwordpress") . "</a>";
+	    echo " | <a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_page=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_page", "modwordpress") . "</a>";
+	} else if (isset($wp_users[$post->post_author])) {
 	    echo "<br/><br/>";
 	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_edit_post) {
 	        echo " <a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_page=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_page", "modwordpress") . "</a>";
@@ -885,12 +898,19 @@ if (!$modwordpress->server_id) {
 	    echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a>";
 	}
 
-
+	var_dump("$post->post_author");
+	var_dump($USER);
+	var_dump('$wp_users[$post->post_author]?');
 	if (isset($wp_users[$post->post_author])) {
+	    var_dump($wp_users[$post->post_author]->moodle_id);
+	    var_dump($USER->id);
+	    var_dump($modwordpress->permission_edit_post);
+	    var_dump($modwordpress->permission_delete_post);
 	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_edit_post) {
 	        echo " | ";
 	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_post", "modwordpress") . "</a>";
 	    }
+
 	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post) {
 	        echo " | ";
 	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_post", "modwordpress") . "</a>";
