@@ -29,6 +29,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+
+if (!function_exists('implode_assoc')) {
 /**
  * Joins key:value pairs by inner_glue and each pair together by outer_glue
  * @param string $inner_glue The HTTP method (GET, POST, PUT, DELETE)
@@ -44,6 +46,10 @@ function implode_assoc($inner_glue, $outer_glue, $array) {
   return implode($outer_glue, $output);
 }
 
+}
+
+
+if (!function_exists('explode_assoc')) {
 /**
  * Split key:value pairs by inner_glue and each pair by outer_glue from a string
  * @param string $inner_glue The HTTP method (GET, POST, PUT, DELETE)
@@ -59,7 +65,7 @@ function explode_assoc($inner_glue, $outer_glue, $string) {
     }
     return $data;
 }
-
+}
 /**
  * Get user specific methods
  * @param <object> $user user information
@@ -136,7 +142,7 @@ function deleteLibraryValue($method, $user, $uri, $post_data){
  * @return <array> An array with the result of the response
  */
 function getPublicMethods($method, $user, $url, $params){
-    $basefeed = rtrim($user->url,'/').$uri;
+    //$basefeed = rtrim($user->url,'/').$uri;
     if ($method == 'GET'){
         $response = modmendeley_send_request($method, $url, null, null, $params);
     }

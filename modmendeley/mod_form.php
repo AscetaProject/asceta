@@ -30,7 +30,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
-require_once('locallib.php');
+require_once("locallib.php");
 
 class mod_modmendeley_mod_form extends moodleform_mod {
 
@@ -79,8 +79,8 @@ class mod_modmendeley_mod_form extends moodleform_mod {
         $mform->addElement('select', 'private', get_string('access', 'modmendeley'), array(get_string('access_public','modmendeley'),get_string('access_private','modmendeley')));
 
         $mform->disabledIf('private', 'user_id', 'eq', 0);
-        $user = $mform->getElement('user_id');
-        $value = getLibraryValue($user, 'folders');
+        //$user = $mform->getElement('user_id');
+        //$value = getLibraryValue('GET',$user, 'folders');
 
         $mform->addElement('header', 'modmendeleyfieldset', get_string('permission', 'modmendeley'));
         $mform->addElement('checkbox', 'permission_create_document', get_string('new_document','modmendeley'));
