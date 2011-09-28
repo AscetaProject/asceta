@@ -26,7 +26,7 @@ function checkActivityPermission(){
     if(new_folder == '0') document.getElementById('toolbar-create-collection').classList.add('disabled-icon');
     if(delete_folder == '0') document.getElementById('toolbar-remove-folder').classList.add('disabled-icon');
     if(add_doc_folder == '0'){
-        if (element_selected != 'folder_profile_all'){
+        if (element_selected != 'folder-profile-all'){
             document.getElementById('toolbar-add-document').classList.add('disabled-icon');
         }
         if (document.getElementById('add-to-group-select') != null)
@@ -47,7 +47,7 @@ echo "              <div onclick='window.location=\"view.php?id=$cm->id&amp;opti
 echo "                  <img src='https://www.mendeley.com/graphics/32x32-icons/document-new_2429099784913441.png' alt='Add Document' width='32' height='32'><br>\n";
 echo "                  <span>Add<br>Document</span>\n";
 echo "              </div>\n";
-echo "              <div onclick='Mendeley.Publication.clickedIcon(this);' class='library-toolbar-icon disabled-icon' id='toolbar-empty-trash' style='display: none; '>\n";
+echo "              <div onclick='' class='library-toolbar-icon disabled-icon' id='toolbar-empty-trash' style='display: none; '>\n";
 echo "                  <img src='https://www.mendeley.com/graphics/32x32-icons/empty-trash_1897675351204627.png' alt='Empty Trash' width='32' height='32'><br>\n";
 echo "                  <span>Empty<br>Trash</span>\n";
 echo "              </div>\n";
@@ -55,7 +55,7 @@ echo "              <div onclick='if(this.classList.length < 2){ window.location
 echo "  		<img src='https://www.mendeley.com/graphics/32x32-icons/document-remove_7943009072385789.png' alt='Delete Documents' width='32' height='32'><br>\n";
 echo "  		<span>Delete<br>Documents</span>\n";
 echo "              </div>\n";
-echo "              <div onclick='Mendeley.Publication.clickedIcon(this);' class='library-toolbar-icon' id='toolbar-restore-document' style='display: none; '>\n";
+echo "              <div onclick='' class='library-toolbar-icon' id='toolbar-restore-document' style='display: none; '>\n";
 echo "  		<img src='https://www.mendeley.com/graphics/32x32-icons/document-restore_1500467146515178.png' alt='Restore Documents' width='32' height='32'><br>\n";
 echo "  		<span>Restore<br>Documents</span>\n";
 echo "              </div>\n";
@@ -79,7 +79,7 @@ echo "              <div onclick='if(this.classList.length < 2){ window.location
 echo "                      <img src='https://www.mendeley.com/graphics/32x32-icons/group-remove_2868771543177372.png' alt='Remove Collection' width='32' height='32'><br>\n";
 echo "                      <span>Remove<br>Group</span>\n";
 echo "              </div>\n";
-echo "              <div onclick='Mendeley.Publication.clickedIcon(this);' class='library-toolbar-icon' id='toolbar-unfollow-group' style='display: none; '>\n";
+echo "              <div onclick='' class='library-toolbar-icon' id='toolbar-unfollow-group' style='display: none; '>\n";
 echo "                      <img src='https://www.mendeley.com/graphics/32x32-icons/group-unfollow_2388632288751457.png' alt='Remove Collection' width='32' height='32'><br>\n";
 echo "                      <span>Unfollow<br>Group</span>\n";
 echo "              </div>\n";
@@ -91,8 +91,8 @@ echo "              <div onclick='window.open(\"http://www.mendeley.com/library/
 echo "                      <img src='https://www.mendeley.com/graphics/32x32-icons/document-account-usage_2740011126369223.png' alt='Account Usage' width='32' height='32'><br>\n";
 echo "                      <span>Account<br>Usage</span>\n";
 echo "              </div>\n";
-echo "              <div class='library-search'>\n";
-echo "                  <form onsubmit='Mendeley.Publication.findDocuments($('#librarySearchQuery').val()); Mendeley.Publication.resetFilterItemsSelection(); return false;'>\n";
+echo "              <div class='library-search' style='display:none'>\n";
+echo "                  <form onsubmit=''>\n";
 echo "                  <input id='librarySearchQuery'>\n";
 echo "                  <input type='submit' value='Search'>\n";
 echo "                  </form>\n";
@@ -109,19 +109,19 @@ echo "              <div id='library-profile-menu'>\n";
 echo "                  <div id='folder-profile-all' class='library-group folder-all-documents' onclick='checkMenuClicked(this);selectMenuOption(this);window.location=\"view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=\"+this.id+\"&amp;sesskey=" . sesskey()."\"';>\n";
 echo "                      <img src='http://www.mendeley.com/graphics/common/folder-all-documents_1437443173056970.png' alt='All Documents' height='16' width='16' class='folder-icon'><span class='folder-name'>All Documents</span>\n";
 echo "                  </div>\n";
-/*echo "                  <div id='folder-profile-recent' class='library-group folder-recently-added' onclick='Mendeley.Publication.clickedCollection(this, true);'>\n";
+/*echo "                  <div id='folder-profile-recent' class='library-group folder-recently-added' onclick=''>\n";
 echo "                      <img src='https://www.mendeley.com/graphics/common/folder-recently-added_8401285208557136.png' alt='Recently Added' height='16' width='16' class='folder-icon'><span class='folder-name'>Recently Added</span>\n";
 echo "                  </div>\n";
-echo "                  <div id='folder-profile-starred' class='library-group folder-starred' onclick='Mendeley.Publication.clickedCollection(this, true);'>\n";
+echo "                  <div id='folder-profile-starred' class='library-group folder-starred' onclick=''>\n";
 echo "                      <img src='https://www.mendeley.com/graphics/common/star-filled_1001750051244996.png' alt='Favorites' height='16' width='16' class='folder-icon'><span class='folder-name'>Favorites</span>\n";
 echo "                  </div>\n";
-echo "                  <div id='folder-profile-unconfirmed' class='library-group folder-unconfirmed' onclick='Mendeley.Publication.clickedCollection(this, true);'>\n";
+echo "                  <div id='folder-profile-unconfirmed' class='library-group folder-unconfirmed' onclick=''>\n";
 echo "                      <img src='https://www.mendeley.com/graphics/common/confirm-metadata_1937381403660675.png' alt='Needs Review' height='16' width='16' class='folder-icon'><span class='folder-name'>Needs Review</span>\n";
 echo "                  </div>\n";*/
 echo "                  <div id='folder-profile-authored' class='library-group folder-my-publications' onclick='checkMenuClicked(this);selectMenuOption(this);window.location=\"view.php?id=$cm->id&amp;option=library&amp;action=publications&amp;element_selected=\"+this.id+\"&amp;sesskey=" . sesskey()."\"'>\n";
 echo "                      <img src='http://www.mendeley.com/graphics/common/folder-my-publications_1484555991348322.png' alt='My Publications' height='16' width='16' class='folder-icon'><span class='folder-name'>My Publications</span>\n";
 echo "                  </div>\n";
-/*echo "                  <div id='folder-profile-ungrouped' class='library-group folder-ungrouped' onclick='Mendeley.Publication.clickedCollection(this, true);'>\n";
+/*echo "                  <div id='folder-profile-ungrouped' class='library-group folder-ungrouped' onclick=''>\n";
 echo "                      <img src='https://www.mendeley.com/graphics/common/folder-ungrouped_3676601721788085.png' alt='Unsorted' height='16' width='16' class='folder-icon'><span class='folder-name'>Unsorted</span>\n";
 echo "                  </div>\n";*/
 foreach($folders as $folder){
@@ -134,7 +134,7 @@ echo "              <br>\n";
 echo "              <h4>Groups</h4>\n";
 echo "              <div id='library-group-menu'>\n";
 if(empty($groups)){
-echo "                  <span class='text-minor'>No groups yet. <br>Find new <a href='/groups/'>groups</a>.</span>\n";
+    echo "                  <span class='text-minor'>No groups yet. <br>Find new <a href='/groups/'>groups</a>.</span>\n";
 }else{
     foreach($groups as $group){
         echo "<div id='folder-group-".$group->id."' class='library-group' onclick='checkMenuClicked(this);selectMenuOption(this);window.location=\"view.php?id=$cm->id&amp;option=library&amp;action=groups&amp;element_selected=\"+this.id+\"&amp;element_id=$group->id&amp;element_name=$group->name&amp;sesskey=" . sesskey()."\"'>";
@@ -149,7 +149,7 @@ echo "              </div>\n";
 echo "              <br>\n";
 /*echo "              <h4>Trash</h4>\n";
 echo "              <div id='library-trash-menu'>\n";
-echo "              	<div id='folder-trash-all' class='library-group' onclick='Mendeley.Publication.clickedCollection(this, true);'>\n";
+echo "              	<div id='folder-trash-all' class='library-group' onclick=''>\n";
 echo "              	<img src='https://www.mendeley.com/graphics/common/trash_1070133639986312.png' alt='Trash Collection' height='16' width='16' class='folder-icon'><span class='folder-name'>All Deleted Documents</span>\n";
 echo "              </div>\n";
 echo "          </div>\n";
@@ -157,13 +157,13 @@ echo "          <br>\n";
 echo "          <div id='filters-and-tags'>\n";
 echo "          <h4>Filter Selected Collection</h4>\n";
 echo "          <div id='library-filters'>\n";
-echo "              <select id='filter-type-list' onchange='Mendeley.Publication.refreshFilterItems(true); Mendeley.Publication.removeFilter();'>\n";
+echo "              <select id='filter-type-list' onchange=''>\n";
 echo "                  <option value='publication' selected='selected'>by Publications</option>\n";
 echo "                  <option value='keyword'>by Author's Keywords</option>\n";
 echo "                  <option value='author'>by Authors</option>\n";
 echo "                  <option value='tag'>by My Tags</option>\n";
 echo "              </select>\n";
-echo "              <select id='filter-item-list' multiple='multiple' onchange='Mendeley.Publication.filterSelectionChanged(); Mendeley.Publication.clearSearchBox();'>\n";
+echo "              <select id='filter-item-list' multiple='multiple' onchange=''>\n";
 echo "                  <option value='##all##' selected='selected'>All</option>\n";
 echo "                  <option value='Advanced Materials'>Advanced Materials</option>\n";
 echo "                  <option value='Computer Networks'>Computer Networks</option>\n";
@@ -180,8 +180,8 @@ echo "           <br>\n";
 echo "           <h3 style='margin-bottom: 5px; padding-bottom: 0;'>Tags</h3>\n";
 echo "           <h4 class='underlined'>My Library</h4>\n";
 echo "           <div id='library-tag-cloud'>\n";
-echo "               <span id='tag-profile-0' class='tag-cloud-item tag-cloud-item-0' onclick='Mendeley.Publication.getDocumentsByTag(&quot;profile&quot;, &quot;Java&quot;, 0);'>&nbsp;Java&nbsp;</span>\n";
-echo "               <span id='tag-profile-1' class='tag-cloud-item tag-cloud-item-0' onclick='Mendeley.Publication.getDocumentsByTag(&quot;profile&quot;, &quot;Programacion&quot;, 0);'>&nbsp;Programacion&nbsp;</span>\n";
+echo "               <span id='tag-profile-0' class='tag-cloud-item tag-cloud-item-0' onclick=''>&nbsp;Java&nbsp;</span>\n";
+echo "               <span id='tag-profile-1' class='tag-cloud-item tag-cloud-item-0' onclick=''>&nbsp;Programacion&nbsp;</span>\n";
 echo "           </div>\n";
 echo "           <br>\n";
 echo "           <h4 class='underlined'>Groups</h4>\n";
@@ -193,17 +193,22 @@ echo "      </div>\n";*/
 echo "</td><td style='width:45%; vertical-align:top; padding:15px;'>\n"; //TABLE
 //VIEW WITH ALL ACTIONS
 switch ($action){
+    case 'folders':
+        $data_documents['title'] = $documents->folder_name;
+        include($CFG->dirroot.'/mod/modmendeley/library_documents.php');
+        break;
+    case 'groups':
+        $data_documents['title'] = $documents->group_name;
+        include($CFG->dirroot.'/mod/modmendeley/library_documents.php');
+        break;
     case 'documents':
     case 'publications':
-    case 'folders':
-    case 'groups':
         include($CFG->dirroot.'/mod/modmendeley/library_documents.php');
         break;
     case 'add':
         include($CFG->dirroot.'/mod/modmendeley/add_document.php');
         break;
     case 'dialog':
-        $show = false;
         switch ($type){
             case 'document':
                 $data_documents['title'] = 'Delete Document';
@@ -230,7 +235,7 @@ switch ($action){
                 $data_documents['button_text'] = 'Delete forever';
                 break;
         }
-        if($show) include($CFG->dirroot.'/mod/modmendeley/delete_dialog.php');
+        include($CFG->dirroot.'/mod/modmendeley/delete_dialog.php');
         break;
     case 'adddialog':
         include($CFG->dirroot.'/mod/modmendeley/add_dialog.php');

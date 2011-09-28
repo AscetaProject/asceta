@@ -282,7 +282,9 @@ function modmendeley_send_request($http_method, $url, $auth_header=null, $postDa
       }
       break;
     case 'POST':
-      curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
+      if($auth_header){
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
+      }
       curl_setopt($curl, CURLOPT_POST, 1);
       curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
       break;

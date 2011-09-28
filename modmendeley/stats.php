@@ -46,7 +46,7 @@ echo "                  </tbody>";
 echo "              </table>";
 echo "  	</div>";
 echo "          <div class='right stats-right'>";
-echo "              <div class='stats-subtitle'>Most read articles in <a href='http://www.mendeley.com/computer-and-information-science/'>Computer and Information Science</a></div>";
+echo "              <div class='stats-subtitle'>Most read articles in <a href='http://www.mendeley.com/computer-and-information-science/' target='_blank'>Computer and Information Science</a></div>";
 echo "              <br><table class='stats-table'>";
 echo "                  <tbody>";
 $c = 0;

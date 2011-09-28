@@ -50,7 +50,7 @@ class mod_modmendeley_renderer extends plugin_renderer_base {
         $this->page->set_heading($this->page->course->fullname);
         $output = $this->output->header();
 
-        if (has_capability('mod/modmendley:manage', $context)) {
+        if (has_capability('mod/modmendeley:manage', $context)) {
             $output .= $this->output->heading_with_help($activityname, 'overview', 'modmendeley');
             if (!empty($currenttab)) {
                 ob_start();

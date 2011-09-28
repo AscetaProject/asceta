@@ -49,6 +49,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
+    'mod/modmendeley:manage' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'legacy' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW
+        )
+    )
 
 /***************************** remove these comment marks and modify the code as needed
     'mod/modmendeley:view' => array(

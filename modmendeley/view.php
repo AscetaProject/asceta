@@ -41,7 +41,7 @@ $search_data = optional_param('search_data', '', PARAM_ALPHA); //contain search 
 $page = optional_param('page', 0, PARAM_INT); // pagination number
 $document_id = optional_param('document_id', 0, PARAM_INT); //element id
 $element_id = optional_param('element_id', 0, PARAM_INT); //element id
-$element_name = optional_param('element_name', '', PARAM_ALPHANUM); // folder_name or group_name
+$element_name = optional_param('element_name', '', PARAM_ALPHANUMEXT); // folder_name or group_name
 $element_selected = optional_param('element_selected', '', PARAM_ALPHANUMEXT); // folder or group value selected
 
 if ($id) {
@@ -79,7 +79,8 @@ if (!$modmendeley->user_id) {
    echo $OUTPUT->heading(get_string("configure_user_url","modmendeley"));
 } else {
     echo $modmendeleyoutput->header($modmendeley, $cm, $option, $extraeditbuttons);
-    if(checkActivityPermission ($modmendeley, $option, $action, $type) || true){
+    if(checkActivityPermission ($modmendeley, $option, $action, $type)){
+        $params = array();
         switch ($option){
             case 'library':
                 switch ($action){
@@ -112,10 +113,11 @@ if (!$modmendeley->user_id) {
                 case 'deletedocument':
                     $documents_id = explode(",", $_GET['documents_id']);
                     foreach($documents_id as $doc_id){
-                        deleteLibraryValue('DELETE', $user, '/library/documents/'.$doc_id, array());
+                        deleteDocuments($doc_id, $user);
+                        //deleteLibraryValue('DELETE', $user, '/library/documents/'.$doc_id, array());
                     }
                     add_to_log($course->id, 'modmendeley', 'delete document', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
-                    redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey());
+                    redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=folder-profile-all&amp;sesskey=" . sesskey());
                     break;
                 case 'savefolder':
                     $fields = array('name'=>$_POST['collection_name'], 'description'=>$_POST['collection_description']);
@@ -173,7 +175,11 @@ if (!$modmendeley->user_id) {
                         $data_documents['image'] = 'http://www.mendeley.com/graphics/common/group_2834463714580773.png';
                         $data_documents['title'] = $element_name;
                         $data_documents['menu'] = 'folder-group-'.$element_id;
-
+                    }else{
+                        $data_documents['uri'] = '';
+                        $data_documents['image'] = '';
+                        $data_documents['title'] = '';
+                        $data_documents['menu'] = '';
                     }
                     $documents = getLibraryValue('GET', $user, $data_documents['uri'], $params);
                     $redirect_data = "id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=$element_selected&amp;sesskey=" . sesskey();
@@ -184,6 +190,7 @@ if (!$modmendeley->user_id) {
             break;
         case 'paper':
             $params['consumer_key'] = $user->consumer_key;
+            $attributes = '';
             if ($action == 'search'){
                 include($CFG->dirroot.'/mod/modmendeley/search.php');
             } else if ($action == 'searching'){
@@ -285,5 +292,7 @@ echo $OUTPUT->footer();
  ?>
 
 <script>
-    selectMenuOption(document.getElementById('<?php echo $element_selected ?>'));
+    if(typeof(selectMenuOption) == 'function'){
+        selectMenuOption(document.getElementById('<?php echo $element_selected ?>'));
+    }
 </script>

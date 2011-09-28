@@ -23,7 +23,7 @@ echo "      <div class='specific-search'>";
 echo "          <div class='search'>";
 echo "              <form action='view.php' method='GET' onsubmit=''> ";
 echo "                  <div class='search-box'> ";
-$search_value = ($attributes) ? str_replace('&', ' ', $attributes) : 'Search papers...';
+$search_value = ($attributes != '') ? str_replace('&', ' ', $attributes) : 'Search papers...';
 echo "                      <input type='text' name='query' value='$search_value' > ";
 echo "                      <input type='hidden' class='search-label' value='research-papers'> ";
 echo "                  </div> ";
@@ -121,7 +121,7 @@ $count = 1;
 foreach ($publications as $publication){
     echo "      <tr>";
     echo "          <td class='stats-position'><span>$count</span></td>";
-    echo "          <td class='stats-name'><a href='http://www.mendeley.com/research-papers/search?query=published_in:%22$publication->name%22' rel='nofollow'>$publication->name</a></td>";
+    echo "          <td class='stats-name'><a href='http://www.mendeley.com/research-papers/search?query=published_in:%22$publication->name%22' target='_blank' rel='nofollow'>$publication->name</a></td>";
     echo "          <td class='stats-count'>".number_format($publication->value)."<span class='plain'> readers</span></td>";
     echo "      </tr>";
     $count += 1;

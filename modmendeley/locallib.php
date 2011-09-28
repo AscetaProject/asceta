@@ -376,3 +376,38 @@ function checkActivityPermission($modmendeley, $option, $action, $type){
     }
     return $show;
 }
+
+function documentIsInFolder($document, $user){
+    $folders = getLibraryValue('GET', $user, '/library/folders/');
+    foreach ($folders as $folder){
+        $folder_detail = getLibraryValue('GET', $user, '/library/folders/'.$folder->id);
+        foreach($folder_detail->document_ids as $doc_id){
+            if($doc_id == $document){
+                return $folder->id;
+            }
+        }
+    }
+    return null;
+}
+
+function documentIsInGroup($document, $user){
+    $groups = getLibraryValue('GET', $user, '/library/groups/');
+    foreach ($groups as $group){
+        $group_detail = getLibraryValue('GET', $user, '/library/groups/'.$group->id);
+        foreach($group_detail->document_ids as $doc_id){
+            if($doc_id == $document){
+                return $group->id;
+            }
+        }
+    }
+    return null;
+}
+
+function deleteDocuments($document, $user){
+    if(($folder_id = documentIsInFolder($document, $user)) != null){
+        deleteLibraryValue('DELETE', $user, '/library/folders/'.$folder_id.'/'.$document, array());
+    }else if(($group_id = documentIsInGroup($document, $user)) != null){
+        deleteLibraryValue('DELETE', $user, '/library/groups/'.$group_id.'/'.$document, array());
+    }
+    deleteLibraryValue('DELETE', $user, '/library/documents/'.$document, array());
+}

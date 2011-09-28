@@ -52,11 +52,11 @@ foreach($contacts as $contact){
     echo "                            </div>";
     echo "                            <div class='member-location'>$contact_info->location</div>";
     echo "                            <div class='member-discipline-key member-field-key'>Discipline:&nbsp;</div>";
-    echo "                            <div class='member-discipline-value member-field-value'><a href='/".str_replace(" ", "-", $contact_info->discipline_name)."/'>$contact_info->discipline_name</a></div>";
+    echo "                            <div class='member-discipline-value member-field-value'><a href='http://www.mendeley.com/".str_replace(" ", "-", strtolower($contact_info->discipline_name))."/' target='_blank'>$contact_info->discipline_name</a></div>";
     echo "                            <div class='member-contact-count'><a href='".$contact_info->url."contacts/' target='_blank'>contacts</a></div>";
     echo "                            <div class='member-actions'>";
     echo "                                <div class='send-message' style='visibility:hidden'>";
-    echo "                                    <a href='#' onclick='Mendeley.Profile.Contacts.write('juan-manuel-dodero');return false;'>";
+    echo "                                    <a href='#' onclick=''>";
     echo "                                        <span class='send-message-text'>Send message</span>";
     echo "                                    </a>";
     echo "                                </div>";
