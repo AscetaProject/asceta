@@ -82,4 +82,5 @@ $string['librarytb'] = "My Library";
 $string['papertb'] = "Papers";
 $string['grouptb'] =  "Groups";
 $string['peopletb'] = "People";
+$string['principal_tab'] = "Principal tab";
 

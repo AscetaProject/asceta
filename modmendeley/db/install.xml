@@ -22,7 +22,8 @@
         <FIELD NAME="permission_new_folder" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_delete_document" NEXT="permission_delete_folder"/>
         <FIELD NAME="permission_delete_folder" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_new_folder" NEXT="permission_new_group"/>
         <FIELD NAME="permission_new_group" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_delete_folder" NEXT="permission_delete_group"/>
-        <FIELD NAME="permission_delete_group" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_new_group"/>
+        <FIELD NAME="permission_delete_group" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" PREVIOUS="permission_new_group" NEXT="principal_tab"/>
+        <FIELD NAME="principal_tab" TYPE="int" LENGTH="10" NOTNULL="false" UNSIGNED="true" SEQUENCE="false" COMMENT="Specify the prinpal tb to load the activity" PREVIOUS="permission_delete_group"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id" NEXT="url"/>

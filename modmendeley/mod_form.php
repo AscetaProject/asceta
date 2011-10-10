@@ -75,8 +75,11 @@ class mod_modmendeley_mod_form extends moodleform_mod {
         }
         }
 
+        $principal_tab_options = array('My Library', 'Paper', 'Group', 'People');
+
         $mform->addElement('select', 'user_id', get_string('available_users', 'modmendeley'), $options);
         $mform->addElement('select', 'private', get_string('access', 'modmendeley'), array(get_string('access_public','modmendeley'),get_string('access_private','modmendeley')));
+        $mform->addElement('select', 'principal_tab', get_string('principal_tab', 'modmendeley'), $principal_tab_options);
 
         $mform->disabledIf('private', 'user_id', 'eq', 0);
         //$user = $mform->getElement('user_id');

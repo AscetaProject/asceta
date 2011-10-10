@@ -71,7 +71,8 @@ $PAGE->set_button(update_module_button($cm->id, $course->id, get_string('modulen
 
 $modmendeleyoutput = $PAGE->get_renderer('mod_modmendeley');
 
-$option = ($option) ? $option : 'paper';
+
+$option = ($option) ? $option : getTabs($modmendeley->principal_tab);
 $extraeditbuttons = true;
 
 
@@ -250,6 +251,8 @@ if (!$modmendeley->user_id) {
                     include($CFG->dirroot.'/mod/modmendeley/profile.php');
                     break;
                 default:
+                    $profile_info = getLibraryValue('GET', $user, '/profiles/info/me');
+                    include($CFG->dirroot.'/mod/modmendeley/profile.php');
                     break;
             }
             add_to_log($course->id, 'modmendeley', 'view people', "view.php?id=$cm->id", $modmendeley->name, $cm->id);

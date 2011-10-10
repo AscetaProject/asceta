@@ -353,6 +353,35 @@ if ($oldversion < 2011072502) {
         upgrade_mod_savepoint(true, 2011091903, 'modmendeley');
     }
 
+    if ($oldversion < 2011101002) {
+
+        // Define field principal_tab to be added to modmendeley
+        $table = new xmldb_table('modmendeley');
+        $field = new xmldb_field('principal_tab', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'permission_delete_group');
+
+        // Conditionally launch add field principal_tab
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // modmendeley savepoint reached
+        upgrade_mod_savepoint(true, 2011101002, 'modmendeley');
+    }
+
+    if ($oldversion < 2011101004) {
+
+        // Changing type of field principal_tab on table modmendeley to int
+        $table = new xmldb_table('modmendeley');
+        $field = new xmldb_field('principal_tab', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_delete_group');
+
+        // Launch change of type for field principal_tab
+        $dbman->change_field_type($table, $field);
+
+        // modmendeley savepoint reached
+        upgrade_mod_savepoint(true, 2011101004, 'modmendeley');
+    }
+
+
 
     return true;
 }

@@ -411,3 +411,24 @@ function deleteDocuments($document, $user){
     }
     deleteLibraryValue('DELETE', $user, '/library/documents/'.$document, array());
 }
+
+
+function getTabs($value){
+    switch ($value){
+        case '0':
+            return 'library';
+            break;
+        case '1':
+            return 'paper';
+            break;
+        case '2':
+            return 'group';
+            break;
+        case '3':
+            return 'people';
+            break;
+        default:
+            return 'paper';
+            break;
+    }
+}
