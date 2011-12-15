@@ -21,7 +21,7 @@
  * It is not really essential to know about it, but these logs were created as example
  * in the previous 1.9 NEWMODULE.
  *
- * @package   mod_modwordpress
+ * @package   mod_modredmine
  * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -31,8 +31,8 @@ defined('MOODLE_INTERNAL') || die();
 global $DB;
 
 $logs = array(
-    array('module'=>'modwordpress', 'action'=>'add', 'mtable'=>'modwordpress', 'field'=>'name'),
-    array('module'=>'modwordpress', 'action'=>'update', 'mtable'=>'modwordpress', 'field'=>'name'),
-    array('module'=>'modwordpress', 'action'=>'view', 'mtable'=>'modwordpress', 'field'=>'name'),
-    array('module'=>'modwordpress', 'action'=>'view all', 'mtable'=>'modwordpress', 'field'=>'name')
+    array('module'=>'modredmine', 'action'=>'add', 'mtable'=>'modredmine', 'field'=>'name'),
+    array('module'=>'modredmine', 'action'=>'update', 'mtable'=>'modredmine', 'field'=>'name'),
+    array('module'=>'modredmine', 'action'=>'view', 'mtable'=>'modredmine', 'field'=>'name'),
+    array('module'=>'modredmine', 'action'=>'view all', 'mtable'=>'modredmine', 'field'=>'name')
 );

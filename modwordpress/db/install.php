@@ -27,7 +27,7 @@
 /**
  * Post installation procedure
  */
-function xmldb_modwordpress_install() {
+function xmldb_modredmine_install() {
 
     /// insert here code to perform some actions
     

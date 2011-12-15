@@ -17,22 +17,24 @@
 
 
 /**
- * Library of interface functions and constants for module modwordpress
+ * Library of interface functions and constants for module modredmine
  *
  * All the core Moodle functions, neeeded to allow the module to work
  * integrated in Moodle should be placed here.
- * All the modwordpress specific functions, needed to implement all the module
+ * All the modredmine specific functions, needed to implement all the module
  * logic, should go to locallib.php. This will help to save some memory when
  * Moodle is performing actions across all modules.
  *
- * @package   mod_modwordpress
+ * @package   mod_modredmine
  * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
-if (!function_exists('implode_assoc')) require_once("locallib.php");
-if (!class_exists('OAuthConsumer')) require_once("OAuth.php");
+require_once(dirname(__FILE__) . '/locallib.php');
+
+
+
 
 /** example constant */
 //define('NEWMODULE_ULTIMATE_ANSWER', 42);
@@ -51,69 +53,94 @@ if (!class_exists('OAuthConsumer')) require_once("OAuth.php");
  * will create a new instance and return the id number
  * of the new instance.
  *
- * @param object $modwordpress An object from the form in mod_form.php
- * @return int The id of the newly inserted modwordpress record
+ * @param object $modredmine An object from the form in mod_form.php
+ * @return int The id of the newly inserted modredmine record
  */
-function modwordpress_add_instance($modwordpress) {
-    global $DB;
+function modredmine_add_instance($modredmine) {
+  global $DB;
+  error_log("[ERROR REDMINE] ");
 
-    $modwordpress->timecreated = time();
+  $modredmine->timecreated = time();
 
-    # You may have to add extra stuff in here #
-    $newmod = $DB->insert_record('modwordpress', $modwordpress);
+  # You may have to add extra stuff in here #
+  $newmod = $DB->insert_record('modredmine', $modredmine);
+  error_log('modredmine_add_instance');
 
-    if ($newmod) {
+  if ($newmod) {
 
-        //Adding Moodle users to wordpress
-        $modwordpress_instance = $DB->get_record_select("modwordpress", "id=$newmod");
-        $course_id = $modwordpress_instance->course;
-        $server_id = $modwordpress_instance->server_id;
-        $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
-        var_dump($server);
+    //Adding Moodle users to redmine
+    $modredmine_instance = $DB->get_record_select("modredmine", "id=$newmod");
+    $course_id = $modredmine_instance->course;
+    $server_id = $modredmine_instance->server_id;
+    $server = $DB->get_record_select("modredmine_servers", "id=$server_id");
 
-        if ($server->oauth) {
-	$consumer_key = $server->consumer_key;
-	$consumer_secret = $server->consumer_secret;
-	$access_token = $server->access_token;
-	$access_secret = $server->access_secret;
-	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	$token = new OAuthToken($access_token, $access_secret, NULL);
-        }
-
-        $context = get_context_instance(CONTEXT_COURSE, $course_id);
-        $contextlists = get_related_contexts_string($context);
-
-        $sql = "SELECT u.id, u.username, u.firstname, u.email
-	      FROM {user} u
-	      JOIN {role_assignments} ra ON ra.userid = u.id
-	     WHERE u.deleted = 0 AND u.confirmed = 1 AND ra.contextid $contextlists";
-        error_log($sql);
-        $course_users = $DB->get_records_sql($sql);
-
-        foreach ($course_users as $user) {
-	$basefeed = rtrim($server->url, '/') . '/user.json';
-	$params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
-
-	if ($server->oauth) {
-	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
-	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-	} else {
-	    $response = send_request('POST', $basefeed, null, $params);
-	}
-
-	$json = json_decode($response);
-	if ($json->ID != null) {
-	    $dataobject = array();
-	    $dataobject['moodle_id'] = $user->id;
-	    $dataobject['wordpress_id'] = $json->ID;
-	    $dataobject['server_id'] = $server_id;
-	    $DB->insert_record('modwordpress_users', $dataobject, false, false);
-	}
-        }
-
+    $api_key = null;
+    if ($server->auth) {
+      $api_key = $server->api_key;
     }
-    return $newmod;
+    if (strlen($api_key)) {
+      $api_key .= ':@';
+    }
+    $server_url = rtrim($server->url, '/');
+    $server_url = str_replace('http://', '', $server_url);
+    $server_url = "http://$api_key$server_url/";
+
+    $context = get_context_instance(CONTEXT_COURSE, $course_id);
+    $contextlists = get_related_contexts_string($context);
+
+    $sql = "SELECT u.id, u.username, u.firstname, u.lastname, u.email
+      FROM {user} u
+      JOIN {role_assignments} ra ON ra.userid = u.id
+      WHERE u.deleted = 0 AND u.confirmed = 1 AND ra.contextid $contextlists";
+    $course_users = $DB->get_records_sql($sql);
+
+    foreach ($course_users as $user) {
+      $pass = substr(md5(rand() . rand()), 0, 15);
+      $redmine_user = new RedmineUser(array(
+        'login' => $user->username,
+        'password' => $pass,
+        'mail' => $user->email,
+        'firstname' => $user->firstname,
+        'lastname' => $user->lastname
+      ));
+      $redmine_user->setSite($server_url);
+      $redmine_user->save();
+
+      if ($redmine_user->errno == NULL) {
+        $dataobject = array();
+        $dataobject['moodle_id'] = $user->id;
+        $dataobject['redmine_id'] = $redmine_user->id;
+        $dataobject['server_id'] = $server_id;
+        $dataobject['redmine_login'] = $redmine_user->login;
+        $dataobject['redmine_password'] = $pass;
+        $DB->insert_record('modredmine_users', $dataobject, false, false);
+      } else {
+        error_log("[ERROR REDMINE: ".$redmine_user->errno."] " . $redmine_user->errno . ":" . $redmine_user->error);
+      }
+    }
+
+    error_log("Project Name: ".$modredmine_instance->project_name);
+    error_log("Project Identifier: ".$modredmine_instance->project_identifier);
+    error_log("Project Description: ".$modredmine_instance->project_description);
+
+    $redmine_project = new RedmineProject(array(
+      'name' => $modredmine_instance->project_name,
+      'identifier' => $modredmine_instance->project_identifier,
+      'description' => $modredmine_instance->project_description
+    ));
+    $redmine_project->setSite($server_url);
+    $redmine_project->save();
+    if (!isset($redmine_project->errno) || !strlen($redmine_project->errno)) {
+      $modredmine_instance->project_id = $redmine_project->id;
+      if (!$DB->set_field('modredmine', 'project_id', $redmine_project->id, array('id'=>$modredmine_instance->id))) {
+        error_log("[MOODLE DB ERROR] set_field modredmine project_id ".$redmine_project->id." array('id'=>".$modredmine_instance->id);
+      }
+    } else {
+      error_log("[ERROR REDMINE: ".$redmine_project->errno."] " . $redmine_project->errno . ":" . $redmine_project->error);
+    }
+
+  }
+  return $newmod;
 }
 
 /**
@@ -121,75 +148,95 @@ function modwordpress_add_instance($modwordpress) {
  * (defined by the form in mod_form.php) this function
  * will update an existing instance with new data.
  *
- * @param object $modwordpress An object from the form in mod_form.php
+ * @param object $modredmine An object from the form in mod_form.php
  * @return boolean Success/Fail
  */
-function modwordpress_update_instance($modwordpress) {
-    global $DB;
+function modredmine_update_instance($modredmine) {
+  global $DB;
 
-    $modwordpress->timemodified = time();
-    $modwordpress->id = $modwordpress->instance;
+  $modredmine->timemodified = time();
+  $modredmine->id = $modredmine->instance;
 
-    # You may have to add extra stuff in here #
+  # You may have to add extra stuff in here #
 
-    $newmod = $DB->update_record('modwordpress', $modwordpress);
-
-
-    if ($newmod) {
-
-        //Adding Moodle users to wordpress
-        //$modwordpress_instance = $DB->get_record_select("modwordpress", "id=$newmod");
-        $course_id = $modwordpress->course;
-        $server_id = $modwordpress->server_id;
-        $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
+  $newmod = $DB->update_record('modredmine', $modredmine);
 
 
-        if ($server->oauth) {
-	$consumer_key = $server->consumer_key;
-	$consumer_secret = $server->consumer_secret;
-	$access_token = $server->access_token;
-	$access_secret = $server->access_secret;
-	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	$token = new OAuthToken($access_token, $access_secret, NULL);
-        }
+  if ($newmod) {
 
-        $context = get_context_instance(CONTEXT_COURSE, $course_id);
-        $contextlists = get_related_contexts_string($context);
+    //Adding Moodle users to redmine
+    //$modredmine_instance = $DB->get_record_select("modredmine", "id=$newmod");
+    $course_id = $modredmine->course;
+    $server_id = $modredmine->server_id;
+    $server = $DB->get_record_select("modredmine_servers", "id=$server_id");
 
-        // Get new enrolled users that are not in the wordpress-moodle equivalence's table
-        $sql = "SELECT u.id, u.username, u.firstname, u.email
-	      FROM {user} u
-	      JOIN {role_assignments} ra ON ra.userid = u.id
-	      LEFT OUTER JOIN {modwordpress_users} wpu ON u.id = wpu.moodle_id
-	     WHERE u.deleted = 0 AND u.confirmed = 1 AND ra.contextid $contextlists AND wpu.wordpress_id IS NULL";
 
-        error_log(str_replace("\r\n\t",'',$sql));
-        $course_users = $DB->get_records_sql($sql);
-
-        foreach ($course_users as $user) {
-	$basefeed = rtrim($server->url, '/') . '/user.json';
-	$params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
-
-	if ($server->oauth) {
-	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
-	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-	} else {
-	    $response = send_request('POST', $basefeed, null, $params);
-	}
-
-	$json = json_decode($response);
-	if ($json->ID != null) {
-	    $dataobject = array();
-	    $dataobject['moodle_id'] = $user->id;
-	    $dataobject['wordpress_id'] = $json->ID;
-	    $dataobject['server_id'] = $server_id;
-	    $DB->insert_record('modwordpress_users', $dataobject, false, false);
-	}
-        }
-
+    $api_key = null;
+    if ($server->auth) {
+      $api_key = $server->api_key;
     }
-    return $newmod;
+    if (strlen($api_key)) {
+      $api_key .= ':@';
+    }
+    $server_url = rtrim($server->url, '/');
+    $server_url = str_replace('http://', '', $server_url);
+    $server_url = "http://$api_key$server_url/";
+
+    $context = get_context_instance(CONTEXT_COURSE, $course_id);
+    $contextlists = get_related_contexts_string($context);
+
+    // Get new enrolled users that are not in the redmine-moodle equivalence's table
+    $sql = "SELECT u.id, u.username, u.firstname, u.lastname, u.email
+      FROM {user} u
+      JOIN {role_assignments} ra ON ra.userid = u.id
+      LEFT OUTER JOIN {modredmine_users} rmu ON u.id = rmu.moodle_id
+      WHERE u.deleted = 0 AND u.confirmed = 1 AND ra.contextid $contextlists AND rmu.redmine_id IS NULL";
+
+    error_log(str_replace("\r\n\t", '', $sql));
+    $course_users = $DB->get_records_sql($sql);
+
+    foreach ($course_users as $user) {
+      error_log($user->username . " " . $user->firstname . " " . $user->lastname);
+      $pass = substr(md5(rand() . rand()), 0, 15);
+      $redmine_user = new RedmineUser(array(
+        'login' => $user->username,
+        'password' => $pass,
+        'mail' => $user->email,
+        'firstname' => $user->firstname,
+        'lastname' => $user->lastname
+      ));
+      $redmine_user->setSite($server_url);
+      $redmine_user->save();
+
+      $dataobject = array();
+      $dataobject['moodle_id'] = $user->id;
+      $dataobject['redmine_id'] = $redmine_user->id;
+      $dataobject['server_id'] = $server_id;
+      $dataobject['redmine_login'] = $redmine_user->login;
+      $dataobject['redmine_password'] = $pass;
+      if ($redmine_user->errno == NULL) {
+        $DB->insert_record('modredmine_users', $dataobject, false, false);
+      }elseif($redmine_user->errno == 422) {
+        $DB->insert_record('modredmine_users', $dataobject, false, false);
+      } else {
+        error_log("[ERROR REDMINE: ".$redmine_user->errno."] " . $redmine_user->error);
+      }
+    }
+
+    $redmine_project = new RedmineProject();
+    $redmine_project->setSite($server_url);
+    $redmine_project->find($modredmine->project_id);
+    $redmine_project->set('name', $modredmine->project_name);
+    $redmine_project->set('description', $modredmine->project_description);
+    $redmine_project->save();
+    if (isset($redmine_project->errno) || strlen($redmine_project->errno)) {
+      error_log("[ERROR REDMINE: ".$redmine_user->errno."] " . $redmine_project->errno . ":" . $redmine_project->error);
+    }
+
+
+
+  }
+  return $newmod;
 }
 
 /**
@@ -200,49 +247,57 @@ function modwordpress_update_instance($modwordpress) {
  * @param int $id Id of the module instance
  * @return boolean Success/Failure
  */
-function modwordpress_delete_instance($id) {
-    global $DB;
+function modredmine_delete_instance($id) {
+  global $DB;
 
-    if (!$modwordpress_instance = $DB->get_record('modwordpress', array('id' => $id))) {
-        return false;
+  if (!$modredmine_instance = $DB->get_record('modredmine', array('id' => $id))) {
+    return false;
+  }
+
+  # Delete any dependent records here #
+
+  $course_id = $modredmine_instance->course;
+  $server_id = $modredmine_instance->server_id;
+  $server = $DB->get_record_select("modredmine_servers", "id=$server_id");
+
+  $api_key = null;
+  if ($server->auth) {
+    $api_key = $server->api_key;
+  }
+  if (strlen($api_key)) {
+    $api_key .= ':@';
+  }
+  $server_url = rtrim($server->url, '/');
+  $server_url = str_replace('http://', '', $server_url);
+  $server_url = "http://$api_key$server_url/";
+
+  $users = $DB->get_records_select("modredmine_users", "server_id=$server_id");
+  foreach ($users as $user) {
+    $redmine_user = new RedmineUser();
+    $redmine_user->setSite($server_url);
+    $redmine_user->find($user->redmine_id);
+    $redmine_user->destroy();
+    if (!$redmine_user->errno) {
+      $DB->delete_records("modredmine_users", array('id' => $user->id));
+    } else {
+      error_log("[ERROR REDMINE: ".$redmine_user->errno."] " . $redmine_user->error);
     }
-
-    # Delete any dependent records here #
-
-    $course_id = $modwordpress_instance->course;
-    $server_id = $modwordpress_instance->server_id;
-    $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
-
-    if ($server->oauth) {
-        $consumer_key = $server->consumer_key;
-        $consumer_secret = $server->consumer_secret;
-        $access_token = $server->access_token;
-        $access_secret = $server->access_secret;
-        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-        $token = new OAuthToken($access_token, $access_secret, NULL);
+  }
+  /*
+  if (isset($modredmine_instance->project_id)) {
+    $redmine_project = new RedmineProject();
+    $redmine_project->setSite($server_url);
+    $redmine_project->find($modredmine_instance->project_id);
+    $redmine_project->destroy();
+    if ($redmine_project->errno == NULL) {
+      error_log("[ERROR REDMINE: ".$redmine_project->errno."] " . $redmine_project->error);
     }
+  }
+   */
 
-    $users = $DB->get_records_select("modwordpress_users", "server_id=$server_id");
-    foreach ($users as $user) {
-        $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
+  $DB->delete_records('modredmine', array('id' => $modredmine_instance->id));
 
-        if ($server->oauth) {
-	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
-	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-        } else {
-	$response = send_request('DELETE', $basefeed);
-        }
-
-        $json = json_decode($response);
-        if ($json->deleted) {
-	$DB->delete_records("modwordpress_users", array('id'=>$user->id));
-        }
-    }
-
-    $DB->delete_records('modwordpress', array('id' => $modwordpress_instance->id));
-
-    return true;
+  return true;
 }
 
 /**
@@ -255,11 +310,11 @@ function modwordpress_delete_instance($id) {
  * @return null
  * @todo Finish documenting this function
  */
-function modwordpress_user_outline($course, $user, $mod, $modwordpress) {
-    $return = new stdClass;
-    $return->time = 0;
-    $return->info = '';
-    return $return;
+function modredmine_user_outline($course, $user, $mod, $modredmine) {
+  $return = new stdClass;
+  $return->time = 0;
+  $return->info = '';
+  return $return;
 }
 
 /**
@@ -269,20 +324,20 @@ function modwordpress_user_outline($course, $user, $mod, $modwordpress) {
  * @return boolean
  * @todo Finish documenting this function
  */
-function modwordpress_user_complete($course, $user, $mod, $modwordpress) {
-    return true;
+function modredmine_user_complete($course, $user, $mod, $modredmine) {
+  return true;
 }
 
 /**
  * Given a course and a time, this module should find recent activity
- * that has occurred in modwordpress activities and print it out.
+ * that has occurred in modredmine activities and print it out.
  * Return true if there was output, or false is there was none.
  *
  * @return boolean
  * @todo Finish documenting this function
  */
-function modwordpress_print_recent_activity($course, $viewfullnames, $timestart) {
-    return false;  //  True if anything was printed, otherwise false
+function modredmine_print_recent_activity($course, $viewfullnames, $timestart) {
+  return false;  //  True if anything was printed, otherwise false
 }
 
 /**
@@ -293,82 +348,78 @@ function modwordpress_print_recent_activity($course, $viewfullnames, $timestart)
  * @return boolean
  * @todo Finish documenting this function
  * */
-function modwordpress_cron() {
-    return true;
+function modredmine_cron() {
+  return true;
 }
 
 /**
  * Must return an array of users who are participants for a given instance
- * of modwordpress. Must include every user involved in the instance,
+ * of modredmine. Must include every user involved in the instance,
  * independient of his role (student, teacher, admin...). The returned
  * objects must contain at least id property.
  * See other modules as example.
  *
- * @param int $modwordpressid ID of an instance of this module
+ * @param int $modredmineid ID of an instance of this module
  * @return boolean|array false if no participants, array of objects otherwise
  */
-function modwordpress_get_participants($modwordpressid) {
-    return false;
+function modredmine_get_participants($modredmineid) {
+  return false;
 }
 
 /**
  * @return array
  */
-function modwordpress_get_view_actions() {
-    return array('view', 'view posts', 'view posts', 'view page', 'view comments');
+function modredmine_get_view_actions() {
+  return array('view', 'view posts', 'view posts', 'view page', 'view comments');
 }
 
 /**
  * @return array
  */
-function modwordpress_get_post_actions() {
-    return array('add','create comment', 'create post', 'create page');
+function modredmine_get_post_actions() {
+  return array('add', 'create comment', 'create post', 'create page');
 }
 
-
-
-
-
 /**
- * This function returns if a scale is being used by one modwordpress
+ * This function returns if a scale is being used by one modredmine
  * if it has support for grading and scales. Commented code should be
  * modified if necessary. See forum, glossary or journal modules
  * as reference.
  *
- * @param int $modwordpressid ID of an instance of this module
+ * @param int $modredmineid ID of an instance of this module
  * @return mixed
  * @todo Finish documenting this function
  */
-function modwordpress_scale_used($modwordpressid, $scaleid) {
-    global $DB;
+function modredmine_scale_used($modredmineid, $scaleid) {
+  global $DB;
 
-    $return = false;
+  $return = false;
 
-    //$rec = $DB->get_record("modwordpress", array("id" => "$modwordpressid", "scale" => "-$scaleid"));
-    //
-    //if (!empty($rec) && !empty($scaleid)) {
-    //    $return = true;
-    //}
+  //$rec = $DB->get_record("modredmine", array("id" => "$modredmineid", "scale" => "-$scaleid"));
+  //
+  //if (!empty($rec) && !empty($scaleid)) {
+  //    $return = true;
+  //}
 
-    return $return;
+  return $return;
 }
 
 /**
- * Checks if scale is being used by any instance of modwordpress.
+ * Checks if scale is being used by any instance of modredmine.
  * This function was added in 1.9
  *
  * This is used to find out if scale used anywhere
  * @param $scaleid int
- * @return boolean True if the scale is used by any modwordpress
+ * @return boolean True if the scale is used by any modredmine
  */
-function modwordpress_scale_used_anywhere($scaleid) {
-    global $DB;
+function modredmine_scale_used_anywhere($scaleid) {
+  global $DB;
 
-    if ($scaleid and $DB->record_exists('modwordpress', 'grade', -$scaleid)) {
-        return true;
-    } else {
-        return false;
-    }
+  if ($scaleid and $DB->record_exists('modredmine', 'grade', -$scaleid)) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 /**
@@ -377,8 +428,8 @@ function modwordpress_scale_used_anywhere($scaleid) {
  *
  * @return boolean true if success, false on error
  */
-function modwordpress_uninstall() {
-    return true;
+function modredmine_uninstall() {
+  return true;
 }
 
 /**
@@ -387,9 +438,9 @@ function modwordpress_uninstall() {
  * @param object $cp
  * @return void
  */
-function modwordpress_user_enrolled($cp) {
-    $context = get_context_instance(CONTEXT_COURSE, $cp->courseid);
-    modwordpress_add_user($cp->userid, $context);
+function modredmine_user_enrolled($cp) {
+  $context = get_context_instance(CONTEXT_COURSE, $cp->courseid);
+  modredmine_add_user($cp->userid, $context);
 }
 
 /**
@@ -398,11 +449,11 @@ function modwordpress_user_enrolled($cp) {
  * @param object $cp
  * @return void
  */
-function modwordpress_user_unenrolled($cp) {
-    if ($cp->lastenrol) {
-        $context = get_context_instance(CONTEXT_COURSE, $cp->courseid);
-        modwordpress_remove_user($cp->userid, $context);
-    }
+function modredmine_user_unenrolled($cp) {
+  if ($cp->lastenrol) {
+    $context = get_context_instance(CONTEXT_COURSE, $cp->courseid);
+    modredmine_remove_user($cp->userid, $context);
+  }
 }
 
 /**
@@ -417,128 +468,148 @@ function modwordpress_user_unenrolled($cp) {
  * @param object $context
  * @return bool
  */
-function modwordpress_add_user($userid, $context) {
-    global $DB;
-    if (empty($context->contextlevel)) {
-        return false;
+function modredmine_add_user($userid, $context) {
+  global $DB;
+  if (empty($context->contextlevel)) {
+    return false;
+  }
+
+  switch ($context->contextlevel) {
+
+  case CONTEXT_SYSTEM:   // For the whole site
+    $rs = $DB->get_recordset('course', null, '', 'id');
+    foreach ($rs as $course) {
+      $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
+      modredmine_add_user($userid, $subcontext);
     }
+    $rs->close();
+    break;
 
-    switch ($context->contextlevel) {
-
-        case CONTEXT_SYSTEM:   // For the whole site
-	$rs = $DB->get_recordset('course', null, '', 'id');
-	foreach ($rs as $course) {
-	    $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
-	    modwordpress_add_user($userid, $subcontext);
-	}
-	$rs->close();
-	break;
-
-        case CONTEXT_COURSECAT:   // For a whole category
-	$rs = $DB->get_recordset('course', array('category' => $context->instanceid), '', 'id');
-	foreach ($rs as $course) {
-	    $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
-	    modwordpress_add_user($userid, $subcontext);
-	}
-	$rs->close();
-	if ($categories = $DB->get_records('course_categories', array('parent' => $context->instanceid))) {
-	    foreach ($categories as $category) {
-	        $subcontext = get_context_instance(CONTEXT_COURSECAT, $category->id);
-	        modwordpress_add_user($userid, $subcontext);
-	    }
-	}
-	break;
-
-
-        case CONTEXT_COURSE:   // For a whole course
-	if (is_enrolled($context, $userid)) {
-	    if ($course = $DB->get_record('course', array('id' => $context->instanceid))) {
-	        if ($modswordpress = get_all_instances_in_course('modwordpress', $course, $userid, false)) {
-		foreach ($modswordpress as $modwordpress_instance) {
-		    $course_id = $modwordpress_instance->course;
-		    $server_id = $modwordpress_instance->server_id;
-		    $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
-
-		    $sql = "SELECT u.id, u.username, u.firstname, u.email
-			  FROM {user} u
-			 WHERE u.id = $userid";
-		    $user = $DB->get_record_sql($sql);
-
-		    $basefeed = rtrim($server->url, '/') . '/user.json';
-		    $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
-
-		    if ($server->oauth) {
-		        $consumer_key = $server->consumer_key;
-		        $consumer_secret = $server->consumer_secret;
-		        $access_token = $server->access_token;
-		        $access_secret = $server->access_secret;
-		        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-		        $token = new OAuthToken($access_token, $access_secret, NULL);
-		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
-		        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-		        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-		    } else {
-		        $response = send_request('POST', $basefeed, null, $params);
-		    }
-
-		    $json = json_decode($response);
-		    if (isset($json->ID)) {
-		        $dataobject = array();
-		        $dataobject['moodle_id'] = $user->id;
-		        $dataobject['wordpress_id'] = $json->ID;
-		        $dataobject['server_id'] = $server_id;
-		        $DB->insert_record('modwordpress_users', $dataobject, false, false);
-		    }
-		}
-	        }
-	    }
-	}
-	break;
-
-        case CONTEXT_MODULE:   // Just one forum
-	if ($cm = get_coursemodule_from_id('modwordpress', $context->instanceid)) {
-	    if ($modwordpress_instance = $DB->get_record('modwordpress', array('id' => $cm->instance))) {
-	        $course_id = $modwordpress_instance->course;
-	        $server_id = $modwordpress_instance->server_id;
-	        $server = $DB->get_record_select("modwordpress_servers", "id=$server_id");
-
-	        $sql = "SELECT u.id, u.username, u.firstname, u.email
-		      FROM {user} u
-		     WHERE u.id = $userid";
-	        $user = $DB->get_record_sql($sql);
-
-	        $basefeed = rtrim($server->url, '/') . '/user.json?XSESS';
-	        $params = array('user_login' => $user->username, 'user_email' => $user->email, 'display_name' => $user->firstname, 'user_password' => substr(md5(rand() . rand()), 0, 15));
-
-	        if ($server->oauth) {
-		$consumer_key = $server->consumer_key;
-		$consumer_secret = $server->consumer_secret;
-		$access_token = $server->access_token;
-		$access_secret = $server->access_secret;
-		$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-		$token = new OAuthToken($access_token, $access_secret, NULL);
-		$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'POST', $basefeed, $params);
-		$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-		$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-	        } else {
-		$response = send_request('POST', $basefeed, null, $params);
-	        }
-
-	        $json = json_decode($response);
-
-	        if (isset($json->ID)) {
-		$dataobject = array();
-		$dataobject['moodle_id'] = $user->id;
-		$dataobject['wordpress_id'] = $json->ID;
-		$dataobject['server_id'] = $server_id;
-		$DB->insert_record('modwordpress_users', $dataobject, false, false);
-	        }
-	    }
-	}
-	break;
+  case CONTEXT_COURSECAT:   // For a whole category
+    $rs = $DB->get_recordset('course', array('category' => $context->instanceid), '', 'id');
+    foreach ($rs as $course) {
+      $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
+      modredmine_add_user($userid, $subcontext);
     }
+    $rs->close();
+    if ($categories = $DB->get_records('course_categories', array('parent' => $context->instanceid))) {
+      foreach ($categories as $category) {
+        $subcontext = get_context_instance(CONTEXT_COURSECAT, $category->id);
+        modredmine_add_user($userid, $subcontext);
+      }
+    }
+    break;
 
+
+  case CONTEXT_COURSE:   // For a whole course
+    if (is_enrolled($context, $userid)) {
+      if ($course = $DB->get_record('course', array('id' => $context->instanceid))) {
+        if ($modsredmine = get_all_instances_in_course('modredmine', $course, $userid, false)) {
+          foreach ($modsredmine as $modredmine_instance) {
+            $course_id = $modredmine_instance->course;
+            $server_id = $modredmine_instance->server_id;
+            $server = $DB->get_record_select("modredmine_servers", "id=$server_id");
+
+            $api_key = null;
+            if ($server->auth) {
+              $api_key = $server->api_key;
+            }
+            if (strlen($api_key)) {
+              $api_key .= ':@';
+            }
+            $server_url = rtrim($server->url, '/');
+            $server_url = str_replace('http://', '', $server_url);
+            $server_url = "http://$api_key$server_url/";
+
+
+            $sql = "SELECT u.id, u.username, u.firstname, u.lastname, u.email
+              FROM {user} u
+              WHERE u.id = $userid";
+            $user = $DB->get_record_sql($sql);
+            $pass = substr(md5(rand() . rand()), 0, 15);
+            $redmine_user = new RedmineUser(array(
+              'login' => $user->username,
+              'password' => $pass,
+              'mail' => $user->email,
+              'firstname' => $user->firstname,
+              'lastname' => $user->lastname
+            ));
+            $redmine_user->setSite($server_url);
+            $redmine_user->save();
+
+            $dataobject = array();
+            $dataobject['moodle_id'] = $user->id;
+            $dataobject['redmine_id'] = $redmine_user->id;
+            $dataobject['server_id'] = $server_id;
+            $dataobject['redmine_login'] = $redmine_user->login;
+            $dataobject['redmine_password'] = $pass;
+            if ($redmine_user->errno == NULL) {
+              $DB->insert_record('modredmine_users', $dataobject, false, false);
+            } elseif($redmine_user->errno == 422) {
+              $DB->insert_record('modredmine_users', $dataobject, false, false);
+            } else {
+              error_log("[ERROR REDMINE: ".$redmine_user->errno."] " . $redmine_user->error);
+            }
+          }
+        }
+      }
+    }
+    break;
+
+  case CONTEXT_MODULE:   // Just one forum
+    if ($cm = get_coursemodule_from_id('modredmine', $context->instanceid)) {
+      if ($modredmine_instance = $DB->get_record('modredmine', array('id' => $cm->instance))) {
+        $course_id = $modredmine_instance->course;
+        $server_id = $modredmine_instance->server_id;
+        $server = $DB->get_record_select("modredmine_servers", "id=$server_id");
+
+        $api_key = null;
+        if ($server->auth) {
+          $api_key = $server->api_key;
+        }
+        if (strlen($api_key)) {
+          $api_key .= ':@';
+        }
+        $server_url = rtrim($server->url, '/');
+        $server_url = str_replace('http://', '', $server_url);
+        $server_url = "http://$api_key$server_url/";
+
+
+        $sql = "SELECT u.id, u.username, u.firstname, u.lastname, u.email
+          FROM {user} u
+          WHERE u.id = $userid";
+        $user = $DB->get_record_sql($sql);
+        $pass = substr(md5(rand() . rand()), 0, 15);
+        $redmine_user = new RedmineUser(array(
+          'login' => $user->username,
+          'password' => $pass,
+          'mail' => $user->email,
+          'firstname' => $user->firstname,
+          'lastname' => $user->lastname
+        ));
+        $redmine_user->setSite($server_url);
+        $redmine_user->save();
+
+        $dataobject = array();
+        $dataobject['moodle_id'] = $user->id;
+        $dataobject['redmine_id'] = $redmine_user->id;
+        $dataobject['server_id'] = $server_id;
+        $dataobject['redmine_login'] = $redmine_user->login;
+        $dataobject['redmine_password'] = $pass;
+        $dataobject['redmine_key'] = NULL;
+        if ($redmine_user->errno == NULL) {
+          $DB->insert_record('modredmine_users', $dataobject, false, false);
+        } elseif($redmine_user->errno == 422) {
+          $DB->insert_record('modredmine_users', $dataobject, false, false);
+
+        } else {
+          error_log("[ERROR REDMINE: ".$redmine_user->errno."] " . $redmine_user->error);
+        }
+      }
+    }
+    break;
     return true;
+  }
 }
 
 /**
@@ -554,179 +625,127 @@ function modwordpress_add_user($userid, $context) {
  * @param object $context
  * @return bool
  */
-function modwordpress_remove_user($userid, $context) {
+function modredmine_remove_user($userid, $context) {
 
-    global $CFG, $DB;
+  global $CFG, $DB;
 
-    if (empty($context->contextlevel)) {
-        return false;
-    }
+  if (empty($context->contextlevel)) {
+    return false;
+  }
 
-    error_log(" Context Level: $context->contextlevel");
+  error_log(" Context Level: $context->contextlevel");
 
-    switch ($context->contextlevel) {
+  switch ($context->contextlevel) {
 
-        case CONTEXT_SYSTEM:   // For the whole site
-	// find all courses in which this user has a forum subscription
-	if ($courses = $DB->get_records_sql("SELECT c.id
-                                                  FROM {course} c,
-                                                       {forum_subscriptions} fs,
-                                                       {forum} f
-                                                       WHERE c.id = f.course AND f.id = fs.forum AND fs.userid = ?
-                                                       GROUP BY c.id", array($userid))) {
+  case CONTEXT_SYSTEM:   // For the whole site
+    // find all courses in which this user has a forum subscription
+    if ($courses = $DB->get_records_sql("SELECT c.id
+      FROM {course} c,
+    {forum_subscriptions} fs,
+    {forum} f
+    WHERE c.id = f.course AND f.id = fs.forum AND fs.userid = ?
+    GROUP BY c.id", array($userid))) {
 
-	    foreach ($courses as $course) {
-	        $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
-	        modwordpress_remove_user($userid, $subcontext);
-	    }
-	}
-	break;
-
-        case CONTEXT_COURSECAT:   // For a whole category
-	if ($courses = $DB->get_records('course', array('category' => $context->instanceid), '', 'id')) {
-	    foreach ($courses as $course) {
-	        $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
-	        modwordpress_remove_user($userid, $subcontext);
-	    }
-	}
-	if ($categories = $DB->get_records('course_categories', array('parent' => $context->instanceid), '', 'id')) {
-	    foreach ($categories as $category) {
-	        $subcontext = get_context_instance(CONTEXT_COURSECAT, $category->id);
-	        modwordpress_remove_user($userid, $subcontext);
-	    }
-	}
-	break;
-
-        case CONTEXT_COURSE:   // For a whole course
-	if (!is_enrolled($context, $userid)) {
-	    if ($course = $DB->get_record('course', array('id' => $context->instanceid), 'id')) {
-	        // find all forums in which this user has a subscription, and its coursemodule id
-	        if ($modswordpress = $DB->get_records_sql("SELECT * FROM {modwordpress} WHERE course = ?", array($context->instanceid))) {
-
-		// TODO no todos los wordpress usan OAUTH
-		foreach ($modswordpress as $wordpress) {
-		    $server = $DB->get_record_select("modwordpress_servers", "id=$wordpress->server_id");
-		    error_log(" ---> ".$wordpress->server_id);
-
-		    if ($server->oauth) {
-		        $consumer_key = $server->consumer_key;
-		        $consumer_secret = $server->consumer_secret;
-		        $access_token = $server->access_token;
-		        $access_secret = $server->access_secret;
-		        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-		        $token = new OAuthToken($access_token, $access_secret, NULL);
-		    }
-
-		    $users = $DB->get_records_select("modwordpress_users", "server_id=$wordpress->server_id and moodle_id=$userid");
-		    error_log(" --->> ".count($users));
-		    foreach ($users as $user) {
-		        $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
-
-		        if ($server->oauth) {
-			$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
-			$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-			$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-		        } else {
-			$response = send_request('DELETE', $basefeed);
-		        }
-
-		        $json = json_decode($response);
-		        if ($json->deleted) {
-			$DB->delete_records("modwordpress_users", array('id'=>$user->id));
-		        }
-		        break;
-		    }
-		}
-	        }
-	    }
-	}
-	break;
-
-        case CONTEXT_MODULE:   // Just one forum
-	if (!is_enrolled($context, $userid)) {
-	    if ($cm = get_coursemodule_from_id('forum', $context->instanceid)) {
-	        if ($wordpress = $DB->get_record('modwordpress', array('id' => $cm->instance))) {
-		$server = $DB->get_record_select("modwordpress_servers", "id=$wordpress->server_id");
-
-		if ($server->oauth) {
-		    $consumer_key = $server->consumer_key;
-		    $consumer_secret = $server->consumer_secret;
-		    $access_token = $server->access_token;
-		    $access_secret = $server->access_secret;
-		    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-		    $token = new OAuthToken($access_token, $access_secret, NULL);
-		}
-
-		$users = $DB->get_record_select("modwordpress_users", "server_id=$wordpress->server_id and moodle_id=$userid");
-		foreach ($users as $user) {
-		    $basefeed = rtrim($server->url, '/') . "/user/$user->wordpress_id.json";
-
-		    if ($server->oauth) {
-		        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed);
-		        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-		        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-		    } else {
-		        $response = send_request('DELETE', $basefeed);
-		    }
-
-		    $json = json_decode($response);
-		    if ($json->deleted) {
-		        $DB->delete_records("modwordpress_users", array('id'=>$user->id));
-		    }
-		    break;
-		}
-	        }
-	    }
-	}
-	break;
-    }
-
-    return true;
-}
-
-
-/**
- * Makes an HTTP request to the specified URL
- * @param string $http_method The HTTP method (GET, POST, PUT, DELETE)
- * @param string $url Full URL of the resource to access
- * @param string $auth_header (optional) Authorization header
- * @param string $postData (optional) POST/PUT request body
- * @return string Response body from the server
- */
-function send_request($http_method, $url, $auth_header=null, $postData=null) {
-  $curl = curl_init($url);
-
-  curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-  //curl_setopt($curl, CURLOPT_FAILONERROR, false);
-  //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-
-  switch($http_method) {
-    case 'GET':
-      if ($auth_header) {
-        curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
+      foreach ($courses as $course) {
+        $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
+        modredmine_remove_user($userid, $subcontext);
       }
-      break;
-    case 'POST':
-      curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
-      curl_setopt($curl, CURLOPT_POST, 1);
-      curl_setopt($curl, CURLOPT_POSTFIELDS, $postData);
-      break;
-    case 'PUT':
-      curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
-      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $http_method);
-      curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($postData));
-      break;
-    case 'DELETE':
-      curl_setopt($curl, CURLOPT_HTTPHEADER, array($auth_header));
-      curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $http_method);
-      break;
-  }
-  $response = curl_exec($curl);
-  if (!$response) {
-    $response = curl_error($curl);
-  }
-  curl_close($curl);
-  return $response;
-}
+    }
+    break;
 
+  case CONTEXT_COURSECAT:   // For a whole category
+    if ($courses = $DB->get_records('course', array('category' => $context->instanceid), '', 'id')) {
+      foreach ($courses as $course) {
+        $subcontext = get_context_instance(CONTEXT_COURSE, $course->id);
+        modredmine_remove_user($userid, $subcontext);
+      }
+    }
+    if ($categories = $DB->get_records('course_categories', array('parent' => $context->instanceid), '', 'id')) {
+      foreach ($categories as $category) {
+        $subcontext = get_context_instance(CONTEXT_COURSECAT, $category->id);
+        modredmine_remove_user($userid, $subcontext);
+      }
+    }
+    break;
+
+  case CONTEXT_COURSE:   // For a whole course
+    if (!is_enrolled($context, $userid)) {
+      if ($course = $DB->get_record('course', array('id' => $context->instanceid), 'id')) {
+        // find all forums in which this user has a subscription, and its coursemodule id
+        if ($modsredmine = $DB->get_records_sql("SELECT * FROM {modredmine} WHERE course = ?", array($context->instanceid))) {
+
+          // TODO no todos los redmine usan OAUTH
+          foreach ($modsredmine as $redmine) {
+            $server = $DB->get_record_select("modredmine_servers", "id=$redmine->server_id");
+
+            $api_key = null;
+            if ($server->auth) {
+              $api_key = $server->api_key;
+            }
+            if (strlen($api_key)) {
+              $api_key .= ':@';
+            }
+            $server_url = rtrim($server->url, '/');
+            $server_url = str_replace('http://', '', $server_url);
+            $server_url = "http://$api_key$server_url/";
+
+            $users = $DB->get_records_select("modredmine_users", "server_id=$redmine->server_id and moodle_id=$userid");
+            foreach ($users as $user) {
+              $redmine_user = new RedmineUser();
+              $redmine_user->setSite($server_url);
+              $redmine_user->find($user->redmine_id);
+              $redmine_user->destroy();
+              if ($redmine_user->errno == NULL) {
+                $DB->delete_records("modredmine_users", array('id' => $user->id));
+              } else {
+                error_log("[ERROR REDMINE: ".$redmine_user->errno."] " . $redmine_user->error);
+              }
+              break;
+            }
+          }
+        }
+      }
+    }
+    break;
+
+  case CONTEXT_MODULE:   // Just one forum
+    if (!is_enrolled($context, $userid)) {
+      if ($cm = get_coursemodule_from_id('forum', $context->instanceid)) {
+        if ($redmine = $DB->get_record('modredmine', array('id' => $cm->instance))) {
+          $server = $DB->get_record_select("modredmine_servers", "id=$redmine->server_id");
+
+          $server = $DB->get_record_select("modredmine_servers", "id=$redmine->server_id");
+
+          $api_key = null;
+          if ($server->auth) {
+            $api_key = $server->api_key;
+          }
+          if (strlen($api_key)) {
+            $api_key .= ':@';
+          }
+          $server_url = rtrim($server->url, '/');
+          $server_url = str_replace('http://', '', $server_url);
+          $server_url = "http://$api_key$server_url/";
+
+          $users = $DB->get_records_select("modredmine_users", "server_id=$redmine->server_id and moodle_id=$userid");
+          foreach ($users as $user) {
+            $redmine_user = new RedmineUser();
+            $redmine_user->setSite($server_url);
+            $redmine_user->find($user->redmine_id);
+            $redmine_user->destroy();
+            if ($redmine_user->errno == NULL) {
+              $DB->delete_records("modredmine_users", array('id' => $user->id));
+            } else {
+              error_log("[ERROR REDMINE: ".$redmine_user->errno."] " . $redmine_user->error);
+            }
+            break;
+          }
+        }
+      }
+    }
+    break;
+  }
+
+  return true;
+}
 

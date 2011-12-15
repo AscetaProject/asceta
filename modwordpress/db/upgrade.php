@@ -17,7 +17,7 @@
 
 
 /**
- * This file keeps track of upgrades to the modwordpress module
+ * This file keeps track of upgrades to the modredmine module
  *
  * Sometimes, changes between versions involve alterations to database
  * structures and other major things that may break installations. The upgrade
@@ -26,368 +26,305 @@
  * it cannot do itself, it will tell you what you need to do.  The commands in
  * here will all be database-neutral, using the functions defined in DLL libraries.
  *
- * @package   mod_modwordpress
+ * @package   mod_modredmine
  * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * xmldb_modwordpress_upgrade
+ * xmldb_modredmine_upgrade
  *
  * @param int $oldversion
  * @return bool
  */
-function xmldb_modwordpress_upgrade($oldversion) {
+function xmldb_modredmine_upgrade($oldversion) {
 
     global $DB;
 
     $dbman = $DB->get_manager(); // loads ddl manager and xmldb classes
-
 /// And upgrade begins here. For each one, you'll need one
 /// block of code similar to the next one. Please, delete
 /// this comment lines once this file start handling proper
 /// upgrade code.
-
 /// if ($oldversion < YYYYMMDD00) { //New version in version.php
 ///
 /// }
-
 /// Lines below (this included)  MUST BE DELETED once you get the first version
 /// of your module ready to be installed. They are here only
-/// for demonstrative purposes and to show how the modwordpress
+/// for demonstrative purposes and to show how the modredmine
 /// iself has been upgraded.
-
-/// For each upgrade block, the file modwordpress/version.php
+/// For each upgrade block, the file modredmine/version.php
 /// needs to be updated . Such change allows Moodle to know
 /// that this file has to be processed.
-
 /// To know more about how to write correct DB upgrade scripts it's
 /// highly recommended to read information available at:
 ///   http://docs.moodle.org/en/Development:XMLDB_Documentation
 /// and to play with the XMLDB Editor (in the admin menu) and its
 /// PHP generation posibilities.
 
-/// First example, some fields were added to install.xml on 2007/04/01
-    if ($oldversion < 2007040100) {
+    if ($oldversion < 2011100504) {
 
-    /// Define field course to be added to modwordpress
-        $table = new xmldb_table('modwordpress');
-        $field = new xmldb_field('course', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'id');
+        // Define field key to be added to modredmine_servers
+        $table = new xmldb_table('modredmine_servers');
+        $field = new xmldb_field('key', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'auth');
 
-    /// Add field course
+        // Conditionally launch add field key
         if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
+	$dbman->add_field($table, $field);
         }
 
-    /// Define field intro to be added to modwordpress
-        $table = new xmldb_table('modwordpress');
-        $field = new xmldb_field('intro', XMLDB_TYPE_TEXT, 'medium', null, null, null, null,'name');
-
-    /// Add field intro
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-    /// Define field introformat to be added to modwordpress
-        $table = new xmldb_table('modwordpress');
-        $field = new xmldb_field('introformat', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0',
-            'intro');
-
-    /// Add field introformat
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
+        // modredmine savepoint reached
+        upgrade_mod_savepoint(true, 2011100504, 'modredmine');
     }
 
-/// Second example, some hours later, the same day 2007/04/01
-/// two more fields and one index were added to install.xml (note the micro increment
-/// "01" in the last two digits of the version
-    if ($oldversion < 2007040101) {
+    if ($oldversion < 2011100505) {
 
-    /// Define field timecreated to be added to modwordpress
-        $table = new xmldb_table('modwordpress');
-        $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0',
-            'introformat');
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine_servers');
+        $field = new xmldb_field('admin');
 
-    /// Add field timecreated
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
         }
 
-    /// Define field timemodified to be added to modwordpress
-        $table = new xmldb_table('modwordpress');
-        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0',
-            'timecreated');
+        $table = new xmldb_table('modredmine_servers');
+        $field = new xmldb_field('password');
 
-    /// Add field timemodified
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
+        // Conditionally launch drop field password
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
         }
 
-    /// Define index course (not unique) to be added to modwordpress
-        $table = new xmldb_table('modwordpress');
-        $index = new xmldb_index('courseindex', XMLDB_INDEX_NOTUNIQUE, array('course'));
-
-    /// Add index to course field
-        if (!$dbman->index_exists($table, $index)) {
-            $dbman->add_index($table, $index);
-        }
-
+        // modredmine savepoint reached
+        upgrade_mod_savepoint(true, 2011100505, 'modredmine');
     }
 
-/// Third example, the next day, 2007/04/02 (with the trailing 00), some actions were performed to install.php,
-/// related with the module
-    if ($oldversion < 2007040200) {
-    /// insert here code to perform some actions (same as in install.php)
+    if ($oldversion < 2011100507) {
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine_servers');
+        $field = new xmldb_field('key');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field key to be added to modredmine_servers
+        $table = new xmldb_table('modredmine_servers');
+        $field = new xmldb_field('api_key', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'auth');
+
+        // Conditionally launch add field key
+        if (!$dbman->field_exists($table, $field)) {
+	$dbman->add_field($table, $field);
+        }
+
+
+
+        // modredmine savepoint reached
+        upgrade_mod_savepoint(true, 2011100507, 'modredmine');
     }
 
-/// And that's all. Please, examine and understand the 3 example blocks above. Also
-/// it's interesting to look how other modules are using this script. Remember that
-/// the basic idea is to have "blocks" of code (each one being executed only once,
-/// when the module version (version.php) is updated.
+    if ($oldversion < 2011100508) {
 
-/// Lines above (this included) MUST BE DELETED once you get the first version of
-/// yout module working. Each time you need to modify something in the module (DB
-/// related, you'll raise the version and add one upgrade block here.
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('api');
 
-/// Final return of upgrade result (true, all went good) to Moodle.
-
-  if ($oldversion < 2011061305) {
-
-        // Define table modwordpress to be created
-        $table = new xmldb_table('modwordpress');
-
-        // Adding fields to table modwordpress
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
-        $table->add_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('intro', XMLDB_TYPE_TEXT, 'medium', null, null, null, null);
-        $table->add_field('api', XMLDB_TYPE_TEXT, 'medium', null, null, null, null);
-        $table->add_field('introformat', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
-        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
-        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0');
-        $table->add_field('server_id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null);
-
-        // Adding keys to table modwordpress
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('url', XMLDB_KEY_FOREIGN, array('server_id'), 'modwordpress_servers', array('id'));
-
-        // Adding indexes to table modwordpress
-        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, array('course'));
-
-        // Conditionally launch create table for modwordpress
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
         }
 
-        // modwordpress savepoint reached
-        upgrade_mod_savepoint(true, 2011061305, 'modwordpress');
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_create_issue');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_edit_issue');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_delete_issue');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_create_user');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_edit_user');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_delete_user');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_create_news');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_edit_news');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_delete_news');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_create_time_entries');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_edit_time_entries');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_delete_time_entries');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_create_project');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_edit_project');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field admin to be dropped from modredmine_servers
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('permission_delete_project');
+
+        // Conditionally launch drop field admin
+        if ($dbman->field_exists($table, $field)) {
+	$dbman->drop_field($table, $field);
+        }
+
+        // Define field key to be added to modredmine_servers
+        $table = new xmldb_table('modredmine_servers');
+        $field = new xmldb_field('project_id', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'auth');
+
+        // Conditionally launch add field key
+        if (!$dbman->field_exists($table, $field)) {
+	$dbman->add_field($table, $field);
+        }
+
+  // Define field project_id to be added to modredmine
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('project_id', XMLDB_TYPE_INTEGER, '20', null, null, null, null, 'server_id');
+
+        // Conditionally launch add field project_id
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field project_name to be added to modredmine
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('project_name', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'project_id');
+
+        // Conditionally launch add field project_name
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+      // Define field project_identifier to be added to modredmine
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('project_identifier', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'project_name');
+
+        // Conditionally launch add field project_identifier
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+                // Define field project_description to be added to modredmine
+        $table = new xmldb_table('modredmine');
+        $field = new xmldb_field('project_description', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'project_identifier');
+
+        // Conditionally launch add field project_description
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+
+
+        // modredmine savepoint reached
+        upgrade_mod_savepoint(true, 2011100508, 'modredmine');
     }
- if ($oldversion < 2011061305) {
-
-        // Define table modwordpress_servers to be created
-        $table = new xmldb_table('modwordpress_servers');
-
-        // Adding fields to table modwordpress_servers
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('url', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('consumer_key', XMLDB_TYPE_CHAR, '255', null, null, null, null);
-        $table->add_field('consumer_secret', XMLDB_TYPE_CHAR, '255', null, null, null, null);
-        $table->add_field('access_token', XMLDB_TYPE_CHAR, '255', null, null, null, null);
-        $table->add_field('access_secret', XMLDB_TYPE_CHAR, '255', null, null, null, null);
-
-        // Adding keys to table modwordpress_servers
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-
-        // Adding indexes to table modwordpress_servers
-        $table->add_index('url', XMLDB_INDEX_NOTUNIQUE, array('url'));
-
-        // Conditionally launch create table for modwordpress_servers
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // modwordpress savepoint reached
-        upgrade_mod_savepoint(true, 2011061305, 'modwordpress');
-    }
 
 
-
-
- if ($oldversion < 2011061408) {
-  // Define field name to be added to modwordpress_servers
-        $table = new xmldb_table('modwordpress_servers');
-        $field = new xmldb_field('name', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'id');
-
-        // Conditionally launch add field name
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-
-        $field = new xmldb_field('request_token', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'consumer_secret');
-
-        // Conditionally launch add field request_token
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-
-        $field = new xmldb_field('request_secret', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'request_token');
-
-        // Conditionally launch add field request_secret
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-
-
-        // modwordpress savepoint reached
-        upgrade_mod_savepoint(true, 2011061408, 'modwordpress');
-    }
-
-
-   if ($oldversion < 2011062402) {
-
-        // Define table modwordpress_users to be created
-        $table = new xmldb_table('modwordpress_users');
-
-        // Adding fields to table modwordpress_users
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('moodle_id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
-        $table->add_field('wordpress_id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
-        $table->add_field('server_id', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, null);
-
-        // Adding keys to table modwordpress_users
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('server', XMLDB_KEY_FOREIGN, array('server_id'), 'modwordpress_servers', array('id'));
-        $table->add_key('user', XMLDB_KEY_FOREIGN, array('moodle_id'), 'user', array('id'));
-
-        // Conditionally launch create table for modwordpress_users
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // modwordpress savepoint reached
-        upgrade_mod_savepoint(true, 2011062402, 'modwordpress');
-    }
-
-
-    if ($oldversion < 2011062403) {
-
-        // Define field oauth to be added to modwordpress_servers
-        $table = new xmldb_table('modwordpress_servers');
-        $field = new xmldb_field('oauth', XMLDB_TYPE_INTEGER, '1', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '1', 'access_secret');
-
-        // Conditionally launch add field oauth
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // modwordpress savepoint reached
-        upgrade_mod_savepoint(true, 2011062403, 'modwordpress');
-    }
-
- if ($oldversion < 2011071301) {
-
-        // Define field permission_create to be added to modwordpress
-        $table = new xmldb_table('modwordpress');
-        $field = new xmldb_field('permission_create', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'server_id');
-
-        // Conditionally launch add field permission_create
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-       // Define field permission_edit to be added to modwordpress
-        $field = new xmldb_field('permission_edit', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_create');
-
-        // Conditionally launch add field permission_edit
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Define field permission_delete to be added to modwordpress
-        $field = new xmldb_field('permission_delete', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_edit');
-
-        // Conditionally launch add field permission_delete
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // modwordpress savepoint reached
-        upgrade_mod_savepoint(true, 2011071301, 'modwordpress');
-    }
-
-   if ($oldversion < 2011071302) {
-
-        // Rename field permission_create_post on table modwordpress to NEWNAMEGOESHERE
-        $table = new xmldb_table('modwordpress');
-        $field = new xmldb_field('permission_create', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'server_id');
-
-        // Launch rename field permission_create_post
-        $dbman->rename_field($table, $field, 'permission_create_post');
-
-        $field = new xmldb_field('permission_edit', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_create_post');
-
-        // Launch rename field permission_create_post
-        $dbman->rename_field($table, $field, 'permission_edit_post');
-
-        $field = new xmldb_field('permission_delete', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_edit_post');
-
-        // Launch rename field permission_create_post
-        $dbman->rename_field($table, $field, 'permission_delete_post');
-
-
-        $field = new xmldb_field('permission_create_comment', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_delete_post');
-
-        // Conditionally launch add field permission_create_post
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('permission_edit_comment', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_create_comment');
-
-        // Conditionally launch add field permission_create_post
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('permission_delete_comment', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_edit_comment');
-
-        // Conditionally launch add field permission_create_post
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('permission_create_page', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_delete_comment');
-
-        // Conditionally launch add field permission_create_post
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('permission_edit_page', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_create_page');
-
-        // Conditionally launch add field permission_create_post
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('permission_delete_page', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, null, null, null, 'permission_edit_page');
-
-        // Conditionally launch add field permission_create_post
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-
-        // modwordpress savepoint reached
-        upgrade_mod_savepoint(true, 2011071302, 'modwordpress');
-    }
 
 
 

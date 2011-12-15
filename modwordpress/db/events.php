@@ -28,15 +28,15 @@ defined('MOODLE_INTERNAL') || die();
 
 $handlers = array (
     'user_enrolled' => array (
-        'handlerfile'      => '/mod/modwordpress/lib.php',
-        'handlerfunction'  => 'modwordpress_user_enrolled',
+        'handlerfile'      => '/mod/modredmine/lib.php',
+        'handlerfunction'  => 'modredmine_user_enrolled',
         'schedule'         => 'instant',
         'internal'         => 1,
     ),
 
     'user_unenrolled' => array (
-        'handlerfile'      => '/mod/modwordpress/lib.php',
-        'handlerfunction'  => 'modwordpress_user_unenrolled',
+        'handlerfile'      => '/mod/modredmine/lib.php',
+        'handlerfunction'  => 'modredmine_user_unenrolled',
         'schedule'         => 'instant',
         'internal'         => 1,
     ),

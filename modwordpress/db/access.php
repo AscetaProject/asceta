@@ -49,7 +49,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
-    'mod/modwordpress:moderate' => array(
+    'mod/modredmine:admin' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'legacy' => array(

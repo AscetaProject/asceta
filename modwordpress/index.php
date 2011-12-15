@@ -22,12 +22,12 @@
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
- * @package   mod_modwordpress
+ * @package   mod_modredmine
  * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/// Replace modwordpress with the name of your module and remove this line
+/// Replace modredmine with the name of your module and remove this line
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
@@ -40,11 +40,11 @@ if (! $course = $DB->get_record('course', array('id' => $id))) {
 
 require_course_login($course);
 
-add_to_log($course->id, 'modwordpress', 'view all', "index.php?id=$course->id", '');
+add_to_log($course->id, 'modredmine', 'view all', "index.php?id=$course->id", '');
 
 /// Print the header
 
-$PAGE->set_url('/mod/modwordpress/view.php', array('id' => $id));
+$PAGE->set_url('/mod/modredmine/view.php', array('id' => $id));
 $PAGE->set_title($course->fullname);
 $PAGE->set_heading($course->shortname);
 
@@ -52,8 +52,8 @@ echo $OUTPUT->header();
 
 /// Get all the appropriate data
 
-if (! $modwordpresss = get_all_instances_in_course('modwordpress', $course)) {
-    echo $OUTPUT->heading(get_string('nomodwordpresss', 'modwordpress'), 2);
+if (! $modredmines = get_all_instances_in_course('modredmine', $course)) {
+    echo $OUTPUT->heading(get_string('nomodredmines', 'modredmine'), 2);
     echo $OUTPUT->continue_button("view.php?id=$course->id");
     echo $OUTPUT->footer();
     die();
@@ -77,23 +77,23 @@ if ($course->format == 'weeks') {
     $table->align = array ('left', 'left', 'left');
 }
 
-foreach ($modwordpresss as $modwordpress) {
-    if (!$modwordpress->visible) {
+foreach ($modredmines as $modredmine) {
+    if (!$modredmine->visible) {
         //Show dimmed if the mod is hidden
-        $link = '<a class="dimmed" href="view.php?id='.$modwordpress->coursemodule.'">'.format_string($modwordpress->name).'</a>';
+        $link = '<a class="dimmed" href="view.php?id='.$modredmine->coursemodule.'">'.format_string($modredmine->name).'</a>';
     } else {
         //Show normal if the mod is visible
-        $link = '<a href="view.php?id='.$modwordpress->coursemodule.'">'.format_string($modwordpress->name).'</a>';
+        $link = '<a href="view.php?id='.$modredmine->coursemodule.'">'.format_string($modredmine->name).'</a>';
     }
 
     if ($course->format == 'weeks' or $course->format == 'topics') {
-        $table->data[] = array ($modwordpress->section, $link);
+        $table->data[] = array ($modredmine->section, $link);
     } else {
         $table->data[] = array ($link);
     }
 }
 
-echo $OUTPUT->heading(get_string('modulenameplural', 'modwordpress'), 2);
+echo $OUTPUT->heading(get_string('modulenameplural', 'modredmine'), 2);
 print_table($table);
 
 /// Finish the page

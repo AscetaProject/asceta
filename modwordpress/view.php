@@ -17,908 +17,709 @@
 
 
 /**
- * Prints a particular instance of modwordpress
+ * Prints a particular instance of modredmine
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
- * @package   mod_modwordpress
+ * @package   mod_modredmine
  * @copyright 2011 Vicente Manuel García Huete (vmgarcia@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-/// (Replace modwordpress with the name of your module and remove this line)
+/// (Replace modredmine with the name of your module and remove this line)
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once(dirname(__FILE__) . '/lib.php');
 require_once(dirname(__FILE__) . '/locallib.php');
-require_once(dirname(__FILE__) . '/OAuth.php');
 
 $id = optional_param('id', 0, PARAM_INT); // course_module ID, or
-$n = optional_param('n', 0, PARAM_INT);  // modwordpress instance ID - it should be named as the first character of the module
-$comments = optional_param('comments', 0, PARAM_INT); // Post ID to get comments
-$new_comment = optional_param('new_comment', 0, PARAM_INT); // Post ID to get comments
-$edit_comment = optional_param('edit_comment', 0, PARAM_INT); // Post ID to get comments
-$delete_comment = optional_param('delete_comment', 0, PARAM_INT); // Post ID to get comments
-$comment_content = optional_param('comment_content', '', PARAM_TEXT); // Post ID to get comments
-$comment_post_ID = optional_param('comment_post_ID', 0, PARAM_INT); // Post ID to get comments
-$comment_ID = optional_param('comment_ID', 0, PARAM_INT); // Post ID to get comments
-$post = optional_param('post', 0, PARAM_INT);
+$n = optional_param('n', 0, PARAM_INT);  // modredmine instance ID - it should be named as the first character of the module
+$option = optional_param('option', '', PARAM_TEXT);
 $page = optional_param('page', 0, PARAM_INT);
-$edit_post = optional_param('edit_post', 0, PARAM_INT);
-$delete_post = optional_param('delete_post', 0, PARAM_INT);
-$delete_page = optional_param('delete_page', 0, PARAM_INT);
-$new_post = optional_param('new_post', '', PARAM_TEXT); // Post ID to get comments
-$edit_post = optional_param('edit_post', '', PARAM_TEXT); // Post ID to get comments
-$new_page = optional_param('new_page', '', PARAM_TEXT); // Post ID to get comments
-$edit_page = optional_param('edit_page', '', PARAM_TEXT); // Post ID to get comments
-$post_title = optional_param('post_title', '', PARAM_TEXT); // Post ID to get comments
-$post_content = optional_param('post_content', '', PARAM_TEXT); // Post ID to get comments
-$post_type = optional_param('post_type', '', PARAM_TEXT); // Post ID to get comments
-$post_ID = optional_param('post_ID', 0, PARAM_INT);
+
+
 
 $context = get_context_instance(CONTEXT_MODULE, $id);
 if ($id) {
-    $cm = get_coursemodule_from_id('modwordpress', $id, 0, false, MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
-    $modwordpress = $DB->get_record('modwordpress', array('id' => $cm->instance), '*', MUST_EXIST);
+  $cm = get_coursemodule_from_id('modredmine', $id, 0, false, MUST_EXIST);
+  $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+  $modredmine = $DB->get_record('modredmine', array('id' => $cm->instance), '*', MUST_EXIST);
+  // TODO crear un usuario admin por defecto en la base de datos
+  if (!has_capability('mod/modredmine:admin', $context)) {
+    $modredmine_user = $DB->get_record('modredmine_users', array('moodle_id' => $USER->id), '*', MUST_EXIST);
+  }
 } elseif ($n) {
-    $modwordpress = $DB->get_record('modwordpress', array('id' => $n), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id' => $modwordpress->course), '*', MUST_EXIST);
-    $cm = get_coursemodule_from_instance('modwordpress', $modwordpress->id, $course->id, false, MUST_EXIST);
+  $modredmine = $DB->get_record('modredmine', array('id' => $n), '*', MUST_EXIST);
+  $course = $DB->get_record('course', array('id' => $modredmine->course), '*', MUST_EXIST);
+  $cm = get_coursemodule_from_instance('modredmine', $modredmine->id, $course->id, false, MUST_EXIST);
+  // TODO crear un usuario admin por defecto en la base de datos
+  if (!has_capability('mod/modredmine:admin', $context)) {
+    $modredmine_user = $DB->get_record('modredmine_users', array('moodle_id' => $USER->id), '*', MUST_EXIST);
+  }
 } else {
-    error('You must specify a course_module ID or an instance ID');
+  error('You must specify a course_module ID or an instance ID');
 }
 
-if ($modwordpress->server_id) {
-    $server = $DB->get_record('modwordpress_servers', array('id' => $modwordpress->server_id), '*', MUST_EXIST);
-    $mdl_users = $DB->get_records_sql('SELECT moodle_id, wordpress_id, username, firstname from {modwordpress_users} mu, {user} u WHERE u.id = mu.moodle_id and mu.server_id=?', array($modwordpress->server_id));
-    $wp_users = $DB->get_records_sql('SELECT wordpress_id, moodle_id, username, firstname from {modwordpress_users} mu, {user} u WHERE u.id = mu.moodle_id and mu.server_id=?', array($modwordpress->server_id));
+if ($modredmine->server_id) {
+  $server = $DB->get_record('modredmine_servers', array('id' => $modredmine->server_id), '*', MUST_EXIST);
+  //$mdl_users = $DB->get_records_sql('SELECT moodle_id, redmine_id, username, firstname from {modredmine_users} mu, {user} u WHERE u.id = mu.moodle_id and mu.server_id=?', array($modredmine->server_id));
+  //$wp_users = $DB->get_records_sql('SELECT redmine_id, moodle_id, username, firstname from {modredmine_users} mu, {user} u WHERE u.id = mu.moodle_id and mu.server_id=?', array($modredmine->server_id));
 }
 
 
 require_login($course, true, $cm);
 
-//add_to_log($course->id, 'modwordpress', 'view', "view.php?id=$cm->id", $modwordpress->name, $cm->id);
+//add_to_log($course->id, 'modredmine', 'view', "view.php?id=$cm->id", $modredmine->name, $cm->id);
 /// Print the page header
 
-$PAGE->set_url('/mod/modwordpress/view.php', array('id' => $cm->id));
-$PAGE->set_title($modwordpress->name);
+$PAGE->set_url('/mod/modredmine/view.php', array('id' => $cm->id));
+$PAGE->set_title($modredmine->name);
 $PAGE->set_heading($course->shortname);
-$PAGE->set_button(update_module_button($cm->id, $course->id, get_string('modulename', 'modwordpress')));
+$PAGE->set_button(update_module_button($cm->id, $course->id, get_string('modulename', 'modredmine')));
 
 // other things you may want to set - remove if not needed
 //$PAGE->set_cacheable(false);
 //$PAGE->set_focuscontrol('some-html-id');
+
 // Output starts here
+echo $OUTPUT->header();
 
-
-if (!$modwordpress->server_id) {
-    echo $OUTPUT->heading(get_string("configure_server_url", "modwordpress"));
+// Replace the following lines with you own code
+if (!$modredmine->server_id) {
+  echo $OUTPUT->heading(get_string("configure_server_url", "modredmine"));
 } else {
-
-    global $USER;
-
-
-
-
-// SAVE NEW/EDITED COMMENT
-    if ($comment_content != '' and confirm_sesskey()) {
-        if (($modwordpress->permission_create_comment && !$comment_ID) || ($modwordpress->permission_edit_comment && $comment_ID)) {
-	$user_id = 1;
-	if (isset($mdl_users[$USER->id]->wordpress_id))
-	    $user_id = $mdl_users[$USER->id]->wordpress_id;
-	$params = array('comment_content' => $comment_content, 'comment_author' => $user_id);
-
-	// edit comment
-	if ($comment_ID) {
-	    $basefeed = rtrim($server->url, '/') . "/comment/$comment_ID.json";
-	    $method = 'PUT';
-
-	    // new comment
-	} else {
-	    $basefeed = rtrim($server->url, '/') . "/comment/$comment_post_ID.json";
-	    $method = 'POST';
-	}
-
-	if ($server->oauth) {
-	    $consumer_key = $server->consumer_key;
-	    $consumer_secret = $server->consumer_secret;
-	    $access_token = $server->access_token;
-	    $access_secret = $server->access_secret;
-	    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	    $token = new OAuthToken($access_token, $access_secret, NULL);
-	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, $method, $basefeed, $params);
-	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-	} else {
-	    $response = send_request($method, $basefeed, null, $params);
-	}
-	add_to_log($course->id, 'modwordpress', 'create comment', "view.php?id=$cm->id&comments=$comment_post_ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
-        }
-        redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&comments=$comment_post_ID&sesskey=" . sesskey());
-        die;
+  global $USER;
+  $server_id = $modredmine->server_id;
+  $server = $DB->get_record_select("modredmine_servers", "id=$server_id");
 
 
+  //-----vvv Getting Redmine Server CSS vvv----------------------
+  $url = rtrim($server->url, '/');
+  $url = rtrim($url, '/api');
+  $url = rtrim($url, '/API');
+  $url = rtrim($url, '/API');
+  $url .= "/";
+  $curl = curl_init();
+  curl_setopt($curl, CURLOPT_URL, $url);
+  $ch = $curl;
+  curl_setopt($ch, CURLOPT_FAILONERROR, true);
+  curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+  curl_setopt($ch, CURLOPT_AUTOREFERER, true);
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+  curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+  $html = curl_exec($ch);
+  $dom = new DOMDocument();
+  @$dom->loadHTML($html);
+  $xpath = new DOMXPath($dom);
+  $hrefs = $xpath->evaluate("/html/head/child::link[attribute::type='text/css'][attribute::rel='stylesheet']");
+  $css = '';
+  if ($hrefs->length) {
 
-
-// SAVE NEW/EDITED POST OR PAGE
-    } elseif ($post_title != '' and $post_content != '' and confirm_sesskey()) {
-        if (($post_type != '' && $modwordpress->permission_create_page) || ($post_type == '' && $modwordpress->permission_create_post) || ($post_ID && $modwordpress->permission_edit_post) || ($post_ID && $post_type != '' && $modwordpress->permission_edit_page)) {
-	$user_id = 1;
-	if (isset($mdl_users[$USER->id]->wordpress_id))
-	    $user_id = $mdl_users[$USER->id]->wordpress_id;
-	$params = array('post_title' => $post_title, 'post_content' => $post_content, 'post_author' => $user_id);
-
-	// edit post
-	if ($post_ID) {
-	    $method = "PUT";
-	    if ($post_type != '') {
-	        $basefeed = rtrim($server->url, '/') . "/page/$post_ID.json";
-	    } else {
-	        $basefeed = rtrim($server->url, '/') . "/post/$post_ID.json";
-	    }
-
-	    // new comment
-	} else {
-	    $method = "POST";
-	    if ($post_type != '') {
-	        $basefeed = rtrim($server->url, '/') . "/page.json";
-	    } else {
-	        $basefeed = rtrim($server->url, '/') . "/post.json";
-	    }
-	}
-
-	if ($server->oauth) {
-	    $consumer_key = $server->consumer_key;
-	    $consumer_secret = $server->consumer_secret;
-	    $access_token = $server->access_token;
-	    $access_secret = $server->access_secret;
-	    $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	    $token = new OAuthToken($access_token, $access_secret, NULL);
-	    if ($method == 'PUT') {
-	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, $method, $basefeed);
-	    } else {
-	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, $method, $basefeed, $params);
-	    }
-	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-	} else {
-	    $response = send_request($method, $basefeed, null, $params);
-	}
-
-	$json = json_decode($response);
-	if ($post_type != '' && isset($json->ID)) {
-	    add_to_log($course->id, 'modwordpress', 'create page', "view.php?id=$cm->id&page=$json->ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
-	} elseif (isset($json->ID)) {
-	    add_to_log($course->id, 'modwordpress', 'create post', "view.php?id=$cm->id&post=$json->ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
-	} else {
-	    echo $OUTPUT->header();
-	    echo "<p>" . get_string("server_error", "modwordpress") . ": ";
-	    echo $response . "</p>";
-	    echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-	    echo $OUTPUT->footer();
-	    die;
-	}
-        }
-        if ($post_ID) {
-	redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&post=$post_ID&sesskey=" . sesskey());
-        } else {
-	redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id");
-        }
-        die;
-
-
-
-
-// DELETE COMMENT
-    } elseif ($delete_comment and confirm_sesskey()) {
-        $params = array();
-        $basefeed = rtrim($server->url, '/') . "/comment/$delete_comment.json";
-        if ($server->oauth) {
-	$consumer_key = $server->consumer_key;
-	$consumer_secret = $server->consumer_secret;
-	$access_token = $server->access_token;
-	$access_secret = $server->access_secret;
-	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	$token = new OAuthToken($access_token, $access_secret, NULL);
-	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, $params);
-	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-        } else {
-	$response = send_request('GET', $basefeed, null, $params);
-        }
-        $comment = json_decode($response);
-        if (isset($comment->comment_ID)) {
-	$moodle_id = -1;
-	if (isset($wp_users[$comment->comment_author]))
-	    $moodle_id = $wp_users[$comment->comment_author]->moodle_id;
-
-	if (has_capability('mod/modwordpress:moderate', $context) || ($moodle_id == $USER->id && $modwordpress->permission_delete_comment)) {
-	    $params = array();
-	    $basefeed = rtrim($server->url, '/') . "/comment/$delete_comment.json";
-
-	    if ($server->oauth) {
-	        $consumer_key = $server->consumer_key;
-	        $consumer_secret = $server->consumer_secret;
-	        $access_token = $server->access_token;
-	        $access_secret = $server->access_secret;
-	        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	        $token = new OAuthToken($access_token, $access_secret, NULL);
-	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed, $params);
-	        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-	    } else {
-	        $response = send_request('DELETE', $basefeed, null, $params);
-	    }
-	    add_to_log($course->id, 'modwordpress', 'delete comment', "view.php?id=$cm->id&comments=$comment_post_ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
-
-	    redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&comments=$comment_post_ID&sesskey=" . sesskey());
-	    die;
-	} else {
-	    echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	    echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-	    die;
-	}
-        } else {
-	echo $OUTPUT->header();
-	echo "<p>" . get_string("server_error", "modwordpress") . ": ";
-	echo $response . "</p>";
-	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-	echo $OUTPUT->footer();
-	die;
-        }
-
-
-
-// DELETE PAGE
-    } elseif ($delete_page and confirm_sesskey()) {
-        $params = array();
-        $basefeed = rtrim($server->url, '/') . "/page/$delete_page.json";
-        if ($server->oauth) {
-	$consumer_key = $server->consumer_key;
-	$consumer_secret = $server->consumer_secret;
-	$access_token = $server->access_token;
-	$access_secret = $server->access_secret;
-	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	$token = new OAuthToken($access_token, $access_secret, NULL);
-	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, $params);
-	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-        } else {
-	$response = send_request('GET', $basefeed, null, $params);
-        }
-        $post = json_decode($response);
-        if (isset($post->ID)) {
-	$moodle_id = -1;
-	if (isset($wp_users[$comment->comment_author]))
-	    $moodle_id = $wp_users[$comment->comment_author]->moodle_id;
-	if (has_capability('mod/modwordpress:moderate', $context) || ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post)) {
-	    $params = array();
-	    $basefeed = rtrim($server->url, '/') . "/page/$delete_page.json";
-
-	    if ($server->oauth) {
-	        $consumer_key = $server->consumer_key;
-	        $consumer_secret = $server->consumer_secret;
-	        $access_token = $server->access_token;
-	        $access_secret = $server->access_secret;
-	        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	        $token = new OAuthToken($access_token, $access_secret, NULL);
-	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed, $params);
-	        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-	    } else {
-	        $response = send_request('DELETE', $basefeed, null, $params);
-	    }
-	    add_to_log($course->id, 'modwordpress', 'delete page', "view.php?id=$cm->id", $modwordpress->name, $cm->id);
-
-	    redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id");
-	    die;
-	} else {
-	    echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	    echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-	    die;
-	}
-        } else {
-	echo $OUTPUT->header();
-	echo "<p>" . get_string("server_error", "modwordpress") . ": ";
-	echo $response . "</p>";
-	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-	echo $OUTPUT->footer();
-	die;
-        }
-    } elseif ($delete_post and confirm_sesskey()) {
-        $params = array();
-        $basefeed = rtrim($server->url, '/') . "/post/$delete_post.json";
-        if ($server->oauth) {
-	$consumer_key = $server->consumer_key;
-	$consumer_secret = $server->consumer_secret;
-	$access_token = $server->access_token;
-	$access_secret = $server->access_secret;
-	$consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	$token = new OAuthToken($access_token, $access_secret, NULL);
-	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, $params);
-	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-        } else {
-	$response = send_request('GET', $basefeed, null, $params);
-        }
-        $post = json_decode($response);
-        if (isset($post->ID)) {
-	if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post) {
-	    $params = array();
-	    $basefeed = rtrim($server->url, '/') . "/post/$delete_post.json";
-
-	    if ($server->oauth) {
-	        $consumer_key = $server->consumer_key;
-	        $consumer_secret = $server->consumer_secret;
-	        $access_token = $server->access_token;
-	        $access_secret = $server->access_secret;
-	        $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
-	        $token = new OAuthToken($access_token, $access_secret, NULL);
-	        $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'DELETE', $basefeed, $params);
-	        $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	        $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header(), $params);
-	    } else {
-	        $response = send_request('DELETE', $basefeed, null, $params);
-	    }
-	    add_to_log($course->id, 'modwordpress', 'delete post', "view.php?id=$cm->id", $modwordpress->name, $cm->id);
-
-	    redirect("$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id");
-	    die;
-	} else {
-	    echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	    echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-	    die;
-	}
-        } else {
-	echo $OUTPUT->header();
-	echo "<p>" . get_string("server_error", "modwordpress") . ": ";
-	echo $response . "</p>";
-	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-	echo $OUTPUT->footer();
-	die;
-        }
+    foreach ($hrefs as $href) {
+      $css = $href->getAttribute('href');
+      if ($css != '') {
+        echo "<link rel='stylesheet' href='$css' />";
+      }
     }
+  } else {
+    echo "<link rel='stylesheet' href='style.css' />";
+  }
+  //-----^^^ Getting Redmine Server CSS ^^^----------------------
+
+  // TODO si el usuario es root se usa API KEY, si no lo es se usa username:password
+  $api_key = null;
+  if ($server->auth && has_capability('mod/modredmine:admin', $context)) {
+    $api_key = $server->api_key;
+  }
+  // Si el servidor requiere autenticacion y no tiene configurada api key
+  // se busca en los parametros del usuario (redmine_login y redmine_password)
+  // TODO gestionar los parametros redmine_login y redmine_password para cada usuario
+  if (strlen($api_key)) {
+    $api_key .= ':@';
+  } else {
+    $api_key = $modredmine_user->redmine_login.":".$modredmine_user->redmine_password."@";
+  }
+  $server_url = rtrim($server->url, '/');
+  $server_url = str_replace('http://', '', $server_url);
+  // TODO si el usuario es root se usa API KEY, si no lo es se usa username:password
+  $server_url = "http://$api_key$server_url/";
+
+
+  //var_dump($timees);
+  //    var_dump($bugs);
+  //    var_dump($bugs[0]->project);
+  //    var_dump($bugs[0]->status);
+  //    var_dump($bugs[0]->tracker);
+  //    var_dump($bugs[0]->priority);
+  //    var_dump($bugs[0]->author);
+  //    var_dump($bugs[0]->due_date);
+  //    var_dump($bugs[0]->estimated_hours);
+
+  //    var_dump($news);
 
 
 
+  // ----------- vvv RESUMEN vvv ------------------------------------------------------
+  echo "<div id='wrapper'>";
+  echo "	<div id='wrapper2'>";
+  if (!isset($option) || $option == '') {
+    $issues = new RedmineIssue();
+    $issues->setSite($server_url);
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".BUG;
+    $bugs = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".BUG."&status_id=".OPEN;
+    $open_bugs = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".FEATURE;
+    $features = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".FEATURE."&status_id=".OPEN;
+    $open_features = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".SUPPORT;
+    $supports = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".SUPPORT."&status_id=".OPEN;
+    $open_supports = $issues->find('all');
+    $issues->extra_params = "";
+    $time_entries = new RedmineTimeEntry();
+    $time_entries->setSite($server_url);
+    $time_entries->extra_params = "?project_id=".$modredmine->project_identifier.
+    $timees = $time_entries->find('all');
+    $hours = 0;
+    foreach ($timees as $time) {
+      if (isset($time->hours))
+        $hours += $time->hours;
+    }
+    $project_news = new RedmineNews();
+    $project_news->setSite($server_url);
+    $project_news->extra_params = "?project_id=".$modredmine->project_identifier.
+    $news = $project_news->find('all');
 
-
-    echo $OUTPUT->header();
-
-
-
-
-
-// VIEW COMMENTS
-    if ($comments and confirm_sesskey()) {
-
-        $basefeed = rtrim($server->url, '/') . "/post/$comments.json";
-        if ($server->oauth) {
-	$consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
-	$token = new OAuthToken($server->access_token, $server->access_secret, NULL);
-	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
-	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-        } else {
-	$response = send_request('GET', $basefeed, null);
+    echo $OUTPUT->heading($server->name);
+    echo "<div id='header'>";
+    echo "  <h1>$modredmine->project_name</h1>";
+    echo "  <div id='main-menu' style='margin-top: 12px; position: relative;'>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;sesskey=".sesskey()."' class='overview selected'>Resumen</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=".sesskey()."' class='issues'>Peticiones</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=news&amp;sesskey=".sesskey()."' class='news'>Noticias</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Tiempo Dedicado</a></li>";
+    echo "  </div>";
+    echo "</div>";
+    echo "<div class='main'>";
+    echo "	<div id='sidebar'>";
+    echo "	    <h3>Tiempo dedicado</h3>";
+    echo "	    <p><span class='icon icon-time'>$hours horas</span></p>";
+    echo "	    <p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Detalles</a></p>";
+    echo "	</div>";
+    echo "	<div id='content'>";
+    if ($issues->errno == NULL) {
+      echo "	    <div id='splitcontentleft'>";
+      echo "	        <div class='issues box'>";
+      echo "		<h3>Peticiones</h3>";
+      echo "		<ul>";
+      echo "		    <li>Errores: ".count($open_bugs)."     abiertos / ".count($bugs)."    </li>";
+      echo "		    <li>Tareas:  ".count($open_features)." abiertas / ".count($features)."</li>";
+      echo "		    <li>Soporte: ".count($open_supports)."  abiertas / ".count($supports)." </li>";
+      echo "		</ul>";
+      echo "		<p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=" . sesskey() . "'>Ver todas las peticiones</a></p>";
+      echo "	        </div>";
+      echo "	        <div class='news box'>";
+      echo "		<h3>Últimas Noticias</h3>";
+      echo "		<ul>";
+      for ($x=0; ($x<count($news) && $x<MAX_SUMMARY_NEWS); $x++) {
+        if (count($news)) {
+          echo "		    <li> <h5>".$news[$x]->title."</h5> - ".$news[$x]->summary." </li>";
         }
-        $json = json_decode($response);
-
-        echo $OUTPUT->heading($modwordpress->name . ": " . $json->post_title);
-        if (isset($json->comments)) {
-	if ($modwordpress->permission_create_comment) {
-	    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$json->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a>";
-	}
-	if (count($json)) {
-	    foreach ($json->comments as $comment) {
-	        $author = (isset($wp_users[$comment->comment_author]) ? $wp_users[$comment->comment_author]->firstname : $comment->comment_author_name);
-	        echo "<div id='$comment->comment_ID' style='margin-bottom: 50px;'>";
-	        echo "	<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 1px;'>";
-	        echo "	    <span style='margin: 0; font-weight:bold'>" . $author . "</span> dijo:";
-	        echo "	    <p style='font-size: 75%; color: gray;'>Publicado en $comment->comment_date</p>";
-	        echo "	</div>";
-	        echo "	<div class='clearfix' style='margin: 5px 10px;'>$comment->comment_content</div>";
-	        echo "	<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
-	        echo "	</div>";
-	        echo "</div>";
-	        if (has_capability('mod/modwordpress:moderate', $context)) {
-		echo " <a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a>";
-		echo " <a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_comment=$comment->comment_ID&amp;comment_post_ID=$json->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_comment", "modwordpress") . "</a>";
-		echo "<br/><br/>";
-	        } else if (isset($wp_users[$comment->comment_author])) {
-		if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_edit_comment) {
-		    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a>";
-		}
-		if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_delete_comment) {
-		    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_comment=$comment->comment_ID&amp;comment_post_ID=$json->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_comment", "modwordpress") . "</a>";
-		}
-		echo "<br/><br/>";
-	        }
-	    }
-	}
-	if ($modwordpress->permission_create_comment) {
-	    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$json->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a><br/><br/>";
-	}
-        } else {
-	echo "Este post no tiene comentarios.<br/><br/>";
-        }
-        echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id'>" . get_string("back", "modwordpress") . "</a><br/><br/>";
-        add_to_log($course->id, 'modwordpress', 'view comments', "view.php?id=$cm->id", $modwordpress->name, $cm->id);
-
-
-
-
-// VIEW POST
-    } elseif ($post and confirm_sesskey()) {
-        $basefeed = rtrim($server->url, '/') . "/post/$post.json";
-        if ($server->oauth) {
-	$consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
-	$token = new OAuthToken($server->access_token, $server->access_secret, NULL);
-	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
-	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-        } else {
-	$response = send_request('GET', $basefeed, null);
-        }
-        $post = json_decode($response);
-        if (count($post)) {
-	$author = (isset($wp_users[$post->post_author]) ? $wp_users[$post->post_author]->firstname : $post->user_nicename);
-	echo $OUTPUT->heading($modwordpress->name . " : " . $post->post_title);
-	echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $author</p>";
-	echo $post->post_content;
-	if ($modwordpress->permission_create_comment) {
-	    echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a>";
-	}
-	if (has_capability('mod/modwordpress:moderate', $context)) {
-	    echo " | ";
-	    echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_post", "modwordpress") . "</a>";
-	    echo " | ";
-	    echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_post", "modwordpress") . "</a>";
-	} else if (isset($wp_users[$post->post_author])) {
-	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_edit_post) {
-	        echo " | ";
-	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_post", "modwordpress") . "</a>";
-	    }
-	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post) {
-	        echo " | ";
-	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_post", "modwordpress") . "</a>";
-	    }
-	}
-	if (isset($post->comments)) {
-	    foreach ($post->comments as $comment) {
-	        $author = (isset($wp_users[$comment->comment_author]) ? $wp_users[$comment->comment_author]->firstname : $comment->comment_author_name);
-	        echo "<div id='$comment->comment_ID' style='margin-bottom: 50px;'>";
-	        echo "<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 1px;'>";
-	        echo "<span style='margin: 0; font-weight:bold'>$author</span> dijo:";
-	        echo "<p style='font-size: 75%; color: gray;'>Publicado en $comment->comment_date</p>";
-	        echo "</div>";
-	        echo "<div class='clearfix' style='margin: 5px 10px;'>$comment->comment_content</div>";
-	        echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
-	        echo "</div>";
-	        echo "</div>";
-	        if (has_capability('mod/modwordpress:moderate', $context)) {
-		echo " <a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a>";
-		echo " <a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_comment", "modwordpress") . "</a>";
-	        } else if (isset($wp_users[$comment->comment_author])) {
-		if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_edit_comment) {
-		    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_comment", "modwordpress") . "</a> ";
-		}
-		if ($wp_users[$comment->comment_author]->moodle_id == $USER->id && $modwordpress->permission_delete_comment) {
-		    echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_comment=$comment->comment_ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_comment", "modwordpress") . "</a> ";
-		}
-	        }
-	    }
-	    if ($modwordpress->permission_create_comment) {
-	        echo " <a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a>";
-	    }
-	    echo "<br/>";
-	}
-        }
-        echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id'>" . get_string("back", "modwordpress") . "</a><br/><br/>";
-        add_to_log($course->id, 'modwordpress', 'view post', "view.php?id=$cm->id&post=$post->ID&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
-
-
-
-
-// VIEW PAGE
-    } elseif ($page and confirm_sesskey()) {
-        $basefeed = rtrim($server->url, '/') . "/page/$page.json";
-        if ($server->oauth) {
-	$consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
-	$token = new OAuthToken($server->access_token, $server->access_secret, NULL);
-	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
-	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-        } else {
-	$response = send_request('GET', $basefeed, null);
-        }
-        $post = json_decode($response);
-        if (count($post)) {
-	echo $OUTPUT->heading($modwordpress->name . " : " . $post->post_title);
-	echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $post->post_author</p>";
-	echo $post->post_content;
-        }
-        if (has_capability('mod/modwordpress:moderate', $context)) {
-	echo "<br/><br/>";
-	echo " <a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_page=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_page", "modwordpress") . "</a>";
-	echo " | <a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_page=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_page", "modwordpress") . "</a>";
-        } else if (isset($wp_users[$post->post_author])) {
-	echo "<br/><br/>";
-	if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_edit_post) {
-	    echo " <a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_page=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_page", "modwordpress") . "</a>";
-	}
-	if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post) {
-	    echo " | <a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_page=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_page", "modwordpress") . "</a>";
-	}
-        }
-
-
-        echo "<br/><button style='margin-top: 20px;' onclick='javascript:history.back(); return false;'>Volver</button>  ";
-        add_to_log($course->id, 'modwordpress', 'view page', "view.php?id=$cm->id&page=$page&sesskey=" . sesskey(), $modwordpress->name, $cm->id);
-
-
-
-
-
-
-
-// NEW COMMENT FORM
-    } elseif ($new_comment and confirm_sesskey()) {
-        if ($modwordpress->permission_create_comment) {
-	echo $OUTPUT->heading($modwordpress->name);
-	echo '<form name="new_comment_form" method="post" action="view.php" id="new_comment_form" onsubmit="return new_comment_form_validation();">';
-	echo "<p>" . get_string("write_comment", "modwordpress") . "</p>";
-	echo '<textarea cols=90 rows=10 name="comment_content"></textarea>';
-	echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
-	echo "<input type='hidden' name='comment_post_ID' value='$new_comment' />";
-	echo "<input type='hidden' name='id' value='$cm->id' />";
-	echo "<br><input type='submit' value='" . get_string("save", "modwordpress") . "' />";
-	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-	echo '</form>';
-	echo " <script type='text/javascript'> function new_comment_form_validation() { if (document.new_comment_form.comment_content.value.length == 0) { alert('" . get_string('comment_empty', 'modwordpress') . "'); document.new_comment_form.comment_content.focus(); return false; } }</script>";
-        } else {
-	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-        }
-
-// EDIT COMMENT FORM
-    } elseif ($edit_comment and confirm_sesskey()) {
-        if ($modwordpress->permission_edit_comment) {
-	$basefeed = rtrim($server->url, '/') . "/comment/$edit_comment.json";
-	if ($server->oauth) {
-	    $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
-	    $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
-	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
-	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-	} else {
-	    $response = send_request('GET', $basefeed, null);
-	}
-	$json = json_decode($response);
-
-	echo $OUTPUT->heading($modwordpress->name);
-	echo '<form name="new_comment_form" method="post" action="view.php" id="new_comment_form" onsubmit="return new_comment_form_validation();">';
-	echo "<p>" . get_string("write_comment", "modwordpress") . "</p>";
-	echo '<textarea cols=90 rows=10 name="comment_content">' . $json->comment_content . '</textarea>';
-	echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
-	echo "<input type='hidden' name='id' value='$cm->id' />";
-	echo "<input type='hidden' name='comment_ID' value='$edit_comment' />";
-	echo "<input type='hidden' name='comment_post_ID' value='$json->comment_post_ID' />";
-	echo "<br><input type='submit' value='" . get_string("save", "modwordpress") . "' />";
-	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-	echo '</form>';
-	echo " <script type='text/javascript'> function new_comment_form_validation() { if (document.new_comment_form.comment_content.value.length == 0) { alert('" . get_string('comment_empty', 'modwordpress') . "'); document.new_comment_form.comment_content.focus(); return false; } }</script>";
-        } else {
-	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-        }
-
-
-
-
-
-// NEW POST OR PAGE FORM
-    } elseif (($new_post != '' or $new_page != '') and confirm_sesskey()) {
-        if (($new_page != '' && $modwordpress->permission_create_page) || ($new_page == '' && $modwordpress->permission_create_post)) {
-	if ($new_page != '') {
-	    echo $OUTPUT->heading($modwordpress->name . " : " . get_string('new_page', 'modwordpress'));
-	} else {
-	    echo $OUTPUT->heading($modwordpress->name . " : " . get_string('new_post', 'modwordpress'));
-	}
-
-	// Validación -------------------------------
-	echo " <script type='text/javascript'> \n";
-	echo "function new_post_form_validation() { ";
-	echo "if (document.new_post_form.post_title.value.length == 0) {";
-	echo "alert('" . get_string('post_title_empty', 'modwordpress') . "');";
-	echo "document.new_post_form.post_title.focus();";
-	echo "return false; ";
-	echo "}";
-	echo "if (document.new_post_form.post_content.value.length == 0) {";
-	echo "alert('" . get_string('post_content_empty', 'modwordpress') . "');";
-	echo "document.new_post_form.post_content.focus();";
-	echo "return false; ";
-	echo "}";
-	echo "}\n";
-	echo "</script>";
-
-
-	// Formulario -----------------------------------
-	echo '<form name="new_post_form" method="post" action="view.php" id="new_post_form" onsubmit="return new_post_form_validation();">';
-	echo '<table><thead></thead><tbody>';
-	echo '<tr>';
-	echo "<td><label for='post_title'>" . get_string("title", "modwordpress") . "</label></td>";
-	echo "<td><input type='text' name='post_title' value='' size='80px' /></td>";
-	echo "</tr><tr>";
-	echo "<td colspan='2'><textarea cols=90 rows=10 name='post_content'></textarea></td>";
-	echo "</tr></tbody></table>";
-	echo "<input type='submit' value='" . get_string("save", "modwordpress") . "' />";
-	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-	echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
-	echo "<input type='hidden' name='id' value='$cm->id' />";
-	if ($new_page != '') {
-	    echo "<input type='hidden' name='post_type' value='page' />";
-	}
-	echo '</form>';
-        } else {
-	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-        }
-
-
-
-// EDIT POST FORM
-    } elseif (($edit_post and confirm_sesskey()) or ($edit_page and confirm_sesskey())) {
-        if ($modwordpress->permission_edit_post) {
-	if ($edit_post) {
-	    $basefeed = rtrim($server->url, '/') . "/post/$edit_post.json";
-	} else {
-	    $basefeed = rtrim($server->url, '/') . "/page/$edit_page.json";
-	}
-	if ($server->oauth) {
-	    $consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
-	    $token = new OAuthToken($server->access_token, $server->access_secret, NULL);
-	    $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
-	    $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	    $response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-	} else {
-	    $response = send_request('GET', $basefeed, null);
-	}
-	$json = json_decode($response);
-
-
-	echo $OUTPUT->heading($modwordpress->name . " : " . $json->post_title . " (" . get_string('edit_post', 'modwordpress') . ") ");
-
-	// Validacion -----------------------------------------------------
-	echo " <script type='text/javascript'>";
-	echo "function new_post_form_validation() { ";
-	echo "if (document.new_post_form.post_title.value.length == 0) {";
-	echo "alert('" . print_string('post_title_empty', 'modwordpress') . "');";
-	echo "document.new_post_form.post_title.focus();";
-	echo "return false; ";
-	echo "}";
-	echo "if (document.new_post_form.post_content.value.length == 0) {";
-	echo "alert('" . print_string('post_content_empty', 'modwordpress') . "');";
-	echo "document.new_post_form.post_content.focus();";
-	echo "return false; ";
-	echo "}";
-	echo "}";
-	echo "</script>";
-
-
-	// Formulario ------------------------------------------------------
-	echo '<form name="new_post_form" method="post" action="view.php" id="new_post_form" onsubmit="return new_post_form_validation();">';
-	echo '<table><thead></thead><tbody>';
-	echo '<tr>';
-	echo "<td><label for='post_title'>" . get_string("title", "modwordpress") . "</label></td>";
-	echo "<td><input type='text' name='post_title' value='$json->post_title' size='80px' /></td>";
-	echo "</tr><tr>";
-	echo "<td colspan='2'><textarea cols=90 rows=10 name='post_content'>$json->post_content</textarea></td>";
-	echo "</tr></tbody></table>";
-	echo "<input type='submit' value='" . get_string("save", "modwordpress") . "' />";
-	echo "<input type='hidden' name='sesskey' value='" . sesskey() . "' />";
-	echo "<input type='hidden' name='id' value='$cm->id' />";
-	echo "<input type='hidden' name='post_ID' value='$edit_post' />";
-	if ($edit_page) {
-	    echo "<input type='hidden' name='post_type' value='page' />";
-	}
-	echo '</form>';
-	echo "<br/><br/><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;post=$json->ID&amp;sesskey=" . sesskey() . "'>" . get_string('back', 'modwordpress') . "</a>";
-        } else {
-	echo "<p>" . get_string("no_permission", "modwordpress") . "</p>";
-	echo "<button onclick='javascript:history.back(); return false;'>" . get_string("back", "modwordpress") . "</button>  ";
-        }
-
-
-
-
-
-
-
-// LIST ALL POSTS
+      }
+      echo "		</ul>";
+      echo "		<p><a href=''>Ver todas las noticias</a></p>";
+      echo "	        </div>";
+      echo "	    </div>";
+      echo "	    <div id='splitcontentright'>";
+      echo "	    </div>";
+      echo "	    <div style='clear:both;'></div>";
     } else {
-        // Get page list
-        $basefeed = rtrim($server->url, '/') . '/pages.json';
-        if ($server->oauth) {
-	$consumer = new OAuthConsumer($server->consumer_key, $server->consumer_secret, NULL);
-	$token = new OAuthToken($server->access_token, $server->access_secret, NULL);
-	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
-	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-        } else {
-	$response = send_request('GET', $basefeed, NULL);
-        }
-        $json = json_decode($response);
-        echo $OUTPUT->heading($modwordpress->name);
-
-
-        // Estilo desde Wordpress
-/*
-          $url = rtrim($server->url, '/');
-          $url = rtrim($url, '/api');
-          $url = rtrim($url, '/API');
-          $url = rtrim($url, '/API');
-          $url .= "/";
-          $curl = curl_init();
-          curl_setopt($curl, CURLOPT_URL, $url);
-          $ch = $curl;
-          curl_setopt($ch, CURLOPT_FAILONERROR, true);
-          curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-          curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-          curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-          curl_setopt($ch, CURLOPT_TIMEOUT, 10);
-          $html = curl_exec($ch);
-          $dom = new DOMDocument();
-          @$dom->loadHTML($html);
-          $xpath = new DOMXPath($dom);
-          $hrefs = $xpath->evaluate("/html/head/child::link[attribute::type='text/css'][attribute::rel='stylesheet']");
-          $css = '';
-          if ($hrefs->length) {
-          $href = $hrefs->item(0);
-          $css = $href->getAttribute('href');
-          }
-
-          if ($css != '') {
-          echo "<link rel='stylesheet' href='$css' />";
-          }
-*/
-	echo "<link rel='stylesheet' href='style.css' />";
-          echo "<div id='access' role='navigation' >";
-          echo "<div class='menu'>";
-          echo "<ul style='list-style: none;'>";
-          echo "  <li style='list-style: none;' class='page-item'>";
-          echo "	<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_post=post&amp;sesskey=" . sesskey() . "'>" . get_string('new_post', 'modwordpress') . "</a>";
-          echo "  </li>";
-          echo "  <li style='list-style: none;' class='page_item'>";
-          echo "	<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_page=page&amp;sesskey=" . sesskey() . "'>" . get_string('new_page', 'modwordpress') . "</a>";
-          echo "  </li>";
-          foreach ($json as $page) {
-          if ($page->post_title != 'api') {
-          echo "  <li style='list-style: none;' class='page_item'>";
-          echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;page=$page->ID&amp;sesskey=" . sesskey() . "'>$page->post_title</a>";
-          echo "  </li>";
-          }
-          }
-          echo "</ul>";
-          echo "</div>";
-          echo "</div>";
-
-
-/*
-        // Estilo Moodle
-        // Page list menu
-        if ($modwordpress->permission_create_post)
-	echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_post=post&amp;sesskey=" . sesskey() . "'>" . get_string('new_post', 'modwordpress') . "</a>";
-        if ($modwordpress->permission_create_page) {
-	if ($modwordpress->permission_create_post)
-	    echo " | ";
-	echo "<a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_page=page&amp;sesskey=" . sesskey() . "'>" . get_string('new_page', 'modwordpress') . "</a>";
-        }
-        $block = "";
-        if (count($json) && ($modwordpress->permission_create_page || $modwordpress->permission_create_post))
-	$block = " | ";
-        foreach ($json as $page) {
-	if ($page->post_title != 'api') {
-	    echo " $block <a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;page=$page->ID&amp;sesskey=" . sesskey() . "'>$page->post_title</a>";
-	    $block = " | ";
-	}
-        }
-*/
-
-
-        // Get post list
-        $basefeed = rtrim($server->url, '/') . '/posts.json';
-        if ($server->oauth) {
-	$request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
-	$request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
-	$response = send_request($request->get_normalized_http_method(), $basefeed, $request->to_header());
-        } else {
-	$response = send_request('GET', $basefeed, NULL);
-        }
-        $json = json_decode($response);
-
-        foreach ($json as $post) {
-	$post_author = (isset($wp_users[$post->post_author]) ? $wp_users[$post->post_author]->firstname : $post->user_nicename);
-
-
-
-
-	  // Estilo Wordpress
-	  echo "<div id='post-$post->ID' class='post-$post->ID post type-post status-publish format-standard hentry category-sin-categoria'>";
-	  echo "  <h2 class='entry-title'><a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;post=$post->ID&amp;sesskey=" . sesskey() . "'>$post->post_title</a></h2>";
-	  echo "  <div class='entry-meta'>";
-	  echo "	<span class='meta-prep meta-prep-author'>Publicado en</span> <span class='entry-date'>$post->post_date</span> <span class='meta-sep'>por</span> <span class='author vcard'>$post_author</span>";
-	  echo "  </div>";
-	  echo "  <div class='entry-content'>";
-	  echo $post->post_content;
-	  echo "  </div>";
-	  echo "  <div class='entry-utility'>";
-	  echo "	<span class='cat-links'>";
-	  echo "	    <span class='comments-link'>";
-	  if ($post->comment_count > 1) {
-	  echo "<a title='' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;comments=$post->ID&amp;sesskey=" . sesskey() . "'>";
-	  echo "$post->comment_count Comentarios";
-	  echo "</a> | ";
-	  } elseif ($post->comment_count == 1) {
-	  echo "<a title='' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;comments=$post->ID&amp;sesskey=" . sesskey() . "'>";
-	  echo "$post->comment_count Comentario";
-	  echo "</a> | ";
-	  }
-	  echo "	    </span>";
-	  echo "	    <span class='meta-sep'>|</span>";
-	  echo "	    <span class='edit-link'>";
-	  echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a>";
-	  echo "	    </span>";
-	  echo "	</span>";
-	  echo "  </div>";
-	  echo "</div>";
-
-
-
-
-	// Posts list
-	// Estilo Moodle
-	echo "<div id='$post->ID' style='margin-bottom: 50px;'>";
-	echo "<div class='navbar clearfix' style='border: 1px solid #DDD; padding: 5px;'><h3 style='margin: 0;'><a style='margin: 5px 10px 20px 10px;' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;post=$post->ID&amp;sesskey=" . sesskey() . "'>$post->post_title</a></h3>";
-	echo "<p style='font-size: 75%; color: gray;'>Publicado en $post->post_date por $post_author</p>";
-	echo "</div>";
-	echo "<div class='clearfix' style='margin: 5px 10px;'>$post->post_content</div>";
-	echo "<div class='clearfix' style='margin: 5px 10px; color: gray; font-size: 90%;'>";
-	if ($post->comment_count > 1) {
-	    echo "<a title='' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;comments=$post->ID&amp;sesskey=" . sesskey() . "'>";
-	    echo "$post->comment_count Comentarios";
-	} elseif ($post->comment_count == 1) {
-	    echo "<a title='' href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;comments=$post->ID&amp;sesskey=" . sesskey() . "'>";
-	    echo "$post->comment_count Comentario";
-	}
-
-	if ($modwordpress->permission_create_comment) {
-	    if ($post->comment_count)
-	        echo "</a> | ";
-	    echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;new_comment=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("comment_post", "modwordpress") . "</a>";
-	}
-
-	if (isset($wp_users[$post->post_author])) {
-	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_edit_post) {
-	        echo " | ";
-	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;edit_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("edit_post", "modwordpress") . "</a>";
-	    }
-
-	    if ($wp_users[$post->post_author]->moodle_id == $USER->id && $modwordpress->permission_delete_post) {
-	        echo " | ";
-	        echo "<a href='$CFG->wwwroot/mod/modwordpress/view.php?id=$cm->id&amp;delete_post=$post->ID&amp;sesskey=" . sesskey() . "'>" . get_string("delete_post", "modwordpress") . "</a>";
-	    }
-	}
-
-	echo "</div>";
-	echo "</div>";
-        }
-        add_to_log($course->id, 'modwordpress', 'view', "view.php?id=$cm->id", $modwordpress->name, $cm->id);
-        //echo htmlentities($response);
+      echo $issues->error;
     }
-}
+    echo "	</div>";
+    echo "</div>";
+    // ----------- ^^^ RESUMEN ^^^ ------------------------------------------------------
 
+
+
+
+
+    // ----------- vvv ISSUES vvv ------------------------------------------------------
+  } elseif ($option == 'issues') {
+    $issues = new RedmineIssue();
+    $issues->setSite($server_url);
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".BUG;
+    $bugs = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".BUG."&status_id=".OPEN;
+    $open_bugs = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".FEATURE;
+    $features = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".FEATURE."&status_id=".OPEN;
+    $open_features = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".SUPPORT;
+    $supports = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".SUPPORT."&status_id=".OPEN;
+    $open_supports = $issues->find('all');
+    $issues->extra_params = "";
+    $time_entries = new RedmineTimeEntry();
+    $time_entries->setSite($server_url);
+    $time_entries->extra_params = "?project_id=".$modredmine->project_identifier.
+    $timees = $time_entries->find('all');
+    $hours = 0;
+    foreach ($timees as $time) {
+      $hours += $time->hours;
+    }
+
+    echo $OUTPUT->heading($server->name);
+    echo "<div id='header'>";
+    echo "  <h1>$modredmine->project_name</h1>";
+    echo "  <div id='main-menu' style='margin-top: 12px; position: relative;'>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;sesskey=".sesskey()."' >Resumen</a></li>";
+    echo "      <ul><li style='display:inline;'><a class='overview selected' href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=".sesskey()."' class='issues'>Peticiones</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=news&amp;sesskey=".sesskey()."' class='news'>Noticias</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Tiempo Dedicado</a></li>";
+    echo "  </div>";
+    echo "</div>";
+    echo "<div class='main'>";
+    echo "	<div id='sidebar'>";
+    echo "	    <h3>Tiempo dedicado</h3>";
+    echo "	    <p><span class='icon icon-time'>$hours horas</span></p>";
+    echo "	    <p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Detalles</a></p>";
+    echo "	</div>";
+    echo "	<div id='content'>";
+
+    if (!$issues->errno) {
+      echo "	    <div id='splitcontentleft'>";
+      echo "	        <div class='issues box'>";
+      echo "		<h3>Errores Abiertos</h3>";
+      echo "		<ul>";
+      for ($x=0; ($x<count($open_bugs) && ($x<MAX_SUMMARY_ISSUES)); $x++) {
+        echo "		    <li>".$open_bugs[$x]->subject." [".$open_bugs[$x]->priority['name']."] - Starts on ".$open_bugs[$x]->start_date." - Created on ". $open_bugs[$x]->created_on . " by ".$open_bugs[$x]->author['name']."</li>";
+      }
+      echo "		</ul>";
+      echo "		<p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=bugs&amp;sesskey=" . sesskey() . "'>Ver todos los errores</a></p>";
+      echo "	        </div>";
+      echo "	        <div class='issues box'>";
+      echo "		<h3>Tareas Abiertas</h3>";
+      echo "		<ul>";
+      for ($x=0; ($x<count($open_features) && ($x<MAX_SUMMARY_ISSUES)); $x++) {
+        echo "		    <li>".$open_features[$x]->subject." [".$open_features[$x]->priority['name']."] - Starts on ".$open_features[$x]->start_date." - Created on ". $open_features[$x]->created_on . " by ".$open_features[$x]->author['name']."</li>";
+      }
+      echo "		</ul>";
+      echo "		<p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=features&amp;sesskey=" . sesskey() . "'>Ver todas las tareas</a></p>";
+      echo "	        </div>";
+      echo "	        <div class='issues box'>";
+      echo "		<h3>Tareas de Soporte Abiertas</h3>";
+      echo "		<ul>";
+      for ($x=0; ($x<count($open_supports) && ($x<MAX_SUMMARY_ISSUES)); $x++) {
+        echo "		    <li>".$open_supports[$x]->subject." [".$open_supports[$x]->priority['name']."] - Starts on ".$open_supports[$x]->start_date." - Created on ". $open_supports[$x]->created_on . " by ".$open_supports[$x]->author['name']."</li>";
+      }
+      echo "		</ul>";
+      echo "		<p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=supports&amp;sesskey=" . sesskey() . "'>Ver todas las tareas de soporte</a></p>";
+      echo "	        </div>";
+      echo "	    </div>";
+      echo "	    <div id='splitcontentright'>";
+      echo "	    </div>";
+      echo "	    <div style='clear:both;'></div>";
+    } else {
+      echo $issues->error;
+    }
+    echo "	</div>";
+    echo "</div>";
+    // ----------- ^^^ ISSUES ^^^ ------------------------------------------------------
+
+
+
+
+    // ----------- vvv NEWS vvv ------------------------------------------------------
+  } elseif ($option == 'news') {
+    $time_entries = new RedmineTimeEntry();
+    $time_entries->setSite($server_url);
+    $time_entries->extra_params = "?project_id=".$modredmine->project_identifier."&limit=".MAX_NEWS."&offset=".$page;
+    $timees = $time_entries->find('all');
+    $hours = 0;
+    foreach ($timees as $time) {
+      $hours += $time->hours;
+    }
+    $project_news = new RedmineNews();
+    $project_news->setSite($server_url);
+    $project_news->extra_params = "?project_id=".$modredmine->project_identifier.
+    $news = $project_news->find('all');
+
+    echo $OUTPUT->heading($server->name);
+    echo "<div id='header'>";
+    echo "  <h1>$modredmine->project_name</h1>";
+    echo "  <div id='main-menu' style='margin-top: 12px; position: relative;'>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;sesskey=".sesskey()."' >Resumen</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=".sesskey()."' class='issues'>Peticiones</a></li>";
+    echo "      <ul><li style='display:inline;'><a class='overview selected' href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=news&amp;sesskey=".sesskey()."' class='news'>Noticias</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Tiempo Dedicado</a></li>";
+    echo "  </div>";
+    echo "</div>";
+    echo "<div class='main'>";
+    echo "	<div id='sidebar'>";
+    echo "	    <h3>Tiempo dedicado</h3>";
+    echo "	    <p><span class='icon icon-time'>$hours horas</span></p>";
+    echo "	    <p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Detalles</a></p>";
+    echo "	</div>";
+    echo "	<div id='content'>";
+
+    if (!$project_news->errno) {
+      echo "	    <div id='splitcontentleft'>";
+      echo "	        <div class='news box'>";
+      echo "		<h3>Todas las noticias</h3>";
+      echo "		<ul>";
+      foreach ($news as $new) {
+        echo "		    <li><b>$new->title:</b> $new->summary ( by ".$new->author['name']." )</li>";
+      }
+      echo "		</ul>";
+      echo "	        </div>";
+      echo "	    </div>";
+      echo "	    <div id='splitcontentright'>";
+      echo "	    </div>";
+      echo "	    <div style='clear:both;'>";
+      if ($page > 0) {
+        echo "<a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=news&amp;sesskey=" . sesskey() . "&amp;page=".($page-1)."'>Anteriores | </a>";
+      }
+      if (count($news)) {
+        echo "<a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=news&amp;sesskey=" . sesskey() . "&amp;page=".($page+1)."'> Siguientes</a>";
+      }
+      echo "	    </div>";
+    } else {
+      echo $issues->error;
+    }
+    echo "	</div>";
+    echo "</div>";
+    // ----------- ^^^ NEWS ^^^ ------------------------------------------------------
+
+
+
+
+    // ----------- vvv BUGS vvv ------------------------------------------------------
+  } elseif ($option == 'bugs') {
+    $issues = new RedmineIssue();
+    $issues->setSite($server_url);
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".BUG."&status_id=".OPEN."&limit=".MAX_ISSUES."&offset=".$page;
+    $open_bugs = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".BUG."&status_id=".CLOSED."&limit=".MAX_ISSUES."&offset=".$page;
+    $closed_bugs = $issues->find('all');
+    $time_entries = new RedmineTimeEntry();
+    $time_entries->setSite($server_url);
+    $time_entries->extra_params = "?project_id=".$modredmine->project_identifier.
+    $timees = $time_entries->find('all');
+    $hours = 0;
+    foreach ($timees as $time) {
+      $hours += $time->hours;
+    }
+
+    echo $OUTPUT->heading($server->name);
+    echo "<div id='header'>";
+    echo "  <h1>$modredmine->project_name</h1>";
+    echo "  <div id='main-menu' style='margin-top: 12px; position: relative;'>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;sesskey=".sesskey()."' >Resumen</a></li>";
+    echo "      <ul><li style='display:inline;'><a class='overview selected' href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=".sesskey()."' class='issues'>Peticiones</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=news&amp;sesskey=".sesskey()."' class='news'>Noticias</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Tiempo Dedicado</a></li>";
+    echo "  </div>";
+    echo "</div>";
+    echo "<div class='main'>";
+    echo "	<div id='sidebar'>";
+    echo "	    <h3>Tiempo dedicado</h3>";
+    echo "	    <p><span class='icon icon-time'>$hours horas</span></p>";
+    echo "	    <p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Detalles</a></p>";
+    echo "	</div>";
+    echo "	<div id='content'>";
+
+    if (!$issues->errno) {
+      echo "	    <div id='splitcontentleft'>";
+      echo "      <a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=".sesskey()."' class='issues'>Volver a Peticiones</a>";
+      echo "	        <div class='issues box'>";
+      echo "		<h3>Errores Abiertos</h3>";
+      echo "		<ul>";
+      foreach ($open_bugs as $bug) {
+        echo "		    <li>".$bug->subject." [".$bug->priority['name']."] - Starts on ".$bug->start_date." - Created on ". $bug->created_on . " by ".$bug->author['name']."</li>";
+      }
+      echo "		</ul>";
+      //echo "		<p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=bugs&amp;sesskey=" . sesskey() . "'>Ver todos los errores</a></p>";
+      echo "	        </div>";
+      echo "	        <div class='issues box'>";
+      echo "		<h3>Errores Cerrados</h3>";
+      echo "		<ul>";
+      foreach ($closed_bugs as $bug) {
+        echo "		    <li>".$bug->subject." [".$bug->priority['name']."] - Starts on ".$bug->start_date." - Created on ". $bug->created_on . " by ".$bug->author['name']."</li>";
+      }
+      echo "		</ul>";
+      //echo "		<p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=features&amp;sesskey=" . sesskey() . "'>Ver todas las tareas</a></p>";
+      echo "	        </div>";
+      echo "	    </div>";
+      echo "	    <div id='splitcontentright'>";
+      echo "	    </div>";
+      echo "	    <div style='clear:both;'>";
+      if ($page > 0) {
+        echo "<a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=bugs&amp;sesskey=" . sesskey() . "&amp;page=".($page-1)."'>Anteriores | </a>";
+      }
+      if (count($open_bugs) || count($closed_bugs)) {
+        echo "<a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=bugs&amp;sesskey=" . sesskey() . "&amp;page=".($page+1)."'> Siguientes</a>";
+      }
+      echo "</div>";
+    } else {
+      echo $issues->error;
+    }
+    echo "	</div>";
+    echo "</div>";
+    // ----------- ^^^ BUGS ^^^ ------------------------------------------------------
+
+
+
+
+
+    // ----------- vvv FEATURES vvv ------------------------------------------------------
+  } elseif ($option == 'features') {
+    $issues = new RedmineIssue();
+    $issues->setSite($server_url);
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".FEATURE."&status_id=".OPEN."&limit=".MAX_ISSUES."&offset=".$page;
+    $open_features = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".FEATURE."&status_id=".CLOSED."&limit=".MAX_ISSUES."&offset=".$page;
+    $closed_features = $issues->find('all');
+    $time_entries = new RedmineTimeEntry();
+    $time_entries->setSite($server_url);
+    $time_entries->extra_params = "?project_id=".$modredmine->project_identifier.
+    $timees = $time_entries->find('all');
+    $hours = 0;
+    foreach ($timees as $time) {
+      $hours += $time->hours;
+    }
+
+    echo $OUTPUT->heading($server->name);
+    echo "<div id='header'>";
+    echo "  <h1>$modredmine->project_name</h1>";
+    echo "  <div id='main-menu' style='margin-top: 12px; position: relative;'>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;sesskey=".sesskey()."' >Resumen</a></li>";
+    echo "      <ul><li style='display:inline;'><a class='overview selected' href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=".sesskey()."' class='issues'>Peticiones</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=news&amp;sesskey=".sesskey()."' class='news'>Noticias</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Tiempo Dedicado</a></li>";
+    echo "  </div>";
+    echo "</div>";
+    echo "<div class='main'>";
+    echo "	<div id='sidebar'>";
+    echo "	    <h3>Tiempo dedicado</h3>";
+    echo "	    <p><span class='icon icon-time'>$hours horas</span></p>";
+    echo "	    <p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Detalles</a></p>";
+    echo "	</div>";
+    echo "	<div id='content'>";
+
+    if (!$issues->errno) {
+      echo "	    <div id='splitcontentleft'>";
+      echo "      <a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=".sesskey()."' class='issues'>Volver a Peticiones</a>";
+      echo "	        <div class='issues box'>";
+      echo "		<h3>Tareas Abiertas</h3>";
+      echo "		<ul>";
+      foreach ($open_features as $feature) {
+        echo "		    <li>".$feature->subject." [".$feature->priority['name']."] - Starts on ".$feature->start_date." - Created on ". $feature->created_on . " by ".$feature->author['name']."</li>";
+      }
+      echo "		</ul>";
+      //echo "		<p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=bugs&amp;sesskey=" . sesskey() . "'>Ver todos los errores</a></p>";
+      echo "	        </div>";
+      echo "	        <div class='issues box'>";
+      echo "		<h3>Tareas Cerradas</h3>";
+      echo "		<ul>";
+      foreach ($closed_features as $feature) {
+        echo "		    <li>".$feature->subject." [".$feature->priority['name']."] - Starts on ".$feature->start_date." - Created on ". $feature->created_on . " by ".$feature->author['name']."</li>";
+      }
+      echo "		</ul>";
+      //echo "		<p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=features&amp;sesskey=" . sesskey() . "'>Ver todas las tareas</a></p>";
+      echo "	        </div>";
+      echo "	    </div>";
+      echo "	    <div id='splitcontentright'>";
+      echo "	    </div>";
+      echo "	    <div style='clear:both;'>";
+      if ($page > 0) {
+        echo "<a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=features&amp;sesskey=" . sesskey() . "&amp;page=".($page-1)."'>Anteriores | </a>";
+      }
+      if (count($open_features) || count($closed_features)) {
+        echo "<a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=features&amp;sesskey=" . sesskey() . "&amp;page=".($page+1)."'> Siguientes</a>";
+      }
+      echo "</div>";
+    } else {
+      echo $issues->error;
+    }
+    echo "	</div>";
+    echo "</div>";
+    // ----------- ^^^ FEATURES ^^^ ------------------------------------------------------
+
+
+
+
+
+
+    // ----------- vvv SUPPORT vvv ------------------------------------------------------
+  } elseif ($option == 'supports') {
+    $issues = new RedmineIssue();
+    $issues->setSite($server_url);
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".SUPPORT."&status_id=".OPEN."&limit=".MAX_ISSUES."&offset=".$page;
+    $open_supports = $issues->find('all');
+    $issues->extra_params = "?project_id=".$modredmine->project_identifier."&tracker_id=".SUPPORT."&status_id=".CLOSED."&limit=".MAX_ISSUES."&offset=".$page;
+    $closed_supports = $issues->find('all');
+    $time_entries = new RedmineTimeEntry();
+    $time_entries->setSite($server_url);
+    $time_entries->extra_params = "?project_id=".$modredmine->project_identifier.
+    $timees = $time_entries->find('all');
+    $hours = 0;
+    foreach ($timees as $time) {
+      $hours += $time->hours;
+    }
+
+    echo $OUTPUT->heading($server->name);
+    echo "<div id='header'>";
+    echo "  <h1>$modredmine->project_name</h1>";
+    echo "  <div id='main-menu' style='margin-top: 12px; position: relative;'>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;sesskey=".sesskey()."' >Resumen</a></li>";
+    echo "      <ul><li style='display:inline;'><a class='overview selected' href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=".sesskey()."' class='issues'>Peticiones</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=news&amp;sesskey=".sesskey()."' class='news'>Noticias</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Tiempo Dedicado</a></li>";
+    echo "  </div>";
+    echo "</div>";
+    echo "<div class='main'>";
+    echo "	<div id='sidebar'>";
+    echo "	    <h3>Tiempo dedicado</h3>";
+    echo "	    <p><span class='icon icon-time'>$hours horas</span></p>";
+    echo "	    <p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Detalles</a></p>";
+    echo "	</div>";
+    echo "	<div id='content'>";
+
+    if (!$issues->errno) {
+      echo "	    <div id='splitcontentleft'>";
+      echo "      <a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=".sesskey()."' class='issues'>Volver a Peticiones</a>";
+      echo "	        <div class='issues box'>";
+      echo "		<h3>Tareas de Soporte Abiertas</h3>";
+      echo "		<ul>";
+      foreach ($open_supports as $support) {
+        echo "		    <li>".$support->subject." [".$support->priority['name']."] - Starts on ".$support->start_date." - Created on ". $support->created_on . " by ".$support->author['name']."</li>";
+      }
+      echo "		</ul>";
+      //echo "		<p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=bugs&amp;sesskey=" . sesskey() . "'>Ver todos los errores</a></p>";
+      echo "	        </div>";
+      echo "	        <div class='issues box'>";
+      echo "		<h3>Tareas de Soporte Cerradas</h3>";
+      echo "		<ul>";
+      foreach ($closed_supports as $support) {
+        echo "		    <li>".$support->subject." [".$support->priority['name']."] - Starts on ".$support->start_date." - Created on ". $support->created_on . " by ".$support->author['name']."</li>";
+      }
+      echo "		</ul>";
+      //echo "		<p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=features&amp;sesskey=" . sesskey() . "'>Ver todas las tareas</a></p>";
+      echo "	        </div>";
+      echo "	    </div>";
+      echo "	    <div id='splitcontentright'>";
+      echo "	    </div>";
+      echo "	    <div style='clear:both;'>";
+      if ($page > 0) {
+        echo "<a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=supports&amp;sesskey=" . sesskey() . "&amp;page=".($page-1)."'>Anteriores | </a>";
+      }
+      if (count($open_supports) || count($closed_supports)) {
+        echo "<a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=supports&amp;sesskey=" . sesskey() . "&amp;page=".($page+1)."'> Siguientes</a>";
+      }
+      echo "</div>";
+    } else {
+      echo $issues->error;
+    }
+    echo "	</div>";
+    echo "</div>";
+    // ----------- ^^^ SUPPORT ^^^ ------------------------------------------------------
+
+
+
+
+
+
+    // ----------- vvv TIME ENTRIES vvv ------------------------------------------------------
+  } elseif ($option == 'time_entries') {
+    $time_entries = new RedmineTimeEntry();
+    $time_entries->setSite($server_url);
+    $time_entries->extra_params = "?project_id=".$modredmine->project_identifier."&limit=".MAX_TIME_ENTRIES."&offset=".$page;
+    $timees = $time_entries->find('all');
+    $hours = 0;
+    foreach ($timees as $time) {
+      $hours += $time->hours;
+    }
+
+    echo $OUTPUT->heading($server->name);
+    echo "<div id='header'>";
+    echo "  <h1>$modredmine->project_name</h1>";
+    echo "  <div id='main-menu' style='margin-top: 12px; position: relative;'>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;sesskey=".sesskey()."' >Resumen</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=issues&amp;sesskey=".sesskey()."' class='issues'>Peticiones</a></li>";
+    echo "      <ul><li style='display:inline;'><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=news&amp;sesskey=".sesskey()."' class='news'>Noticias</a></li>";
+    echo "      <ul><li style='display:inline;'><a class='overview selected' href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Tiempo Dedicado</a></li>";
+    echo "  </div>";
+    echo "</div>";
+    echo "<div class='main'>";
+    echo "	<div id='sidebar'>";
+    echo "	    <h3>Tiempo dedicado</h3>";
+    echo "	    <p><span class='icon icon-time'>$hours horas</span></p>";
+    echo "	    <p><a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=".sesskey()."'>Detalles</a></p>";
+    echo "	</div>";
+    echo "	<div id='content'>";
+
+    if (!$time_entries->errno) {
+      echo "	    <div id='splitcontentleft'>";
+      echo "	        <h2>Tiempo dedicado</h2>";
+      echo "	        <table class='list time-entries'>";
+      echo "		<thead>";
+      echo "		    <tr>";
+      echo "		        <th>Fecha</th>";
+      echo "		        <th>Miembro</th>";
+      echo "		        <th>Actividad</th>";
+      echo "		        <th>Proyecto</th>";
+      echo "		        <th>Petición</th>";
+      echo "		        <th>Horas</th>";
+      echo "		    </tr>";
+      echo "		</thead>";
+      echo "		<tbody>";
+      $odd = 1;
+      foreach ($timees as $te) {
+        echo "	    <tr class='time-entry ";
+        if ($odd) { echo 'odd'; } else { echo 'even'; }
+        echo "'>";
+        echo "<td>$te->created_on</td><td>".$te->user."</td><td>".$te->activity['name']."</td><td>".$te->project['name']."</td><td>".$te->issue['name']."</td><td>".$te->hours."</td>";
+        echo "	    </tr>";
+        $odd ? $odd = 0 : $odd = 1;
+      }
+      echo "		</tbody>";
+      echo "	        </table>";
+      echo "	    </div>";
+      echo "	    <div style='clear:both;'>";
+      if ($page > 0) {
+        echo "<a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=" . sesskey() . "&amp;page=".($page-1)."'>Anteriores | </a>";
+      }
+      if (count($timees)) {
+        echo "<a href='$CFG->wwwroot/mod/modredmine/view.php?id=$id&amp;option=time_entries&amp;sesskey=" . sesskey() . "&amp;page=".($page+1)."'> Siguientes</a>";
+      }
+
+      echo "</div>";
+    } else {
+      echo $issues->error;
+    }
+    echo "	</div>";
+    echo "</div>";
+    // ----------- ^^^ TIME ENTRIES ^^^ ------------------------------------------------------
+
+
+
+
+
+
+
+
+  } else {
+    echo "Aún no implementado";
+  }
+  echo "	</div>";
+  echo "</div>";
+
+}
 
 // Finish the page
 echo $OUTPUT->footer();
+
