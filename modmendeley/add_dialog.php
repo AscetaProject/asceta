@@ -1,4 +1,12 @@
 <?php
+/**
+* Display add dialog form
+*
+*
+ * @package   mod_modmendeley
+ * @copyright 2011 María del Mar Jiménez Torres (mjimenez@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+*/
 $plural = ($page > 1) ? 's' : '';
 $elements = ($page > 1)? ($page).' ' : '';
 $defaultQuestion="Add the ".$elements."selected document".$plural." to your library collection '".$element_name."'?";

@@ -27,8 +27,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/// (Replace modmendeley with the name of your module and remove this line)
-
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
 
@@ -101,7 +99,6 @@ if (!$modmendeley->user_id) {
                             $data = $_POST[$_POST['pub_type']];
                             $data['group_id'] = $add_to[2];
                         }
-                        //$document_id = postLibraryValue('POST', $user, '/library/documents', array('document' => json_encode(toArray($_POST[$_POST['pub_type']]))));
                         $document_id = postLibraryValue('POST', $user, '/library/documents', array('document' => json_encode(toArray($data))));
                         if($document_id != null){
                             if ($add_to[1] == 'profile' && $add_to[2] != 'all'){
@@ -115,7 +112,6 @@ if (!$modmendeley->user_id) {
                     $documents_id = explode(",", $_GET['documents_id']);
                     foreach($documents_id as $doc_id){
                         deleteDocuments($doc_id, $user);
-                        //deleteLibraryValue('DELETE', $user, '/library/documents/'.$doc_id, array());
                     }
                     add_to_log($course->id, 'modmendeley', 'delete document', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
                     redirect($CFG->wwwroot."/mod/modmendeley/view.php?id=$cm->id&amp;option=library&amp;action=documents&amp;element_selected=folder-profile-all&amp;sesskey=" . sesskey());
@@ -281,7 +277,6 @@ if (!$modmendeley->user_id) {
         default :
             break;
         }
-        //add_to_log($course->id, 'modmendeley', 'view', "view.php?id=$cm->id", $modmendeley->name, $cm->id);
     }else{
         ?>
         <script>

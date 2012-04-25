@@ -23,7 +23,7 @@ if($modmendeley->private){
 }
 echo "  </div>";
 echo "</div>";
-//BUSQUEDA
+//SEARCH
 echo "<div id='search-container'>";
 echo "  <div id='search-bar'>";
 echo "      <div class='specific-search'>";
@@ -41,7 +41,7 @@ echo "          <div class='clear'></div> ";
 echo "      </div>";
 echo "  </div>";
 echo "</div>";
-//LISTADO DOCUMENTOS
+//LIST DOCUMENTS
 echo "<table style='width:100%'><tr><td style='width:45%; vertical-align:top; padding:15px;'>"; //TABLE
 if($show_user_group){
     include($CFG->dirroot.'/mod/modmendeley/my_groups.php');
@@ -49,7 +49,7 @@ if($show_user_group){
     include($CFG->dirroot.'/mod/modmendeley/public_groups.php');
 }
 echo "</td><td style='width:45%; vertical-align:top; padding:15px;'>"; //TABLE
-//LISTADO ESTADISTICAS
+//LIST STATS
 echo "<div class='column-b unfloat'>";
 if($show_stats){
 echo "   <div class='padding'>";

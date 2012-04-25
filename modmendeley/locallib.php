@@ -142,7 +142,6 @@ function deleteLibraryValue($method, $user, $uri, $post_data){
  * @return <array> An array with the result of the response
  */
 function getPublicMethods($method, $user, $url, $params){
-    //$basefeed = rtrim($user->url,'/').$uri;
     if ($method == 'GET'){
         $response = modmendeley_send_request($method, $url, null, null, $params);
     }
@@ -263,7 +262,13 @@ function showPaginationString($page,$lastpage,$adjacents, $search_data, $is_sear
 
 }
 
-
+/**
+ * Gets Tags from discipline
+ * @param <object> $disciplines object
+ * @param <object> $user user information
+ * @param <object> $params 
+ * @return <array> An array with the tags list
+ */
 function getTagsFromDiscipline($disciplines, $user, $params){
     $tags = array();
     foreach ($disciplines as $discipline){
@@ -278,6 +283,10 @@ function getTagsFromDiscipline($disciplines, $user, $params){
     return array_unique($tags);
 }
 
+/**
+ * Check if the stats library has image
+ * @return <boolean> An array with the document list
+ */
 function checkStatsLibraryImage(){
     $json = modmendeley_send_request('GET', 'http://www.mendeley.com/image/library_stats/');
     $result = json_decode($json);
@@ -287,10 +296,19 @@ function checkStatsLibraryImage(){
     return false;
 }
 
+/**
+ * Gets a list with the documents type
+  * @return <array> An array with the documents type list
+ */
 function getDocumentsType(){
     return array("Bill","Book","Book Section","Case","Computer Program","Conference Proceedings","Encyclopedia Article","Film","Generic","Hearing","Journal Article","Magazine Article","Newspaper Article","Patent","Report","Statute","Television Broadcast","Thesis","Web Page","Working Paper");
 }
 
+/**
+ * Convert dict data to array
+ * @param <object> $data dict data
+  * @return <array> An array with the data
+ */
 function toArray($data){
     $new_data = array();
     $new_data['type'] = $_POST['pub_type'];
@@ -302,6 +320,12 @@ function toArray($data){
     return $new_data;
 }
 
+/**
+ * Gets all the documents in folder
+ * @param <object> $modmendley object
+ * @param <object> $user user information
+ * @return <array> An array with the document list
+ */
 function getDocumentsInFolder($user){
     $new_data = "";
     $folders = getLibraryValue('GET', $user, '/library/folders/');
@@ -312,6 +336,12 @@ function getDocumentsInFolder($user){
     return explode(",", $new_data);
 }
 
+/**
+ * Creates a date
+ * @param <object> $start_date Start date
+ * @param <object> $end_date End date
+ * @return <object> Date object
+ */
 function createDate($start_date, $end_date){
     $months = array("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
     if ($end_date[0] == '0000' ){
@@ -321,6 +351,14 @@ function createDate($start_date, $end_date){
    
 }
 
+/**
+ * Check the activity permission
+ * @param <object> $modmendley object
+ * @param <string> $option indicates in which tab is
+ * @param <string> $action the action to do
+ * @param <string> $type the element
+ * @return <boolean> True if have permission
+ */
 function checkActivityPermission($modmendeley, $option, $action, $type){
     $show = true;
     if($option == 'library'){
@@ -377,6 +415,12 @@ function checkActivityPermission($modmendeley, $option, $action, $type){
     return $show;
 }
 
+/**
+ * Check if the document is in a Folder
+ * @param <string> $document document to delete
+ * @param <object> $user user
+ * @return <integer> if the document is in a folder, return id's Group. Null in othercase
+ */
 function documentIsInFolder($document, $user){
     $folders = getLibraryValue('GET', $user, '/library/folders/');
     foreach ($folders as $folder){
@@ -390,6 +434,12 @@ function documentIsInFolder($document, $user){
     return null;
 }
 
+/**
+ * Check if the document is in a Group
+ * @param <string> $document document to delete
+ * @param <object> $user user
+ * @return <integer> if the document is in a group, return id's Group. Null in othercase
+ */
 function documentIsInGroup($document, $user){
     $groups = getLibraryValue('GET', $user, '/library/groups/');
     foreach ($groups as $group){
@@ -403,6 +453,12 @@ function documentIsInGroup($document, $user){
     return null;
 }
 
+/**
+ * Delete a document from a user
+ * @param <string> $document document to delete
+ * @param <object> $user user
+ */
+
 function deleteDocuments($document, $user){
     if(($folder_id = documentIsInFolder($document, $user)) != null){
         deleteLibraryValue('DELETE', $user, '/library/folders/'.$folder_id.'/'.$document, array());
@@ -413,6 +469,11 @@ function deleteDocuments($document, $user){
 }
 
 
+/**
+ * Get the tab from value
+ * @param <string> $value number of tabs
+ * @return <string> An string with the name of the tab
+ */
 function getTabs($value){
     switch ($value){
         case '0':

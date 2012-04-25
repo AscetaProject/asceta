@@ -82,8 +82,6 @@ class mod_modmendeley_mod_form extends moodleform_mod {
         $mform->addElement('select', 'principal_tab', get_string('principal_tab', 'modmendeley'), $principal_tab_options);
 
         $mform->disabledIf('private', 'user_id', 'eq', 0);
-        //$user = $mform->getElement('user_id');
-        //$value = getLibraryValue('GET',$user, 'folders');
 
         $mform->addElement('header', 'modmendeleyfieldset', get_string('permission', 'modmendeley'));
         $mform->addElement('checkbox', 'permission_create_document', get_string('new_document','modmendeley'));

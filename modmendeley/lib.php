@@ -269,8 +269,6 @@ function modmendeley_uninstall() {
 function modmendeley_send_request($http_method, $url, $auth_header=null, $postData=null, $getData=null) {
   $curl = curl_init($url);
   curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-  //curl_setopt($curl, CURLOPT_FAILONERROR, false);
-  //curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
   switch($http_method) {
     case 'GET':

@@ -87,7 +87,6 @@ if ($mode == 'save_new' and $form and confirm_sesskey()) {
 // -------------------------- vvv New/Edit USER Form vvv ----------------------------------------------------------------
 } elseif ( $mode == 'register' and $id != '' and confirm_sesskey()) {
     
-    //$url = rtrim($user[$id]->url,'/').'/Página_Principal';
     $url = 'http://dev.mendeley.com/applications';
     $params = array('application_uri' => "$CFG->wwwroot/mod/modmendeley/users.php.php?mode=access&id=$id&sesskey=".sesskey(), 'application_title' => $CFG->wwwroot);
     $params = implode_assoc('=', '&', $params);
@@ -97,7 +96,6 @@ if ($mode == 'save_new' and $form and confirm_sesskey()) {
     $dataobject['consumer_key'] = $form->consumer_key;
     $dataobject['consumer_secret'] = $form->consumer_secret;
     $DB->update_record('modmendeley_users', $dataobject, false, false);
-    //redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmendeley#modmendeley_users_header");
     if ($user[$id]->oauth == "0"){
         redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmendeley#modmendeley_users_header");
     } else{
@@ -106,7 +104,6 @@ if ($mode == 'save_new' and $form and confirm_sesskey()) {
     die;
 } elseif ( $mode == 'authorize' and $id != '' and confirm_sesskey()) {
 
-    //$url = rtrim($user[$id]->url,'/').'/Página_Principal';
     $url = 'http://www.mendeley.com/oauth/authorize/';
     $params = array('oauth_token' => $user[$id]->request_token);
     $params = implode_assoc('=', '&', $params);
@@ -115,7 +112,6 @@ if ($mode == 'save_new' and $form and confirm_sesskey()) {
     $dataobject['id'] = $form->id;
     $dataobject['verifier'] = $form->verifier;
     $DB->update_record('modmendeley_users', $dataobject, false, false);
-    //redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmendeley#modmendeley_users_header");
     redirect("$CFG->wwwroot/mod/modmendeley/users.php?id=$form->id&mode=access&sesskey=".sesskey());
     die;
 } elseif ( $mode == 'request_token' and $id != '' and confirm_sesskey() ) {
@@ -132,7 +128,6 @@ if ($mode == 'save_new' and $form and confirm_sesskey()) {
     $dataobject['request_token'] = $response_data['oauth_token'];
     $dataobject['request_secret'] = $response_data['oauth_token_secret'];
     $DB->update_record('modmendeley_users', $dataobject, false, false);
-    //redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmendeley#modmendeley_users_header");
     redirect("$CFG->wwwroot/mod/modmendeley/users.php?id=$id&mode=authorize&sesskey=".sesskey());
     die;
 } elseif ( $mode == 'auth' and $id != '' and confirm_sesskey() ) {
@@ -140,15 +135,12 @@ if ($mode == 'save_new' and $form and confirm_sesskey()) {
     $consumer_secret = $user[$id]->consumer_secret;
     $request_token = $user[$id]->request_token;
     $request_secret = $user[$id]->request_secret;
-    //$basefeed = rtrim($user[$id]->url,'/').'/auth';
     $basefeed = 'http://www.mendeley.com/oauth/authorize/';
     $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
     $token = new OAuthToken($request_token, $request_secret, NULL);
     $request = OAuthRequest::from_consumer_and_token($consumer, $token, 'GET', $basefeed, array());
     $request->sign_request(new OAuthSignatureMethod_HMAC_SHA1(), $consumer, $token);
     redirect("$CFG->wwwroot/$CFG->admin/settings.php?section=modsettingmodmendeley#modmendeley_users_header");
-    //$url = $request->to_url();
-    //redirect($url);
     die;
 } elseif ( $mode == 'access' and $id != '' and confirm_sesskey() ) {
     $consumer_key = $user[$id]->consumer_key;
@@ -156,7 +148,6 @@ if ($mode == 'save_new' and $form and confirm_sesskey()) {
     $request_token = $user[$id]->request_token;
     $request_secret = $user[$id]->request_secret;
     $verifier_code = $user[$id]->verifier;
-    //$basefeed = rtrim($user[$id]->url,'/').'/access-token';
     $basefeed = 'http://www.mendeley.com/oauth/access_token/';
     $consumer = new OAuthConsumer($consumer_key, $consumer_secret, NULL);
     $token = new OAuthToken($request_token, $request_secret, NULL);

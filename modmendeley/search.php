@@ -78,14 +78,6 @@ echo "                       </div>\n";
 echo "                       <div class='advanced-search'>\n";
 echo "                           <label for='advanced-date-search'>Publication year:</label>\n";
 echo "                               <input style='width:30px; font-size:11px !important;' class='advanced-search-fields year-field' name='date' id='advanced-datefrom-search' value='' type='text'>\n";
-/*echo "                           <select onchange=\"if(document.getElementById('advanced-date-search').value == 'range'){ document.getElementById('advanced-search-years').style.display = 'block'; }else{ document.getElementById('advanced-search-years').style.display = 'none'; document.getElementById('advanced-datefrom-search').value(''); document.getElementById('advanced-dateto-search').value(''); }\" class='advanced-search-field' style='margin-left:5px' name='date' id='advanced-date-search'>\n";
-echo "                               <option class='default-value' value='any' selected='selected'>in any year</option>\n";
-echo "                               <option value='last-year'>within the last year</option>\n";
-echo "                               <option value='last-2-years'>within the last two years</option>\n";
-echo "                               <option value='last-5-years'>within the last five years</option>\n";
-echo "                               <option value='last-10-years'>within the last ten years</option>\n";
-echo "                               <option value='range'>within a specific range of years</option>\n";
-echo "                           </select>\n";*/
 echo "                           <div id='advanced-search-years' class='noshow'>\n";
 echo "                               <label for='advanced-datefrom-search'>From</label>\n";
 echo "                               <input style='font-size:11px !important;' class='advanced-search-fields year-field' name='yearfrom' id='advanced-datefrom-search' value='' type='text'>\n";
@@ -94,17 +86,6 @@ echo "                               <input  style='font-size:11px !important;' 
 echo "                           </div>\n";
 echo "                           <div id='year-warning' class='noshow'>Year fields must be a full 4 character year, such as '1999'</div>\n";
 echo "                       </div>\n";
-/*echo "                       <div class='advanced-search unfloat'>\n";
-echo "                           <div style='margin-bottom:10px;'><input onclick=\"for(i = 0; i< ".count($categories)."; i++){ document.getElementById('discipline-'+i).checked = false;}\" type='radio' value='all' name='disciplines' id='all-disciplines' checked='checked'> <label for='all-disciplines'>Search papers within all academic disciplines</label></div>\n";
-echo "                           <div style='margin-bottom:10px;'><input type='radio' value='selected' name='disciplines' id='specific-disciplines'><label for='specific-disciplines'>Search only papers within the following academic disciplines:</label></div>\n";
-echo "                           <div id='list-of-disciplines'>\n";
-$count = 0;
-foreach ($categories as $categorie){
-echo "                               <div><label><input id='discipline-$count' onclick=\"document.getElementById('specific-disciplines').checked = true;\" type='checkbox' value='$categorie->slug' class='advanced-search-fields' name='discipline[]'/>$categorie->name</label></div>\n";
-$count += 1;
-}
-echo "                           </div>\n";
-echo "                       </div>\n"; */
 echo "                       <div class='advanced-search'>\n";
 echo "                           <label for='advanced-results-search'>Results per page</label>\n";
 echo "                           <select class='advanced-search-fields' style='margin-left:5px' name='results' id='advanced-results-search'>\n";

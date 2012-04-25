@@ -209,37 +209,6 @@ echo "                  </table>";
 echo "              </div>";
 echo "          </div>";
 echo "</td><td style='width:45%; vertical-align:top; padding:15px;'>"; //TABLE
-/*echo "          <div class='leftcontent-rightbox left'>";
-echo "              <div class='total-stats stats-right'>";
-echo "                  <h3 class='underlined'>Added articles</h3>";
-echo "                  <ul class='stats-right-list'>";
-echo "                      <li><span class='stats-big-number'>102,897,576</span> added overall</li>";
-echo "                      <li><span class='stats-big-number'>9,402,634</span> added in <span class='discipline'><a href='http://www.mendeley.com/computer-and-information-science/'>Computer and Information Science</a></span></li>";
-echo "                  </ul>";
-echo "              </div>";
-echo "              <div class='total-stats stats-right'>";
-echo "                  <h3 class='underlined'>Downloadable articles</h3>";
-echo "                  <ul class='stats-right-list'>";
-echo "                      <li><span class='stats-big-number'>1,057,735</span> downloadable overall for free </li>";
-echo "                      <li><span class='stats-big-number'>110,689</span> downloadable for free in <span class='discipline'><a href='http://www.mendeley.com/computer-and-information-science/'>Computer and Information Science</a></span></li>";
-echo "                  </ul>";
-echo "              </div>";
-echo "              <div class='stats-right'>";
-echo "                  <h3 class='underlined'>Mendeley users by discipline</h3>";
-echo "                  <table border='0' cellspacing='0' cellpadding='0' class='academ-discipl-tbl'>";
-echo "                      <tbody>";
-echo "                          <tr>";
-echo "                              <td valign='top' width='280' class='rounded-indicat' style='padding-bottom:5px'>";
-echo "                                  <div style='width: 36px'>";
-echo "                                      <span style='width:300px'><a href='http://www.mendeley.com/search/discipline/1'>Arts and Literature</a></span>";
-echo "                                   </div>";
-echo "                              </td>";
-echo "                          </tr>";
-echo "                      </tbody>";
-echo "                  </table>";
-echo "              </div>";
-echo "          </div>";
-echo "          <div class='clear'></div>";*/
 echo "</td></tr></table>"; //TABLE
 echo "      </div>";
 echo "	</div>";

@@ -147,49 +147,6 @@ if(empty($groups)){
 }
 echo "              </div>\n";
 echo "              <br>\n";
-/*echo "              <h4>Trash</h4>\n";
-echo "              <div id='library-trash-menu'>\n";
-echo "              	<div id='folder-trash-all' class='library-group' onclick=''>\n";
-echo "              	<img src='https://www.mendeley.com/graphics/common/trash_1070133639986312.png' alt='Trash Collection' height='16' width='16' class='folder-icon'><span class='folder-name'>All Deleted Documents</span>\n";
-echo "              </div>\n";
-echo "          </div>\n";
-echo "          <br>\n";
-echo "          <div id='filters-and-tags'>\n";
-echo "          <h4>Filter Selected Collection</h4>\n";
-echo "          <div id='library-filters'>\n";
-echo "              <select id='filter-type-list' onchange=''>\n";
-echo "                  <option value='publication' selected='selected'>by Publications</option>\n";
-echo "                  <option value='keyword'>by Author's Keywords</option>\n";
-echo "                  <option value='author'>by Authors</option>\n";
-echo "                  <option value='tag'>by My Tags</option>\n";
-echo "              </select>\n";
-echo "              <select id='filter-item-list' multiple='multiple' onchange=''>\n";
-echo "                  <option value='##all##' selected='selected'>All</option>\n";
-echo "                  <option value='Advanced Materials'>Advanced Materials</option>\n";
-echo "                  <option value='Computer Networks'>Computer Networks</option>\n";
-echo "                  <option value='Control'>Control</option>\n";
-echo "                  <option value='Discovery'>Discovery</option>\n";
-echo "                  <option value='Historia'>Historia</option>\n";
-echo "                  <option value='Java How to Program'>Java How to Program</option>\n";
-echo "                  <option value='Mendeley Desktop'>Mendeley Desktop</option>\n";
-echo "                  <option value='Molecular Cell'>Molecular Cell</option>\n";
-echo "                  <option value='Universo'>Universo</option>\n";
-echo "              </select>\n";
-echo "           </div>\n";
-echo "           <br>\n";
-echo "           <h3 style='margin-bottom: 5px; padding-bottom: 0;'>Tags</h3>\n";
-echo "           <h4 class='underlined'>My Library</h4>\n";
-echo "           <div id='library-tag-cloud'>\n";
-echo "               <span id='tag-profile-0' class='tag-cloud-item tag-cloud-item-0' onclick=''>&nbsp;Java&nbsp;</span>\n";
-echo "               <span id='tag-profile-1' class='tag-cloud-item tag-cloud-item-0' onclick=''>&nbsp;Programacion&nbsp;</span>\n";
-echo "           </div>\n";
-echo "           <br>\n";
-echo "           <h4 class='underlined'>Groups</h4>\n";
-echo "           <div id='group-tag-cloud'>\n";
-echo "               <em>No documents have been tagged in this collection.</em>\n";
-echo "           </div>\n";
-echo "        </div>\n";
-echo "      </div>\n";*/
 echo "</td><td style='width:45%; vertical-align:top; padding:15px;'>\n"; //TABLE
 //VIEW WITH ALL ACTIONS
 switch ($action){
