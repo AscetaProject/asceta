@@ -5,7 +5,7 @@
 *
  * @package   mod_modmendeley
  * @copyright 2011 María del Mar Jiménez Torres (mjimenez@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.apache.org/licenses/LICENSE-2.0.html Apache License, Version 2.0
 */
 
 echo "<div id='library-documents' class='left' style='width: 660px;'>\n";

@@ -5,7 +5,7 @@
 *
  * @package   mod_modmendeley
  * @copyright 2011 María del Mar Jiménez Torres (mjimenez@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ \* @license   http://www.apache.org/licenses/LICENSE-2.0.html Apache License, Version 2.0
 */
 
 define("TITLE", "<td class='document_edit_label'>Title</td><td class='document_edit_field'><textarea id='post_title_VARIABLE' class='edit_field1 value_title' name='VARIABLE[title]' cols='38' style='height:3em;font:11px,arial;' tabindex='1'></textarea></td>");

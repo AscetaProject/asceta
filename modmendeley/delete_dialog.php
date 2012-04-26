@@ -5,7 +5,7 @@
 *
  * @package   mod_modmendeley
  * @copyright 2011 María del Mar Jiménez Torres (mjimenez@fidesol.org) - Fundación I+D del Software Libre (www.fidesol.org)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.apache.org/licenses/LICENSE-2.0.html Apache License, Version 2.0
 */
         echo "<div id = 'interContainer'>\n";
         echo "<div class='blockUI blockMsg blockPage' style='z-index: 1001; padding-top: 0px; padding-right: 0px; padding-bottom: 0px; padding-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px; margin-left: -150px; width: 300px; top: 200px; left: 40%; text-align: center; color: rgb(0, 0, 0); border-top-width: 10px; border-right-width: 10px; border-bottom-width: 10px; border-left-width: 10px; border-top-style: solid; border-right-style: solid; border-bottom-style: solid; border-left-style: solid; border-top-color: rgba(82, 82, 82, 0.699219); border-right-color: rgba(82, 82, 82, 0.699219); border-bottom-color: rgba(82, 82, 82, 0.699219); border-left-color: rgba(82, 82, 82, 0.699219); cursor: auto; border-top-left-radius: 10px 10px; border-top-right-radius: 10px 10px; border-bottom-right-radius: 10px 10px; border-bottom-left-radius: 10px 10px; position: absolute;'>\n";
