@@ -1,0 +1,20 @@
+====== [ INSTALL ] ======================================================================================
+
+Copy hydra directory to <MOODLE_PATH>/mod
+Load database in Site Administration > Development > XMLDB Editor > mod/hydra/db > Load
+Enable Hydra module in Site Administration > Notifications > Update
+
+
+
+
+====== [ SETTING UP ] ===================================================================================
+
+Access Hydra module's settings in Site Administration > Plugins > Activity Modules > Hydra
+Add the Hydra API Service EntryPoint URL
+Create a new Hydra activity, access it, click Load and navigate throught the Hydra API
+
+
+
+====== [ DEPENDENCIES ] ================================================================================= 
+
+- Moodle 2.0.2

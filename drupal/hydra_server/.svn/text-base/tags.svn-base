@@ -1,0 +1,20 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+_hydra_resource_access	hydra_server.module	/^function _hydra_resource_access($op) {$/;"	f
+_hydra_resource_action_retrieve	hydra_server.module	/^function _hydra_resource_action_retrieve($arg1) {$/;"	f
+_hydra_resource_retrieve	hydra_server.module	/^function _hydra_resource_retrieve($arg1) {$/;"	f
+_hydra_resource_targeted_action_test	hydra_server.module	/^function _hydra_resource_targeted_action_test($arg1) {$/;"	f
+canonical_path	hydra_server.module	/^    $canonical_path = $rest_server->getCanonicalPath();$/;"	v
+endpoint	hydra_server.module	/^        $endpoint = services_endpoint_load($endpoint_name);$/;"	v
+endpoint_name	hydra_server.module	/^        $endpoint_name = services_get_server_info('endpoint', '');$/;"	v
+endpoint_path	hydra_server.module	/^    $endpoint_path = services_get_server_info('endpoint_path', 'services\/hydra');$/;"	v
+hydra_resource_services_resources	hydra_server.module	/^function hydra_resource_services_resources() {$/;"	f
+hydra_server_server	hydra_server.module	/^function hydra_server_server() {$/;"	f
+hydra_server_server_info	hydra_server.module	/^function hydra_server_server_info() {$/;"	f
+rest_server	hydra_server.module	/^    $rest_server = $rest_server_factory->getRESTServer();$/;"	v
+rest_server_factory	hydra_server.module	/^    $rest_server_factory = new $services_rest_server_factory(array('endpoint_path' => $endpoint_path));$/;"	v
+services_rest_server_factory	hydra_server.module	/^    $services_rest_server_factory = variable_get('services_rest_server_factory_class', 'ServicesRESTServerFactory');$/;"	v

@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/asceta/!svn/ver/108/hydra/drupal/hydra_server/includes
+END
+RESTServer.inc
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/asceta/!svn/ver/108/hydra/drupal/hydra_server/includes/RESTServer.inc
+END
+ServicesFormatter.inc
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/asceta/!svn/ver/103/hydra/drupal/hydra_server/includes/ServicesFormatter.inc
+END
+ServicesContext.inc
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/asceta/!svn/ver/103/hydra/drupal/hydra_server/includes/ServicesContext.inc
+END
+ServicesContentTypeNegotiator.inc
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/asceta/!svn/ver/108/hydra/drupal/hydra_server/includes/ServicesContentTypeNegotiator.inc
+END
+ServicesParser.inc
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/asceta/!svn/ver/103/hydra/drupal/hydra_server/includes/ServicesParser.inc
+END
+ServicesRESTServerFactory.inc
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/asceta/!svn/ver/108/hydra/drupal/hydra_server/includes/ServicesRESTServerFactory.inc
+END

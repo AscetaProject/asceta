@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/asceta/!svn/ver/103/hydra/drupal/hydra_server/.settings
+END
+org.eclipse.php.core.prefs
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/asceta/!svn/ver/103/hydra/drupal/hydra_server/.settings/org.eclipse.php.core.prefs
+END
+org.eclipse.php.server.core.phpServersPrefs.prefs
+K 25
+svn:wc:ra_dav:version-url
+V 110
+/svn/asceta/!svn/ver/103/hydra/drupal/hydra_server/.settings/org.eclipse.php.server.core.phpServersPrefs.prefs
+END
+org.eclipse.php.debug.core.Debug_Process_Preferences.prefs
+K 25
+svn:wc:ra_dav:version-url
+V 119
+/svn/asceta/!svn/ver/103/hydra/drupal/hydra_server/.settings/org.eclipse.php.debug.core.Debug_Process_Preferences.prefs
+END

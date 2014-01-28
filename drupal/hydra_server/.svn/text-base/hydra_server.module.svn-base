@@ -1,0 +1,444 @@
+<?php
+
+/**
+ * Implements hook_server_info().
+ */
+function hydra_server_server_info() {
+    return array(
+        'name' => 'HYDRA',
+        'path' => 'hydra',
+        'settings' => array(
+            'file' => array('inc', 'hydra_server'),
+            'form' => '_hydra_server_settings',
+            'submit' => '_hydra_server_settings_submit',
+        ),
+    );
+}
+
+
+/**
+ * Starting point of the REST server.
+ *
+ * @return type
+ */
+function hydra_server_server() {
+
+    $endpoint_path = services_get_server_info('endpoint_path', 'services/hydra');
+
+    $services_rest_server_factory = variable_get('services_rest_server_factory_class', 'ServicesRESTServerFactory');
+    $rest_server_factory = new $services_rest_server_factory(array('endpoint_path' => $endpoint_path));
+    /* @var $rest_server RESTServer */
+    $rest_server = $rest_server_factory->getRESTServer();
+
+    $canonical_path = $rest_server->getCanonicalPath();
+    // vmgarcia: canonical_path será el path sin el endpoint. Ejemplo: "hydra/node/1.jsonld" será "node/1.jsonld"
+    
+    $endpoint_name = services_get_server_info('endpoint', '');
+    $endpoint = services_endpoint_load($endpoint_name);
+
+    if (empty($canonical_path)) {
+        return t('Services Endpoint "@name" has been setup successfully.', array('@name' => $endpoint->name));          
+    }
+
+    try {
+        return $rest_server->handle();
+    }
+    catch (Exception $e) {
+        $rest_server->handleException($e);
+    }
+}
+
+
+
+/**
+ * Implements hook_services_services().
+ */
+function hydra_server_services_resources() {
+
+    return array(
+        'api' => array(
+            'index' => array(
+                'help' => 'Entry Point',
+                'callback' => '_hydra_entrypoint',
+                'access callback' => 'user_access',
+                'access arguments' => array('access content'),
+                'access arguments append' => FALSE,
+                'args' => array(array(
+                        'name' => 'page',
+                        'type' => 'int',
+                        'description' => '',
+                        'source' => array(
+                            'param' => 'page',
+                        ),
+                        'optional' => TRUE,
+                        'default value' => 0,
+                    ),
+                    array(
+                        'name' => 'parameters',
+                        'type' => 'array',
+                        'description' => '',
+                        'source' => 'param',
+                        'optional' => TRUE,
+                        'default value' => array(),
+                    ),
+                ),
+            ),
+        ),
+        'articles' => array(
+            'index' => array(
+                'help' => 'Retrieves a List of Articles',
+                'callback' => '_hydra_articles',
+                'file' => array('type' => 'inc', 'module' => 'hydra_server', 'name' => 'hydra_server.article'),
+                'access callback' => 'user_access',
+                'access arguments' => array('access content'),
+                'access arguments append' => FALSE,
+                'args' => array(array(
+                        'name' => 'page',
+                        'type' => 'int',
+                        'description' => '',
+                        'source' => array(
+                            'param' => 'page',
+                        ),
+                        'optional' => TRUE,
+                        'default value' => 0,
+                    ),
+                    array(
+                        'name' => 'parameters',
+                        'type' => 'array',
+                        'description' => '',
+                        'source' => 'param',
+                        'optional' => TRUE,
+                        'default value' => array(),
+                    ),
+                ),
+            ),
+            'retrieve' => array(
+                'help' => 'Retrieves an Article',
+                'callback' => '_hydra_article',
+                'file' => array('type' => 'inc', 'module' => 'hydra_server', 'name' => 'hydra_server.article'),
+                'access callback' => '_hydra_resource_access',
+                'access arguments' => array('view'),
+                'access arguments append' => TRUE,
+                'args' => array(
+                    array(
+                        'name' => 'id',
+                        'type' => 'int',
+                        'description' => 'The id of the context to get',
+                        'source' => array('path' => '0'),
+                        'optional' => TRUE,
+                    ),
+                ),
+            ),
+            'create' => array(
+                'help' => 'Creates an Article',
+                'callback' => '_hydra_article_create',
+                'file' => array('file' => 'inc', 'module' => 'hydra_server', 'name' => 'hydra_server.article'),
+                'access callback' => '_hydra_resource_access',
+                'access arguments' => array('create'),
+                'access arguments append' => FALSE,
+                'args' => array(
+                    array(
+                        'name' => 'Title',
+                        'type' => 'varchar',
+                        'description' => 'The Article`s title',
+                        'source' => array('data' =>'Title'),
+                        'optional' => FALSE,
+                    ),
+                    array(
+                        'name' => 'Description',
+                        'type' => 'varchar',
+                        'description' => 'The Article`s content',
+                        'source' => array('data' =>'Description'),
+                        'optional' => FALSE,
+                    ),
+                ),
+            ),
+            'update' => array(
+                'help' => 'Updates an Article',
+                'callback' => '_hydra_article_update',
+                'file' => array('file' => 'inc', 'module' => 'hydra_server', 'name' => 'hydra_server.article'),
+                'access callback' => '_hydra_resource_access',
+                'access arguments' => array('update'),
+                'access arguments append' => TRUE,
+                'args' => array(
+                    array(
+                        'name' => 'id',
+                        'type' => 'int',
+                        'description' => 'The id of the Article to update',
+                        'source' => array('path' => '0'),
+                        'optional' => FALSE,
+                    ),
+                    array(
+                        'name' => 'Title',
+                        'type' => 'varchar',
+                        'description' => 'The Article`s title',
+                        'source' => array('data' =>'Title'),
+                        'optional' => FALSE,
+                    ),
+                    array(
+                        'name' => 'Description',
+                        'type' => 'varchar',
+                        'description' => 'The Article`s content',
+                        'source' => array('data' =>'Description'),
+                        'optional' => FALSE,
+                    ),
+                ),
+            ),
+            'delete' => array(
+                'help' => 'Deletes an Article',
+                'callback' => '_hydra_article_delete',
+                'file' => array('file' => 'inc', 'module' => 'hydra_server', 'name' => 'hydra_server.article'),
+                'access callback' => '_hydra_resource_access',
+                'access arguments' => array('delete'),
+                'access arguments append' => TRUE,
+                'args' => array(
+                    array(
+                        'name' => 'nid',
+                        'type' => 'int',
+                        'description' => 'The id of the Article to delete',
+                        'source' => array('path' => '0'),
+                        'optional' => FALSE,
+                    ),
+                ),
+            ),
+        ),
+    'contexts' => array(
+        'index' => array(
+            'help' => 'Retrieves the contexts',
+            'callback' => '_hydra_context',
+            'file' => array('type' => 'inc', 'module' => 'hydra_server', 'name' => 'hydra_server.contexts'),
+            'access callback' => '_hydra_resource_access',
+            'access arguments' => array('view'),
+            'access arguments append' => TRUE,
+            'args' => array(),
+        ),
+        'retrieve' => array(
+            'help' => 'Retrieves a context',
+            'callback' => '_hydra_context_for',
+            'file' => array('type' => 'inc', 'module' => 'hydra_server', 'name' => 'hydra_server.contexts'),
+            'access callback' => '_hydra_resource_access',
+            'access arguments' => array('view'),
+            'access arguments append' => TRUE,
+            'args' => array(
+                array(
+                    'name' => 'id',
+                    'type' => 'int',
+                    'description' => 'The id of the context to get',
+                    'source' => array('path' => '0'),
+                    'optional' => FALSE,
+                ),
+            ),
+        ),
+
+    ),
+    'vocab' => array(
+        'index' => array(
+            'help' => 'Retrieves the vocab',
+            'callback' => '_hydra_vocab',
+            'file' => array('type' => 'inc', 'module' => 'hydra_server', 'name' => 'hydra_server.vocab'),
+            'access callback' => '_hydra_resource_access',
+            'access arguments' => array('view'),
+            'access arguments append' => TRUE,
+            'args' => array(),
+        ),
+
+    ),
+);
+}
+
+/**
+ * Access callback.
+ */
+function _hydra_resource_access($op) {
+    return TRUE;
+}
+
+/**
+ * implementation of hook_rest_server_response_formatters_alter()
+ * Adds a new JSONLD formatter
+ */
+function hydra_server_rest_server_response_formatters_alter(&$formatters) {
+    $formatters['jsonld']['view'] = 'ServicesJSONLDFormatter';
+    $formatters['jsonld']['formatter class'] = 'ServicesJSONLDFormatter';
+    $formatters['jsonld']['mime types'][0] = 'application/ld+json';
+}
+
+/**
+ * Utility function to get current page URL
+ *
+ * @return URL
+ */
+function curPageURL() {
+    $pageURL = 'http';
+
+    if (isset($_SERVER["HTTPS"])) {
+        if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
+    }
+
+    $pageURL .= "://";
+
+    if ($_SERVER["SERVER_PORT"] != "80") {
+        $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+    } else {
+        $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+    }
+
+    return $pageURL;
+}
+
+/**
+ * Returns the main Entrypoint for the Hydra API in JSONLD format
+ */
+function _hydra_entrypoint() {
+    $entrypoint = '
+            {
+                    "@context":"%absolute_server_path%contexts/EntryPoint.jsonld",
+                    "@id":"%absolute_server_path%api",
+                    "@type":"EntryPoint",
+                    "articles":"%absolute_server_path%articles/"
+            }';
+
+    $endpoint_path = services_get_server_info('endpoint_path', 'services/hydra'); // Gets the hydra service URL (Example: hydra)
+    $absolute_server_path = curPageURL();
+    $path_parts = explode("/",$absolute_server_path);
+    $absolute_server_path = ""; // Gets the server URL (Example: http://localhost/drupal)
+
+    foreach ($path_parts as $key => $value) {
+        if ($value == $endpoint_path) break;
+        $absolute_server_path .= $value."/";
+    }
+
+    $absolute_server_path .= $endpoint_path."/";
+
+    $entrypoint = strtr($entrypoint, array( '%absolute_server_path%' => $absolute_server_path, '%endpoint_path%' => $endpoint_path ));
+
+    return preg_replace('/\s+/', ' ', trim($entrypoint));
+}
+
+
+/**
+ * Set up settings for a hydra server endpoint, fills the settings
+ * array with defaults. This is done to ensure that the default state
+ * is consistent between what's shown by default in the settings form
+ * and used by default by the Hydra server if it hasn't been configured.
+ *
+ * @param array $settings
+ * @return array
+ *  The standardized settings array.
+ */
+function hydra_server_setup_settings($settings = array()) {
+    // Apply defaults
+    $settings = $settings + array(
+        'formatters' => array('jsonp' => FALSE, 'xml' => FALSE, 'json' => FALSE, 'php' => FALSE, 'bencode' => FALSE, 'jsonld' => TRUE),
+        'parsers' => array('application/x-www-form-urlencoded' => FALSE, 'application/vnd.php.serialized' => FALSE, 'application/x-www-form-urlencoded' => FALSE, 'application/xml' => FALSE, 'multipart/form-data' => FALSE, 'text/xml' => FALSE, 'application/json' => TRUE),
+    );
+
+    // Get all available parsers and formatters.
+    $parsers = hydra_server_request_parsers();
+    $formatters = hydra_server_response_formatters();
+
+    _hydra_server_add_default_and_remove_unknown($settings['parsers'], array_keys($parsers), FALSE);
+    _hydra_server_add_default_and_remove_unknown($settings['formatters'], array_keys($formatters), FALSE);
+
+    $settings['formatters']['jsonld'] = TRUE;
+    $settings['parsers']['application/json'] = TRUE;
+
+    return $settings;
+}
+
+
+/**
+ * Builds a list of request parsers that are available to the Hydra Server.
+ *
+ * @return array
+ *  An associative array of parser callbacks keyed by mime-type.
+ */
+function hydra_server_request_parsers() {
+  static $parsers = NULL;
+  if (!$parsers) {
+    $parsers = array(
+        'application/json' => 'ServicesParserJSON',
+        'application/ld+json' => 'ServicesParserJSON',
+    );
+
+    drupal_alter('hydra_server_request_parsers', $parsers);
+  }
+  return $parsers;
+}
+
+/**
+ * Builds a list of response formatters that are available to the Hydra Server.
+ *
+ * @return array
+ *  An associative array of formatter info arrays keyed by type extension. The
+ *  formatter info specifies an array of 'mime types' that corresponds to the
+ *  output format; a 'view' class that is a subclass of HydraServerView; and
+ *  'view arguments' that should be passed to the view when it is created;
+ */
+function hydra_server_response_formatters() {
+  static $formatters = NULL;
+  if (!$formatters) {
+    $formatters = array(
+      'jsonld' => array(
+         'mime types' => array('application/ld+json'),
+         'formatter class' => 'ServicesJSONLDFormatter',
+     ), 
+    );
+
+    drupal_alter('hydra_server_response_formatters', $formatters);
+  }
+  return $formatters;
+}
+
+/**
+ * Utility function set set up an array with default values for a set
+ * of keys and remove all entries that does not match a key in the set.
+ *
+ * @param array $array
+ *  The array to modify.
+ * @param array $keys
+ *  An array of keys.
+ * @param mixed $default
+ *  A default value.
+ * @return void
+ */
+function _hydra_server_add_default_and_remove_unknown(&$array, $keys, $default) {
+  // Add default values to all keys that do not
+  // exist in $array but exist in $keys.
+  foreach ($keys as $k) {
+    if (!isset($array[$k])) {
+      $array[$k] = $default;
+    }
+  }
+  // Unset all values that key exist in $array
+  // but does not exist in $keys.
+  foreach (array_keys($array) as $key) {
+    if (!in_array($key, $keys)) {
+      unset($array[$key]);
+    }
+  }
+}
+
+/**
+ * ServicesFormatterInterface implementation to render data results as JSONLD
+ */
+class ServicesJSONLDFormatter implements ServicesFormatterInterface {
+    public function render($data) {
+        // json_encode doesn't give valid json with data that isn't an array/object.
+        $decoded_json = json_decode($data);
+        if ($decoded_json == null) {
+            return "Invalid JSON";
+        } else {
+            if (!is_array($decoded_json) && !is_object($decoded_json)) {
+                if (is_scalar($data)) {
+                    $data = array($data);
+                }
+                $json = str_replace('\\/', '/', json_encode($data));
+            } else {
+                $json = $data;
+            }
+            return $json;
+        }
+    }
+}
+

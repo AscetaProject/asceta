@@ -1,0 +1,99 @@
+[
+    {
+        "name": "ml/iri",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "target-dir": "ML/IRI",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/lanthaler/IRI.git",
+            "reference": "2cff6cfcbdce37118d23dd9a5deac3c9e938ce5f"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/lanthaler/IRI/zipball/2cff6cfcbdce37118d23dd9a5deac3c9e938ce5f",
+            "reference": "2cff6cfcbdce37118d23dd9a5deac3c9e938ce5f",
+            "shasum": ""
+        },
+        "require": {
+            "lib-pcre": ">=8.0",
+            "php": ">=5.3.0"
+        },
+        "time": "2013-09-30 18:51:51",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "ML\\IRI": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Markus Lanthaler",
+                "email": "mail@markus-lanthaler.com",
+                "homepage": "http://www.markus-lanthaler.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "IRI handling for PHP",
+        "homepage": "http://www.markus-lanthaler.com",
+        "keywords": [
+            "URN",
+            "iri",
+            "uri",
+            "url"
+        ]
+    },
+    {
+        "name": "ml/json-ld",
+        "version": "dev-expansion-debug",
+        "version_normalized": "dev-expansion-debug",
+        "target-dir": "ML/JsonLD",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/lanthaler/JsonLD.git",
+            "reference": "b8362a0200111f6f52bf9b31c17009ab2b606f62"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/lanthaler/JsonLD/zipball/b8362a0200111f6f52bf9b31c17009ab2b606f62",
+            "reference": "b8362a0200111f6f52bf9b31c17009ab2b606f62",
+            "shasum": ""
+        },
+        "require": {
+            "ext-json": "*",
+            "ml/iri": ">=1.1.1",
+            "php": ">=5.3.0"
+        },
+        "time": "2013-06-07 12:53:57",
+        "type": "library",
+        "installation-source": "source",
+        "autoload": {
+            "psr-0": {
+                "ML\\JsonLD": ""
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Markus Lanthaler",
+                "email": "mail@markus-lanthaler.com",
+                "homepage": "http://www.markus-lanthaler.com",
+                "role": "Developer"
+            }
+        ],
+        "description": "JSON-LD Processor for PHP",
+        "homepage": "http://www.markus-lanthaler.com",
+        "keywords": [
+            "JSON-LD",
+            "jsonld"
+        ]
+    }
+]

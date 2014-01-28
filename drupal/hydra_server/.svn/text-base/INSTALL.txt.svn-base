@@ -1,0 +1,24 @@
+====== [ INSTALL ] ======================================================================================
+
+Copy hydra_server directory to <DRUPAL_PATH>/sites/all/modules/services/servers
+Enable it throught Drupal's modules admin section.
+
+
+
+
+====== [ SETTING UP ] ===================================================================================
+
+Create an Hydra Server service in Administration > Structure > Services > + Add
+Edit Resources an enable all for:
+- api
+- articles
+- contexts
+- vocab
+
+
+
+====== [ DEPENDENCIES ] ================================================================================= 
+
+- Drupal 7.x
+- Services 7.x-3.5
+- REST Server 7.x-3.5
